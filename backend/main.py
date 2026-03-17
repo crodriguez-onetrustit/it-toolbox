@@ -405,6 +405,48 @@ async def generate_hash(data: dict):
 # Utilities
 # ==========================
 
+@app.post("/api/uptime")
+async def check_uptime(data: dict):
+    """Check if a website is up"""
+    url = data.get("url", "")
+    if not url.startswith("http"):
+        url = "https://" + url
+    
+    try:
+        start = datetime.now()
+        r = requests.get(url, timeout=10, allow_redirects=True)
+        duration = (datetime.now() - start).total_seconds() * 1000
+        return {
+            "url": url,
+            "up": r.status_code < 400,
+            "status_code": r.status_code,
+            "response_time_ms": round(duration, 2),
+            "final_url": r.url,
+            "timestamp": datetime.now().isoformat()
+        }
+    except requests.exceptions.Timeout:
+        return {"url": url, "up": False, "error": "Timeout", "timestamp": datetime.now().isoformat()}
+    except Exception as e:
+        return {"url": url, "up": False, "error": str(e), "timestamp": datetime.now().isoformat()}
+
+@app.post("/api/headers")
+async def get_headers(data: dict):
+    """Get HTTP headers from a URL"""
+    url = data.get("url", "")
+    if not url.startswith("http"):
+        url = "https://" + url
+    
+    try:
+        r = requests.head(url, timeout=10, allow_redirects=True)
+        return {
+            "url": url,
+            "status_code": r.status_code,
+            "headers": dict(r.headers),
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        return {"url": url, "error": str(e), "timestamp": datetime.now().isoformat()}
+
 @app.get("/api/tools")
 async def list_tools():
     """List all available tools"""

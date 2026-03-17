@@ -30,14 +30,14 @@
     body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; overflow-x: hidden; }
     .app-container { display: flex; min-height: 100vh; }
     .sidebar { width: var(--sidebar-width); background: var(--bg-secondary); border-right: 1px solid var(--border); position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; transition: width 0.3s ease; display: flex; flex-direction: column; }
-    .sidebar.collapsed { width: var(--sidebar-collapsed); }
+    .sidebar.collapsed { width: 70px; }
     .sidebar-header { height: var(--header-height); display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid var(--border); gap: 12px; }
     .logo { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), #00a88a); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
     .logo-text { font-weight: 700; font-size: 18px; white-space: nowrap; overflow: hidden; }
     .sidebar.collapsed .logo-text { opacity: 0; width: 0; }
     .sidebar-toggle { position: absolute; right: 10px; background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-secondary); cursor: pointer; padding: 6px 10px; border-radius: 6px; transition: all 0.2s; font-size: 12px; }
     .sidebar-toggle:hover { background: var(--accent); color: #000; }
-    .sidebar.collapsed .sidebar-toggle { right: -35px; left: auto; }
+    .sidebar.collapsed .sidebar-toggle { position: absolute; right: 5px; }
     .sidebar-handle { position: fixed; left: 0; top: 50%; transform: translateY(-50%); width: 8px; height: 60px; background: var(--accent); z-index: 101; cursor: ew-resize; border-radius: 0 4px 4px 0; opacity: 0.3; transition: all 0.2s; }
     .sidebar-handle:hover { opacity: 1; width: 12px; }
     .sidebar-content { flex: 1; overflow-y: auto; padding: 16px 12px; }
@@ -129,6 +129,9 @@
         </div>
         <div class="category">
           <div class="category-title">🌐 Network</div>
+          <div class="nav-item" data-tool="ping" onclick="selectTool('ping')"><span class="nav-icon">📶</span><span class="nav-label">Ping</span></div>
+          <div class="nav-item" data-tool="uptime" onclick="selectTool('uptime')"><span class="nav-icon">✅</span><span class="nav-label">Uptime Check</span></div>
+          <div class="nav-item" data-tool="headers" onclick="selectTool('headers')"><span class="nav-icon">📋</span><span class="nav-label">HTTP Headers</span></div>
           <div class="nav-item" data-tool="ip" onclick="selectTool('ip')"><span class="nav-icon">📍</span><span class="nav-label">IP Lookup</span></div>
           <div class="nav-item" data-tool="dns" onclick="selectTool('dns')"><span class="nav-icon">🌐</span><span class="nav-label">DNS Lookup</span></div>
           <div class="nav-item" data-tool="ports" onclick="selectTool('ports')"><span class="nav-icon">🚪</span><span class="nav-label">Port Scanner</span></div>
@@ -160,6 +163,7 @@
     let currentTool = 'json';
     let outputText = '';
     let favorites = JSON.parse(localStorage.getItem('ittoolbox_favorites') || '[]');
+    const API = 'http://localhost:8892';
     
     // Save favorites
     function saveFavorites() {
@@ -201,6 +205,9 @@
       uuid: { title: 'UUID Generator', icon: '🆔', description: 'Generate random UUIDs', type: 'generate' },
       url: { title: 'URL Encoder', icon: '🔗', description: 'Encode/Decode URLs', type: 'input-output', inputLabel: 'Enter URL', inputPlaceholder: 'https://example.com?q=hello' },
       timestamp: { title: 'Timestamp', icon: '⏰', description: 'Convert timestamps', type: 'timestamp' },
+      ping: { title: 'Ping', icon: '📶', description: 'Test connectivity to host', type: 'input', inputLabel: 'Enter hostname', inputPlaceholder: 'google.com' },
+      uptime: { title: 'Uptime Check', icon: '✅', description: 'Check if website is up', type: 'input', inputLabel: 'Enter URL', inputPlaceholder: 'https://example.com' },
+      headers: { title: 'HTTP Headers', icon: '📋', description: 'View HTTP response headers', type: 'input', inputLabel: 'Enter URL', inputPlaceholder: 'https://example.com' },
       ip: { title: 'IP Lookup', icon: '📍', description: 'Get IP details', type: 'input', inputLabel: 'Enter IP', inputPlaceholder: '8.8.8.8' },
       dns: { title: 'DNS Lookup', icon: '🌐', description: 'Look up DNS records', type: 'input', inputLabel: 'Enter domain', inputPlaceholder: 'example.com' },
       ports: { title: 'Port Scanner', icon: '🚪', description: 'Scan ports', type: 'ports' },
@@ -304,19 +311,19 @@
           case 'ip': 
             const ipInput = document.getElementById('toolInput').value;
             if (ipInput) {
-              response = await fetch('/api/ip', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ip: ipInput}) });
+              response = await fetch(API + '/api/ip', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ip: ipInput}) });
             } else {
-              response = await fetch('/api/ip/my');
+              response = await fetch(API + '/api/ip/my');
             }
             const ipData = await response.json();
             result = JSON.stringify(ipData, null, 2);
             break;
           case 'dns': 
-            response = await fetch('/api/dns', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({domain: document.getElementById('toolInput').value}) });
+            response = await fetch(API + '/api/dns', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({domain: document.getElementById('toolInput').value}) });
             result = JSON.stringify(await response.json(), null, 2);
             break;
           case 'ports': 
-            response = await fetch('/api/ports', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({host: document.getElementById('portsHost').value, ports: [21,22,25,53,80,110,143,443,445,3306,3389,8080]}) });
+            response = await fetch(API + '/api/ports', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({host: document.getElementById('portsHost').value, ports: [21,22,25,53,80,110,143,443,445,3306,3389,8080]}) });
             const portsData = await response.json();
             result = 'Host: ' + portsData.host + '\n\n';
             for (const [port, info] of Object.entries(portsData.ports || {})) {
@@ -324,7 +331,7 @@
             }
             break;
           case 'traceroute': 
-            response = await fetch('/api/traceroute', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({host: document.getElementById('toolInput').value}) });
+            response = await fetch(API + '/api/traceroute', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({host: document.getElementById('toolInput').value}) });
             const traceData = await response.json();
             if (traceData.hops) {
               result = 'Traceroute to ' + traceData.host + ':\n\n';
@@ -333,16 +340,38 @@
               result = traceData.output || 'Traceroute not available';
             }
             break;
+          case 'ping':
+            response = await fetch(API + '/api/ping', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({host: document.getElementById('toolInput').value, count: 4}) });
+            const pingData = await response.json();
+            result = JSON.stringify(pingData, null, 2);
+            break;
+          case 'uptime':
+            response = await fetch(API + '/api/uptime', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({url: document.getElementById('toolInput').value}) });
+            const uptimeData = await response.json();
+            result = 'URL: ' + uptimeData.url + '\nStatus: ' + (uptimeData.up ? '🟢 UP' : '🔴 DOWN') + '\nStatus Code: ' + uptimeData.status_code + '\nResponse Time: ' + uptimeData.response_time_ms + 'ms';
+            break;
+          case 'headers':
+            response = await fetch(API + '/api/headers', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({url: document.getElementById('toolInput').value}) });
+            const headersData = await response.json();
+            if (headersData.error) {
+              result = 'Error: ' + headersData.error;
+            } else {
+              result = 'URL: ' + headersData.url + '\nStatus: ' + headersData.status_code + '\n\nHeaders:\n';
+              for (const [key, value] of Object.entries(headersData.headers || {})) {
+                result += key + ': ' + value + '\n';
+              }
+            }
+            break;
           case 'hash': 
-            response = await fetch('/api/hash', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({text: document.getElementById('hashInput').value}) });
+            response = await fetch(API + '/api/hash', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({text: document.getElementById('hashInput').value}) });
             result = JSON.stringify(await response.json(), null, 2);
             break;
           case 'ssl': 
-            response = await fetch('/api/ssl', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({domain: document.getElementById('toolInput').value}) });
+            response = await fetch(API + '/api/ssl', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({domain: document.getElementById('toolInput').value}) });
             result = JSON.stringify(await response.json(), null, 2);
             break;
           case 'whois': 
-            response = await fetch('/api/whois/' + encodeURIComponent(document.getElementById('toolInput').value));
+            response = await fetch(API + '/api/whois/' + encodeURIComponent(document.getElementById('toolInput').value));
             result = JSON.stringify(await response.json(), null, 2);
             break;
           case 'color': 
@@ -354,7 +383,7 @@
           case 'curl': 
             const curlUrl = document.getElementById('curlUrl').value;
             const curlMethod = document.getElementById('curlMethod').value;
-            response = await fetch('/api/curl', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({url: curlUrl, method: curlMethod}) });
+            response = await fetch(API + '/api/curl', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({url: curlUrl, method: curlMethod}) });
             const curlData = await response.json();
             result = JSON.stringify(curlData, null, 2);
             break;
