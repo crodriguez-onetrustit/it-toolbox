@@ -447,6 +447,51 @@ async def get_headers(data: dict):
     except Exception as e:
         return {"url": url, "error": str(e), "timestamp": datetime.now().isoformat()}
 
+# SSH Terminal
+ssh_clients = {}
+
+@app.post("/api/ssh/connect")
+async def ssh_connect(data: dict):
+    import paramiko
+    host = data.get("host", "")
+    port = data.get("port", 22)
+    username = data.get("username", "")
+    password = data.get("password", "")
+    
+    try:
+        client = paramiko.SSHClient()
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        client.connect(host, port=port, username=username, password=password, timeout=10)
+        ssh_id = f"{host}:{port}"
+        ssh_clients[ssh_id] = client
+        return {"success": True, "session_id": ssh_id, "message": f"Connected to {host}"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+@app.post("/api/ssh/exec")
+async def ssh_exec(data: dict):
+    command = data.get("command", "")
+    session_id = data.get("session_id", "")
+    if not session_id and ssh_clients:
+        session_id = list(ssh_clients.keys())[0]
+    try:
+        client = ssh_clients.get(session_id)
+        if not client:
+            return {"error": "Session not found", "output": ""}
+        stdin, stdout, stderr = client.exec_command(command)
+        output = stdout.read().decode() + stderr.read().decode()
+        return {"session_id": session_id, "output": output}
+    except Exception as e:
+        return {"error": str(e), "output": ""}
+
+@app.post("/api/ssh/disconnect")
+async def ssh_disconnect():
+    global ssh_clients
+    for client in ssh_clients.values():
+        client.close()
+    ssh_clients = {}
+    return {"success": True}
+
 @app.get("/api/tools")
 async def list_tools():
     """List all available tools"""

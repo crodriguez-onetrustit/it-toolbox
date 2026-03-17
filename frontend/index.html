@@ -147,6 +147,7 @@
           <div class="category-title">🛠️ Utilities</div>
           <div class="nav-item" data-tool="color" onclick="selectTool('color')"><span class="nav-icon">🎨</span><span class="nav-label">Color Converter</span></div>
           <div class="nav-item" data-tool="curl" onclick="selectTool('curl')"><span class="nav-icon">🌐</span><span class="nav-label">cURL Builder</span></div>
+          <div class="nav-item" data-tool="ssh" onclick="selectTool('ssh')"><span class="nav-icon">🖥️</span><span class="nav-label">SSH Terminal</span></div>
         </div>
       </div>
     </aside>
@@ -216,7 +217,8 @@
       ssl: { title: 'SSL Checker', icon: '🔒', description: 'Check SSL cert', type: 'input', inputLabel: 'Enter domain', inputPlaceholder: 'google.com' },
       whois: { title: 'WHOIS', icon: '📜', description: 'Domain info', type: 'input', inputLabel: 'Enter domain', inputPlaceholder: 'example.com' },
       color: { title: 'Color Converter', icon: '🎨', description: 'Convert colors', type: 'color' },
-      curl: { title: 'cURL Builder', icon: '🌐', description: 'Build cURL', type: 'curl' }
+      curl: { title: 'cURL Builder', icon: '🌐', description: 'Build cURL', type: 'curl' },
+      ssh: { title: 'SSH Terminal', icon: '🖥️', description: 'Connect to servers', type: 'ssh' }
     };
     function init() { 
       renderFavorites();
@@ -387,6 +389,9 @@
             const curlData = await response.json();
             result = JSON.stringify(curlData, null, 2);
             break;
+          case 'ssh':
+            renderSSH(toolId);
+            return;
           default: 
             result = 'Tool not implemented yet';
         }
@@ -397,6 +402,174 @@
       }
     }
     function copyOutput() { if (outputText) { navigator.clipboard.writeText(outputText); alert('Copied!'); } }
+    
+    // SSH Terminal Functions
+    let sshServers = JSON.parse(localStorage.getItem('ittoolbox_ssh_servers') || '[]');
+    let sshConnected = false;
+    let sshCurrentServer = null;
+    
+    function renderSSH(toolId) {
+      const tool = tools[toolId];
+      const container = document.getElementById('toolContainer');
+      document.getElementById('headerTitle').textContent = tool.title;
+      
+      const isFavorite = favorites.includes(toolId);
+      let html = `
+        <div class="tool-header">
+          <div style="display:flex;justify-content:space-between;align-items:start;">
+            <div>
+              <h2 class="tool-title"><span class="tool-title-icon">${tool.icon}</span>${tool.title}</h2>
+              <p class="tool-description">${tool.description}</p>
+            </div>
+            <button onclick="toggleFavorite('${toolId}')" style="background:none;border:none;font-size:24px;cursor:pointer;padding:8px;" title="Toggle Favorite">${isFavorite ? '⭐' : '☆'}</button>
+          </div>
+        </div>`;
+      
+      // Server list
+      html += `
+        <div style="display:grid;grid-template-columns:1fr 2fr;gap:20px;">
+          <div>
+            <div class="input-area">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                <label class="input-label" style="margin:0;">Saved Servers</label>
+                <button onclick="showAddServer()" style="background:var(--accent);border:none;padding:4px 8px;border-radius:4px;cursor:pointer;font-size:12px;">+ Add</button>
+              </div>
+              <div id="serverList">`;
+      
+      if (sshServers.length === 0) {
+        html += `<p style="color:var(--text-muted);font-size:12px;">No servers saved. Click + Add to add a server.</p>`;
+      } else {
+        sshServers.forEach((server, i) => {
+          html += `<div onclick="connectSSH(${i})" style="padding:10px;background:var(--bg-tertiary);border-radius:6px;margin-bottom:8px;cursor:pointer;border:1px solid var(--border);">
+            <div style="font-weight:600;font-size:13px;">${server.name}</div>
+            <div style="font-size:11px;color:var(--text2);">${server.user}@${server.host}:${server.port}</div>
+          </div>`;
+        });
+      }
+      
+      html += `</div>
+            </div>
+          </div>
+          
+          <div>
+            <div class="input-area">
+              <label class="input-label">Terminal</label>
+              <div id="terminal" style="background:#000;font-family:'JetBrains Mono',monospace;font-size:12px;padding:12px;min-height:300px;border-radius:8px;white-space:pre-wrap;overflow:auto;">
+${sshConnected ? 'Connected to ' + sshCurrentServer?.name + '\n$ ' : 'Select a server to connect'}
+              </div>
+              <div style="display:flex;gap:8px;margin-top:12px;">
+                <input type="text" id="sshCommand" class="input-field" placeholder="Enter command..." style="flex:1;" onkeypress="if(event.key==='Enter')sendSSHCommand()">
+                <button onclick="sendSSHCommand()" class="btn btn-primary" style="padding:12px 20px;">Send</button>
+                ${sshConnected ? '<button onclick="disconnectSSH()" class="btn btn-secondary">Disconnect</button>' : ''}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Add Server Modal -->
+        <div id="addServerModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:1000;align-items:center;justify-content:center;">
+          <div style="background:var(--bg-card);padding:24px;border-radius:12px;max-width:400px;width:90%;">
+            <h3 style="margin-bottom:16px;">Add Server</h3>
+            <input type="text" id="newServerName" class="input-field" placeholder="Name (e.g., Production Server)" style="margin-bottom:12px;">
+            <input type="text" id="newServerHost" class="input-field" placeholder="Host (e.g., 192.168.1.1)" style="margin-bottom:12px;">
+            <input type="number" id="newServerPort" class="input-field" placeholder="Port (default 22)" value="22" style="margin-bottom:12px;">
+            <input type="text" id="newServerUser" class="input-field" placeholder="Username" style="margin-bottom:12px;">
+            <input type="password" id="newServerPass" class="input-field" placeholder="Password or SSH Key" style="margin-bottom:12px;">
+            <div style="display:flex;gap:8px;">
+              <button onclick="saveServer()" class="btn btn-primary" style="flex:1;">Save</button>
+              <button onclick="document.getElementById('addServerModal').style.display='none'" class="btn btn-secondary" style="flex:1;">Cancel</button>
+            </div>
+          </div>
+        </div>`;
+      
+      container.innerHTML = html;
+    }
+    
+    function showAddServer() {
+      document.getElementById('addServerModal').style.display = 'flex';
+    }
+    
+    function saveServer() {
+      const name = document.getElementById('newServerName').value;
+      const host = document.getElementById('newServerHost').value;
+      const port = document.getElementById('newServerPort').value;
+      const user = document.getElementById('newServerUser').value;
+      const pass = document.getElementById('newServerPass').value;
+      
+      if (!name || !host || !user) {
+        alert('Please fill in all required fields');
+        return;
+      }
+      
+      sshServers.push({ name, host, port: port || 22, user, pass });
+      localStorage.setItem('ittoolbox_ssh_servers', JSON.stringify(sshServers));
+      
+      document.getElementById('addServerModal').style.display = 'none';
+      renderSSH('ssh');
+    }
+    
+    async function connectSSH(index) {
+      const server = sshServers[index];
+      sshCurrentServer = server;
+      
+      const terminal = document.getElementById('terminal');
+      terminal.innerHTML = '<span class="loading">Connecting to ' + server.host + '...</span>';
+      
+      try {
+        const response = await fetch(API + '/api/ssh/connect', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({host: server.host, port: server.port, username: server.user, password: server.pass})
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          sshConnected = true;
+          terminal.innerHTML = 'Connected to ' + server.name + ' (' + server.host + ')\nType commands below\n\n$ ';
+          renderSSH('ssh'); // Re-render to show disconnect button
+        } else {
+          terminal.innerHTML = '<span class="error">Connection failed: ' + data.error + '</span>';
+        }
+      } catch(e) {
+        terminal.innerHTML = '<span class="error">Error: ' + e.message + '</span>';
+      }
+    }
+    
+    async function sendSSHCommand() {
+      const cmd = document.getElementById('sshCommand').value;
+      if (!cmd || !sshConnected) return;
+      
+      const terminal = document.getElementById('terminal');
+      terminal.innerHTML += cmd + '\n';
+      
+      try {
+        const response = await fetch(API + '/api/ssh/exec', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({command: cmd})
+        });
+        
+        const data = await response.json();
+        terminal.innerHTML += (data.output || '') + '\n$ ';
+      } catch(e) {
+        terminal.innerHTML += 'Error: ' + e.message + '\n$ ';
+      }
+      
+      document.getElementById('sshCommand').value = '';
+      terminal.scrollTop = terminal.scrollHeight;
+    }
+    
+    async function disconnectSSH() {
+      try {
+        await fetch(API + '/api/ssh/disconnect', { method: 'POST' });
+      } catch(e) {}
+      
+      sshConnected = false;
+      sshCurrentServer = null;
+      renderSSH('ssh');
+    }
+    
     init();
   </script>
 </body>
