@@ -672,3 +672,100 @@ async def scan_network(data: dict):
             pass
     
     return {"online": online, "scanned": end - start + 1}
+
+# Docker Manager
+@app.get("/api/docker/ps")
+async def docker_ps():
+    """List running containers"""
+    import subprocess
+    try:
+        result = subprocess.run(['docker', 'ps', '--format', '{{.ID}}|{{.Names}}|{{.Status}}|{{.Image}}'], 
+            capture_output=True, text=True)
+        containers = []
+        for line in result.stdout.strip().split('\n'):
+            if '|' in line:
+                parts = line.split('|')
+                containers.append({'id': parts[0], 'name': parts[1], 'status': parts[2], 'image': parts[3]})
+        return {"containers": containers}
+    except Exception as e:
+        return {"containers": [], "error": str(e)}
+
+@app.post("/api/docker/{action}")
+async def docker_action(action: str, data: dict = {}):
+    """Container actions: start, stop, restart, remove"""
+    import subprocess
+    container = data.get("container", "")
+    valid_actions = ["start", "stop", "restart", "rm", "logs"]
+    
+    if action not in valid_actions:
+        return {"error": f"Invalid action. Use: {valid_actions}"}
+    
+    try:
+        if action == "logs":
+            result = subprocess.run(['docker', 'logs', '--tail', '50', container], capture_output=True, text=True)
+        else:
+            result = subprocess.run(['docker', action, container], capture_output=True, text=True)
+        return {"success": True, "output": result.stdout + result.stderr}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+@app.get("/api/docker/images")
+async def docker_images():
+    """List docker images"""
+    import subprocess
+    try:
+        result = subprocess.run(['docker', 'images', '--format', '{{.Repository}}:{{.Tag}}|{{.Size}}'], 
+            capture_output=True, text=True)
+        images = []
+        for line in result.stdout.strip().split('\n'):
+            if '|' in line:
+                parts = line.split('|')
+                images.append({'name': parts[0], 'size': parts[1]})
+        return {"images": images}
+    except Exception as e:
+        return {"images": [], "error": str(e)}
+
+# WiFi Scanner
+@app.get("/api/wifi")
+async def wifi_networks():
+    """List available WiFi networks (macOS)"""
+    import subprocess
+    try:
+        if sys.platform == "darwin":
+            result = subprocess.run(['/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport', '-s'], 
+                capture_output=True, text=True)
+            networks = []
+            lines = result.stdout.strip().split('\n')[1:]  # Skip header
+            for line in lines:
+                if line.strip():
+                    parts = line.split()
+                    if len(parts) >= 7:
+                        networks.append({
+                            'ssid': parts[0],
+                            'signal': parts[1] if len(parts) > 1 else 'N/A',
+                            'security': parts[-1]
+                        })
+            return {"networks": networks}
+        else:
+            return {"networks": [], "error": "WiFi scan only available on macOS"}
+    except Exception as e:
+        return {"networks": [], "error": str(e)}
+
+# System Info
+@app.get("/api/systeminfo")
+async def system_info():
+    """Get detailed system info"""
+    import platform
+    import psutil
+    return {
+        "platform": platform.platform(),
+        "python_version": platform.python_version(),
+        "cpu_count": psutil.cpu_count(),
+        "cpu_percent": psutil.cpu_percent(interval=1),
+        "memory_total": psutil.virtual_memory().total,
+        "memory_available": psutil.virtual_memory().available,
+        "memory_percent": psutil.virtual_memory().percent,
+        "disk_total": psutil.disk_usage('/').total,
+        "disk_used": psutil.disk_usage('/').used,
+        "disk_percent": psutil.disk_usage('/').percent,
+    }
