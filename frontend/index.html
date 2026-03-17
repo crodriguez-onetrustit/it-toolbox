@@ -23,8 +23,20 @@
       --warning: #ffa502;
       --success: #2ed573;
       --sidebar-width: 260px;
-      --sidebar-collapsed: 70px;
-      --header-height: 60px;
+      --radius: 12px;
+      --shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    
+    [data-theme="light"] {
+      --bg-primary: #f5f5f7;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #e8e8ec;
+      --bg-card: #ffffff;
+      --border: #d0d0d8;
+      --text-primary: #1a1a2e;
+      --text-secondary: #666680;
+      --text-muted: #999aaa;
+      --shadow: 0 4px 20px rgba(0,0,0,0.08);
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; overflow-x: hidden; }
@@ -62,21 +74,19 @@
     .tool-title { font-size: 28px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
     .tool-title-icon { font-size: 32px; }
     .tool-description { color: var(--text-secondary); font-size: 15px; }
-    .input-area { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+    .input-area { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow); }
     .input-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 10px; display: block; }
-    .input-field { width: 100%; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; color: var(--text-primary); font-size: 14px; font-family: inherit; transition: border-color 0.2s; }
-    .input-field:focus { outline: none; border-color: var(--accent); }
+    .input-field { width: 100%; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; color: var(--text-primary); font-size: 14px; font-family: inherit; transition: all 0.2s; }
+    .input-field:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
     .input-field::placeholder { color: var(--text-muted); }
     textarea.input-field { min-height: 150px; resize: vertical; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.5; }
-    .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    @media (max-width: 600px) { .input-row { grid-template-columns: 1fr; } }
-    .action-row { display: flex; gap: 12px; margin-bottom: 20px; }
+    .action-row { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
     .btn { padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; display: inline-flex; align-items: center; gap: 8px; }
     .btn-primary { background: var(--accent); color: #000; }
-    .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
+    .btn-primary:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 212, 170, 0.3); }
     .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border); }
-    .btn-secondary:hover { background: var(--bg-card); }
-    .output-area { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    .btn-secondary:hover { background: var(--bg-card); border-color: var(--accent); }
+    .output-area { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
     .output-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--bg-tertiary); border-bottom: 1px solid var(--border); }
     .output-title { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
     .copy-btn { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 13px; padding: 6px 12px; border-radius: 6px; transition: all 0.2s; }
@@ -165,13 +175,45 @@
     <main class="main-content">
       <header class="header">
         <button class="mobile-toggle" onclick="toggleMobileSidebar()">☰</button>
+        <div style="display:flex;align-items:center;gap:12px;flex:1;max-width:300px;margin-right:20px;">
+          <input type="text" id="toolSearch" placeholder="🔍 Search tools..." oninput="searchTools(this.value)" style="background:var(--bg-tertiary);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text-primary);width:100%;font-size:13px;">
+        </div>
         <h1 class="header-title" id="headerTitle">IT Toolbox</h1>
-        <div class="header-actions"><button class="header-btn" onclick="selectTool('home')">🏠 Home</button></div>
+        <div class="header-actions">
+          <button class="header-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+          <button class="header-btn" onclick="selectTool('home')">🏠 Home</button>
+        </div>
       </header>
       <div class="tool-container" id="toolContainer"></div>
     </main>
   </div>
   <script>
+    // Search tools
+    function searchTools(query) {
+      query = query.toLowerCase();
+      document.querySelectorAll('.nav-item').forEach(item => {
+        const label = item.querySelector('.nav-label')?.textContent?.toLowerCase() || '';
+        const icon = item.querySelector('.nav-icon')?.textContent || '';
+        if (!query || label.includes(query) || icon.includes(query)) {
+          item.style.display = 'flex';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    }
+    
+    // Theme
+    let currentTheme = localStorage.getItem('ittoolbox_theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    document.getElementById('themeBtn').textContent = currentTheme === 'dark' ? '🌙' : '☀️';
+    
+    function toggleTheme() {
+      currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', currentTheme);
+      localStorage.setItem('ittoolbox_theme', currentTheme);
+      document.getElementById('themeBtn').textContent = currentTheme === 'dark' ? '🌙' : '☀️';
+    }
+    
     let currentTool = 'json';
     let outputText = '';
     let favorites = JSON.parse(localStorage.getItem('ittoolbox_favorites') || '[]');
