@@ -622,3 +622,53 @@ async def view_auth_logs():
         return {"success": True, "logs": result.stdout[:5000]}
     except Exception as e:
         return {"success": False, "error": str(e)}
+
+# Speed Test
+@app.get("/api/speedtest")
+async def speed_test():
+    """Simple speed test using download"""
+    import time
+    import urllib.request
+    
+    try:
+        start = time.time()
+        # Download a small file to test
+        url = "https://speed.cloudflare.com/__down?bytes=10000000"
+        req = urllib.request.Request(url, method='GET')
+        with urllib.request.urlopen(req, timeout=30) as response:
+            data = response.read(10000000)
+        duration = time.time() - start
+        speed_mbps = (10000000 / 1024 / 1024) / duration
+        
+        return {
+            "download_mbps": round(speed_mbps, 2),
+            "duration_seconds": round(duration, 2),
+            "bytes_downloaded": len(data)
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+# IP Range Scanner
+@app.post("/api/scan")
+async def scan_network(data: dict):
+    """Scan IP range for online hosts"""
+    import subprocess
+    import socket
+    
+    base_ip = data.get("base_ip", "192.168.1")
+    start = int(data.get("start", 1))
+    end = int(data.get("end", 254))
+    
+    online = []
+    for i in range(start, min(end + 1, 255)):
+        ip = f"{base_ip}.{i}"
+        try:
+            socket.setdefaulttimeout(0.3)
+            result = subprocess.run(['ping', '-c', '1', '-W', '1', ip], 
+                capture_output=True, timeout=1)
+            if result.returncode == 0:
+                online.append(ip)
+        except:
+            pass
+    
+    return {"online": online, "scanned": end - start + 1}
