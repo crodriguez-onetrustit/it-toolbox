@@ -217,6 +217,9 @@
     let currentTool = 'json';
     let outputText = '';
     let favorites = JSON.parse(localStorage.getItem('ittoolbox_favorites') || '[]');
+    let sshServers = JSON.parse(localStorage.getItem('ittoolbox_ssh_servers') || '[]');
+    
+    
     const API = window.location.protocol + '//' + window.location.hostname + ':8892';
     
     // Save favorites
@@ -1112,7 +1115,7 @@ ${sshConnected ? 'Connected to ' + sshCurrentServer?.name + '\n$ ' : 'Select a s
     }
     
     // Notes
-    let notes = JSON.parse(localStorage.getItem('ittoolbox_notes') || '[]');
+    
     
     function renderNotes(toolId) {
       const tool = tools[toolId];
@@ -1167,7 +1170,7 @@ ${sshConnected ? 'Connected to ' + sshCurrentServer?.name + '\n$ ' : 'Select a s
     }
     
     // Command History
-    let cmdHistory = JSON.parse(localStorage.getItem('ittoolbox_history') || '[]');
+    
     
     function renderHistory(toolId) {
       const tool = tools[toolId];
