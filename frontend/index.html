@@ -3,1216 +3,206 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IT Toolbox</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <title>IT Toolbox Pro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg-primary: #0a0a0f;
       --bg-secondary: #12121a;
       --bg-tertiary: #1a1a24;
       --bg-card: #16161f;
+      --bg-hover: #1e1e2a;
       --border: #2a2a3a;
+      --border-light: #3a3a4a;
       --text-primary: #f0f0f5;
       --text-secondary: #8888a0;
       --text-muted: #555566;
       --accent: #00d4aa;
       --accent-hover: #00eebb;
       --accent-dim: rgba(0, 212, 170, 0.15);
+      --accent-gradient: linear-gradient(135deg, #00d4aa 0%, #00a88a 100%);
       --danger: #ff4757;
       --warning: #ffa502;
       --success: #2ed573;
-      --sidebar-width: 260px;
-      --radius: 12px;
-      --shadow: 0 4px 20px rgba(0,0,0,0.3);
-    }
-    
-    [data-theme="light"] {
-      --bg-primary: #f5f5f7;
-      --bg-secondary: #ffffff;
-      --bg-tertiary: #e8e8ec;
-      --bg-card: #ffffff;
-      --border: #d0d0d8;
-      --text-primary: #1a1a2e;
-      --text-secondary: #666680;
-      --text-muted: #999aaa;
-      --shadow: 0 4px 20px rgba(0,0,0,0.08);
+      --sidebar-width: 280px;
+      --header-height: 64px;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --shadow-glow: 0 0 30px rgba(0, 212, 170, 0.2);
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; overflow-x: hidden; }
+    body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; }
+    body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(circle at 20% 20%, rgba(0, 212, 170, 0.05) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(0, 100, 80, 0.05) 0%, transparent 50%); pointer-events: none; z-index: -1; }
     .app-container { display: flex; min-height: 100vh; }
-    .sidebar { width: var(--sidebar-width); background: var(--bg-secondary); border-right: 1px solid var(--border); position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; transition: width 0.3s ease; display: flex; flex-direction: column; }
-    .sidebar.collapsed { width: 70px; }
+    .sidebar { width: var(--sidebar-width); background: var(--bg-secondary); border-right: 1px solid var(--border); position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; transition: all 0.3s; display: flex; flex-direction: column; overflow: hidden; }
+    .sidebar.collapsed { width: 72px; }
     .sidebar-header { height: var(--header-height); display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid var(--border); gap: 12px; }
-    .logo { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), #00a88a); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
-    .logo-text { font-weight: 700; font-size: 18px; white-space: nowrap; overflow: hidden; }
+    .logo { width: 40px; height: 40px; background: var(--accent-gradient); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: var(--shadow-glow); }
+    .logo-text { font-weight: 700; font-size: 18px; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     .sidebar.collapsed .logo-text { opacity: 0; width: 0; }
-    .sidebar-toggle { position: absolute; right: 10px; background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-secondary); cursor: pointer; padding: 6px 10px; border-radius: 6px; transition: all 0.2s; font-size: 12px; }
-    .sidebar-toggle:hover { background: var(--accent); color: #000; }
-    .sidebar.collapsed .sidebar-toggle { position: absolute; right: 5px; }
-    .sidebar-handle { position: fixed; left: 0; top: 50%; transform: translateY(-50%); width: 8px; height: 60px; background: var(--accent); z-index: 101; cursor: ew-resize; border-radius: 0 4px 4px 0; opacity: 0.3; transition: all 0.2s; }
-    .sidebar-handle:hover { opacity: 1; width: 12px; }
-    .sidebar-content { flex: 1; overflow-y: auto; padding: 16px 12px; }
-    .sidebar.collapsed .sidebar-content { padding: 16px 8px; }
+    .sidebar-toggle { position: absolute; right: 16px; background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-secondary); cursor: pointer; padding: 8px 12px; border-radius: var(--radius-sm); transition: all 0.2s; }
+    .sidebar-toggle:hover { background: var(--accent-dim); color: var(--accent); }
+    .search-container { padding: 16px; border-bottom: 1px solid var(--border); }
+    .search-input { width: 100%; padding: 12px 16px; padding-left: 40px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-primary); font-size: 14px; outline: none; transition: all 0.2s; }
+    .search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+    .search-wrapper { position: relative; }
+    .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+    .sidebar.collapsed .search-container, .sidebar.collapsed .category-title, .sidebar.collapsed .nav-label { display: none; }
+    .sidebar-content { flex: 1; overflow-y: auto; padding: 8px 12px; }
     .category { margin-bottom: 8px; }
-    .category-title { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 12px; margin-bottom: 4px; }
-    .sidebar.collapsed .category-title { opacity: 0; height: 0; padding: 0; margin: 0; overflow: hidden; }
-    .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; cursor: pointer; transition: all 0.2s; color: var(--text-secondary); margin-bottom: 2px; }
-    .nav-item:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+    .category-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); padding: 12px 12px 8px; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: var(--radius-sm); color: var(--text-secondary); cursor: pointer; transition: all 0.15s; margin-bottom: 2px; }
+    .nav-item:hover { background: var(--bg-hover); color: var(--text-primary); }
     .nav-item.active { background: var(--accent-dim); color: var(--accent); }
     .nav-icon { font-size: 18px; width: 24px; text-align: center; flex-shrink: 0; }
-    .nav-label { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; }
-    .sidebar.collapsed .nav-label { opacity: 0; width: 0; }
-    .main-content { flex: 1; margin-left: var(--sidebar-width); transition: margin-left 0.3s ease; min-height: 100vh; }
-    .sidebar.collapsed ~ .main-content { margin-left: var(--sidebar-collapsed); }
-    .header { height: var(--header-height); background: var(--bg-secondary); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; position: sticky; top: 0; z-index: 50; }
+    .nav-label { font-size: 14px; font-weight: 500; }
+    .main-content { flex: 1; margin-left: var(--sidebar-width); transition: margin-left 0.3s; min-height: 100vh; }
+    .sidebar.collapsed ~ .main-content { margin-left: 72px; }
+    .header { height: var(--header-height); background: rgba(18, 18, 26, 0.8); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; position: sticky; top: 0; z-index: 50; }
     .header-title { font-size: 20px; font-weight: 600; }
-    .header-btn { background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-secondary); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; transition: all 0.2s; }
-    .header-btn:hover { background: var(--bg-card); color: var(--text-primary); }
-    .tool-container { padding: 24px; max-width: 1200px; margin: 0 auto; }
-    .tool-header { margin-bottom: 24px; }
-    .tool-title { font-size: 28px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
-    .tool-title-icon { font-size: 32px; }
-    .tool-description { color: var(--text-secondary); font-size: 15px; }
-    .input-area { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow); }
-    .input-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 10px; display: block; }
-    .input-field { width: 100%; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; color: var(--text-primary); font-size: 14px; font-family: inherit; transition: all 0.2s; }
-    .input-field:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
-    .input-field::placeholder { color: var(--text-muted); }
-    textarea.input-field { min-height: 150px; resize: vertical; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.5; }
-    .action-row { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
-    .btn { padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; display: inline-flex; align-items: center; gap: 8px; }
-    .btn-primary { background: var(--accent); color: #000; }
-    .btn-primary:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 212, 170, 0.3); }
-    .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border); }
-    .btn-secondary:hover { background: var(--bg-card); border-color: var(--accent); }
-    .output-area { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
-    .output-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--bg-tertiary); border-bottom: 1px solid var(--border); }
-    .output-title { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
-    .copy-btn { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 13px; padding: 6px 12px; border-radius: 6px; transition: all 0.2s; }
-    .copy-btn:hover { background: var(--accent-dim); }
-    .output-content { padding: 20px; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-break: break-all; min-height: 100px; max-height: 500px; overflow-y: auto; }
-    .output-content:empty::after { content: 'Output will appear here...'; color: var(--text-muted); }
-    .loading { color: var(--text-muted); font-style: italic; }
-    .error { color: var(--danger); }
-    .success { color: var(--success); }
-    @media (max-width: 768px) { .sidebar { transform: translateX(-100%); width: var(--sidebar-width); } .sidebar.mobile-open { transform: translateX(0); } .main-content { margin-left: 0; } .sidebar.collapsed ~ .main-content { margin-left: 0; } .mobile-toggle { display: flex !important; } .tool-container { padding: 16px; } .tool-title { font-size: 22px; } }
-    .mobile-toggle { display: none; background: none; border: none; color: var(--text-primary); font-size: 24px; cursor: pointer; padding: 8px; }
-    .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 99; }
-    @media (max-width: 768px) { .sidebar-overlay.mobile-open { display: block; } }
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 24px; }
-    .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; }
-    .stat-value { font-size: 28px; font-weight: 700; color: var(--accent); }
-    .stat-label { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
-    .quick-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 24px; }
-    .quick-action { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; cursor: pointer; transition: all 0.2s; }
-    .quick-action:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .header-actions { display: flex; align-items: center; gap: 16px; }
+    .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; background: rgba(46, 213, 115, 0.15); color: var(--success); }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .content { padding: 32px; }
+    .tool-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); animation: fadeIn 0.3s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .tool-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+    .tool-title { font-size: 24px; font-weight: 600; display: flex; align-items: center; gap: 12px; }
+    .tool-title-icon { font-size: 28px; }
+    .tool-description { color: var(--text-secondary); font-size: 14px; margin-top: 4px; }
+    .tool-inputs { display: grid; gap: 16px; margin-bottom: 24px; }
+    .input-group { display: flex; flex-direction: column; gap: 8px; }
+    .input-label { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
+    .tool-input, .tool-textarea, .tool-select { padding: 12px 16px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 14px; font-family: inherit; outline: none; transition: all 0.2s; }
+    .tool-input:focus, .tool-textarea:focus, .tool-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+    .tool-textarea { min-height: 120px; resize: vertical; font-family: 'JetBrains Mono', monospace; }
+    .tool-actions { display: flex; gap: 12px; margin-bottom: 24px; }
+    .tool-btn { padding: 12px 24px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; border: none; display: flex; align-items: center; gap: 8px; }
+    .tool-btn.primary { background: var(--accent-gradient); color: #000; }
+    .tool-btn.primary:hover { box-shadow: var(--shadow-glow); transform: translateY(-1px); }
+    .tool-btn.secondary { background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-primary); }
+    .result-container { background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+    .result-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--bg-secondary); border-bottom: 1px solid var(--border); }
+    .result-title { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
+    .result-content { padding: 16px; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-break: break-all; max-height: 400px; overflow-y: auto; }
+    .welcome { text-align: center; padding: 60px 40px; }
+    .welcome-icon { font-size: 64px; margin-bottom: 24px; }
+    .welcome-title { font-size: 28px; font-weight: 600; margin-bottom: 12px; }
+    .welcome-subtitle { color: var(--text-secondary); font-size: 16px; max-width: 400px; margin: 0 auto; }
+    .quick-actions { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 32px; }
+    .quick-action { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; cursor: pointer; transition: all 0.2s; }
+    .quick-action:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+    .quick-action-icon { font-size: 32px; margin-bottom: 12px; }
     .quick-action-title { font-weight: 600; margin-bottom: 4px; }
-    .quick-action-desc { font-size: 12px; color: var(--text-secondary); }
+    .quick-action-desc { font-size: 13px; color: var(--text-secondary); }
+    @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; } .header { padding: 0 16px; } .content { padding: 16px; } }
   </style>
 </head>
 <body>
   <div class="app-container">
-    <div class="sidebar-overlay" onclick="toggleMobileSidebar()"></div>
-    <div class="sidebar-handle" onclick="toggleSidebar()" title="Click to expand sidebar"></div>
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
-        <div class="logo">🛠️</div>
-        <span class="logo-text">IT Toolbox</span>
-        <button class="sidebar-toggle" onclick="toggleSidebar()" title="Collapse">◀</button>
+        <div class="logo">🔧</div>
+        <span class="logo-text">IT Toolbox Pro</span>
+        <button class="sidebar-toggle" onclick="toggleSidebar()">◀</button>
       </div>
-      
-      <!-- Favorites Section -->
-      <div class="category" id="favoritesCategory" style="display:none;">
-        <div class="category-title">⭐ Favorites</div>
-        <div id="favoritesList"></div>
+      <div class="search-container">
+        <div class="search-wrapper">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-input" placeholder="Search tools..." id="searchInput" oninput="filterTools()">
+        </div>
       </div>
-      
       <div class="sidebar-content">
-        <div class="category">
-          <div class="category-title">🔧 Developer</div>
-          <div class="nav-item active" data-tool="json" onclick="selectTool('json')"><span class="nav-icon">📄</span><span class="nav-label">JSON Formatter</span></div>
-          <div class="nav-item" data-tool="base64" onclick="selectTool('base64')"><span class="nav-icon">🔡</span><span class="nav-label">Base64</span></div>
-          <div class="nav-item" data-tool="uuid" onclick="selectTool('uuid')"><span class="nav-icon">🆔</span><span class="nav-label">UUID Generator</span></div>
-          <div class="nav-item" data-tool="url" onclick="selectTool('url')"><span class="nav-icon">🔗</span><span class="nav-label">URL Encoder</span></div>
-          <div class="nav-item" data-tool="timestamp" onclick="selectTool('timestamp')"><span class="nav-icon">⏰</span><span class="nav-label">Timestamp</span></div>
-        </div>
-        <div class="category">
-          <div class="category-title">🌐 Network</div>
+        <div class="category"><div class="category-title">🌐 Network</div>
+          <div class="nav-item" data-tool="ip" onclick="selectTool('ip')"><span class="nav-icon">🌍</span><span class="nav-label">IP Lookup</span></div>
+          <div class="nav-item" data-tool="dns" onclick="selectTool('dns')"><span class="nav-icon">📡</span><span class="nav-label">DNS Lookup</span></div>
           <div class="nav-item" data-tool="ping" onclick="selectTool('ping')"><span class="nav-icon">📶</span><span class="nav-label">Ping</span></div>
-          <div class="nav-item" data-tool="uptime" onclick="selectTool('uptime')"><span class="nav-icon">✅</span><span class="nav-label">Uptime Check</span></div>
-          <div class="nav-item" data-tool="headers" onclick="selectTool('headers')"><span class="nav-icon">📋</span><span class="nav-label">HTTP Headers</span></div>
-          <div class="nav-item" data-tool="ip" onclick="selectTool('ip')"><span class="nav-icon">📍</span><span class="nav-label">IP Lookup</span></div>
-          <div class="nav-item" data-tool="dns" onclick="selectTool('dns')"><span class="nav-icon">🌐</span><span class="nav-label">DNS Lookup</span></div>
-          <div class="nav-item" data-tool="ports" onclick="selectTool('ports')"><span class="nav-icon">🚪</span><span class="nav-label">Port Scanner</span></div>
+          <div class="nav-item" data-tool="ports" onclick="selectTool('ports')"><span class="nav-icon">🔌</span><span class="nav-label">Port Scanner</span></div>
           <div class="nav-item" data-tool="traceroute" onclick="selectTool('traceroute')"><span class="nav-icon">🛤️</span><span class="nav-label">Traceroute</span></div>
+          <div class="nav-item" data-tool="speedtest" onclick="selectTool('speedtest')"><span class="nav-icon">⚡</span><span class="nav-label">Speed Test</span></div>
         </div>
-        <div class="category">
-          <div class="category-title">🖥️ Servers</div>
-        <div class="category">
-          <div class="category-title">🔐 Security</div>
-          <div class="nav-item" data-tool="ssl" onclick="selectTool('ssl')"><span class="nav-icon">🔒</span><span class="nav-label">SSL Checker</span></div>
-          <div class="nav-item" data-tool="whois" onclick="selectTool('whois')"><span class="nav-icon">📜</span><span class="nav-label">WHOIS</span></div>
+        <div class="category"><div class="category-title">🔒 Security</div>
+          <div class="nav-item" data-tool="ssl" onclick="selectTool('ssl')"><span class="nav-icon">🔐</span><span class="nav-label">SSL Check</span></div>
           <div class="nav-item" data-tool="hash" onclick="selectTool('hash')"><span class="nav-icon">#️⃣</span><span class="nav-label">Hash Generator</span></div>
-        <div class="category">
-          <div class="category-title">🛠️ Utilities</div>
-          <div class="nav-item" data-tool="color" onclick="selectTool('color')"><span class="nav-icon">🎨</span><span class="nav-label">Color Converter</span></div>
-          <div class="nav-item" data-tool="curl" onclick="selectTool('curl')"><span class="nav-icon">🌐</span><span class="nav-label">cURL Builder</span></div>
-          <div class="nav-item" data-tool="password" onclick="selectTool('password')"><span class="nav-icon">🔑</span><span class="nav-label">Password Generator</span></div>
-          <div class="nav-item" data-tool="qrcode" onclick="selectTool('qrcode')"><span class="nav-icon">⬛</span><span class="nav-label">QR Code</span></div>
-          <div class="nav-item" data-tool="subnet" onclick="selectTool('subnet')"><span class="nav-icon">🔢</span><span class="nav-label">Subnet Calculator</span></div>
-          <div class="nav-item" data-tool="cron" onclick="selectTool('cron')"><span class="nav-icon">⏰</span><span class="nav-label">Cron Builder</span></div>
-          <div class="nav-item" data-tool="notes" onclick="selectTool('notes')"><span class="nav-icon">📝</span><span class="nav-label">Quick Notes</span></div>
-          <div class="nav-item" data-tool="history" onclick="selectTool('history')"><span class="nav-icon">📜</span><span class="nav-label">Command History</span></div>
+          <div class="nav-item" data-tool="jwt" onclick="selectTool('jwt')"><span class="nav-icon">🎫</span><span class="nav-label">JWT Decoder</span></div>
+          <div class="nav-item" data-tool="whois" onclick="selectTool('whois')"><span class="nav-icon">📋</span><span class="nav-label">WHOIS</span></div>
+        </div>
+        <div class="category"><div class="category-title">💻 Developer</div>
+          <div class="nav-item" data-tool="json" onclick="selectTool('json')"><span class="nav-icon">📄</span><span class="nav-label">JSON Formatter</span></div>
+          <div class="nav-item" data-tool="base64" onclick="selectTool('base64')"><span class="nav-icon">🔡</span><span class="nav-label">Base64</span></div>
+          <div class="nav-item" data-tool="url" onclick="selectTool('url')"><span class="nav-icon">🔗</span><span class="nav-label">URL Encoder</span></div>
+          <div class="nav-item" data-tool="curl" onclick="selectTool('curl')"><span class="nav-icon">🌐</span><span class="nav-label">cURL</span></div>
+          <div class="nav-item" data-tool="headers" onclick="selectTool('headers')"><span class="nav-icon">📨</span><span class="nav-label">HTTP Headers</span></div>
+        </div>
+        <div class="category"><div class="category-title">🖥️ Server</div>
+          <div class="nav-item" data-tool="system" onclick="selectTool('system')"><span class="nav-icon">📊</span><span class="nav-label">System Info</span></div>
+          <div class="nav-item" data-tool="docker" onclick="selectTool('docker')"><span class="nav-icon">🐳</span><span class="nav-label">Docker</span></div>
+        </div>
+        <div class="category"><div class="category-title">🛠️ Utilities</div>
+          <div class="nav-item" data-tool="password" onclick="selectTool('password')"><span class="nav-icon">🔑</span><span class="nav-label">Password Gen</span></div>
+          <div class="nav-item" data-tool="uuid" onclick="selectTool('uuid')"><span class="nav-icon">🆔</span><span class="nav-label">UUID</span></div>
+          <div class="nav-item" data-tool="qrcode" onclick="selectTool('qrcode')"><span class="nav-icon">📱</span><span class="nav-label">QR Code</span></div>
+          <div class="nav-item" data-tool="color" onclick="selectTool('color')"><span class="nav-icon">🎨</span><span class="nav-label">Color Picker</span></div>
         </div>
       </div>
     </aside>
     <main class="main-content">
       <header class="header">
-        <button class="mobile-toggle" onclick="toggleMobileSidebar()">☰</button>
-        <div style="display:flex;align-items:center;gap:12px;flex:1;max-width:300px;margin-right:20px;">
-          <input type="text" id="toolSearch" placeholder="🔍 Search tools..." oninput="searchTools(this.value)" style="background:var(--bg-tertiary);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text-primary);width:100%;font-size:13px;">
-        </div>
-        <h1 class="header-title" id="headerTitle">IT Toolbox</h1>
+        <h1 class="header-title" id="pageTitle">IT Toolbox Pro</h1>
         <div class="header-actions">
-          <button class="header-btn" onclick="selectTool('home')" id="homeBtn">🏠 Home</button>
-          <button class="header-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+          <span class="status-badge"><span class="status-dot"></span>API Connected</span>
         </div>
       </header>
-      <div class="tool-container" id="toolContainer"></div>
+      <div class="content" id="content">
+        <div class="welcome" id="welcomeScreen">
+          <div class="welcome-icon">🛠️</div>
+          <h2 class="welcome-title">Welcome to IT Toolbox Pro</h2>
+          <p class="welcome-subtitle">Select a tool from the sidebar to get started.</p>
+          <div class="quick-actions">
+            <div class="quick-action" onclick="selectTool('ip')"><div class="quick-action-icon">🌍</div><div class="quick-action-title">IP Lookup</div><div class="quick-action-desc">Check your public IP</div></div>
+            <div class="quick-action" onclick="selectTool('ssl')"><div class="quick-action-icon">🔐</div><div class="quick-action-title">SSL Check</div><div class="quick-action-desc">Verify SSL certificates</div></div>
+            <div class="quick-action" onclick="selectTool('json')"><div class="quick-action-icon">📄</div><div class="quick-action-title">JSON Formatter</div><div class="quick-action-desc">Format and validate JSON</div></div>
+            <div class="quick-action" onclick="selectTool('password')"><div class="quick-action-icon">🔑</div><div class="quick-action-title">Password Gen</div><div class="quick-action-desc">Generate secure passwords</div></div>
+          </div>
+        </div>
+        <div id="toolContainer"></div>
+      </div>
     </main>
   </div>
   <script>
-    // Search tools
-    function searchTools(query) {
-      query = query.toLowerCase();
-      document.querySelectorAll('.nav-item').forEach(item => {
-        const label = item.querySelector('.nav-label')?.textContent?.toLowerCase() || '';
-        const icon = item.querySelector('.nav-icon')?.textContent || '';
-        if (!query || label.includes(query) || icon.includes(query)) {
-          item.style.display = 'flex';
-        } else {
-          item.style.display = 'none';
-        }
-      });
-    }
-    
-    // Theme
-    let currentTheme = localStorage.getItem('ittoolbox_theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', currentTheme);
-    document.getElementById('themeBtn').textContent = currentTheme === 'dark' ? '🌙' : '☀️';
-    
-    function toggleTheme() {
-      currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', currentTheme);
-      localStorage.setItem('ittoolbox_theme', currentTheme);
-      document.getElementById('themeBtn').textContent = currentTheme === 'dark' ? '🌙' : '☀️';
-    }
-    
-    let currentTool = 'json';
-    let outputText = '';
-    let favorites = JSON.parse(localStorage.getItem('ittoolbox_favorites') || '[]');
-    let sshServers = JSON.parse(localStorage.getItem('ittoolbox_ssh_servers') || '[]');
-    let notes = JSON.parse(localStorage.getItem('ittoolbox_notes') || '[]');
-    let cmdHistory = JSON.parse(localStorage.getItem('ittoolbox_history') || '[]');
-    let sshConnected = false;
     const API = window.location.protocol + '//' + window.location.hostname + ':8892';
-    
-    // Save favorites
-    function saveFavorites() {
-      localStorage.setItem('ittoolbox_favorites', JSON.stringify(favorites));
-      renderFavorites();
-    }
-    
-    // Toggle favorite
-    function toggleFavorite(toolId) {
-      if (favorites.includes(toolId)) {
-        favorites = favorites.filter(f => f !== toolId);
-      } else {
-        favorites.push(toolId);
-      }
-      saveFavorites();
-    }
-    
-    // Render favorites
-    function renderFavorites() {
-      const favCategory = document.getElementById('favoritesCategory');
-      const favList = document.getElementById('favoritesList');
-      
-      if (favorites.length === 0) {
-        favCategory.style.display = 'none';
-        return;
-      }
-      
-      favCategory.style.display = 'block';
-      favList.innerHTML = favorites.map(toolId => {
-        const tool = tools[toolId];
-        if (!tool) return '';
-        return `<div class="nav-item" data-tool="${toolId}" onclick="selectTool('${toolId}')"><span class="nav-icon">${tool.icon}</span><span class="nav-label">${tool.title}</span></div>`;
-      }).join('');
-    }
     const tools = {
-      home: { title: 'Welcome', icon: '🛠️', description: 'Your all-in-one network diagnostics toolkit', type: 'home' },
-      json: { title: 'JSON Formatter', icon: '📄', description: 'Format, validate JSON', type: 'input-output', inputLabel: 'Paste JSON', inputPlaceholder: '{"key": "value"}' },
-      base64: { title: 'Base64', icon: '🔡', description: 'Encode/Decode Base64', type: 'input-output', inputLabel: 'Enter text', inputPlaceholder: 'Hello World' },
-      uuid: { title: 'UUID Generator', icon: '🆔', description: 'Generate random UUIDs', type: 'generate' },
-      url: { title: 'URL Encoder', icon: '🔗', description: 'Encode/Decode URLs', type: 'input-output', inputLabel: 'Enter URL', inputPlaceholder: 'https://example.com?q=hello' },
-      timestamp: { title: 'Timestamp', icon: '⏰', description: 'Convert timestamps', type: 'timestamp' },
-      ping: { title: 'Ping', icon: '📶', description: 'Test connectivity to host', type: 'network' },
-      uptime: { title: 'Uptime Check', icon: '✅', description: 'Check if website is up', type: 'network' },
-      headers: { title: 'HTTP Headers', icon: '📋', description: 'View HTTP response headers', type: 'network' },
-      network: { title: 'Network Scan', icon: '🔍', description: 'Quick network scan', type: 'network' },
-      ssl: { title: 'SSL Checker', icon: '🔒', description: 'Check SSL cert', type: 'security' },
-      whois: { title: 'WHOIS', icon: '📜', description: 'Domain info', type: 'security' },
-      hash: { title: 'Hash Generator', icon: '#️⃣', description: 'Generate hashes', type: 'security' },
-      jwt: { title: 'JWT Decoder', icon: '🎫', description: 'Decode JWT tokens', type: 'security' },
-      ip: { title: 'IP Lookup', icon: '📍', description: 'Get IP details', type: 'input', inputLabel: 'Enter IP', inputPlaceholder: '8.8.8.8' },
-      dns: { title: 'DNS Lookup', icon: '🌐', description: 'Look up DNS records', type: 'input', inputLabel: 'Enter domain', inputPlaceholder: 'example.com' },
-      ports: { title: 'Port Scanner', icon: '🚪', description: 'Scan ports', type: 'ports' },
-      traceroute: { title: 'Traceroute', icon: '🛤️', description: 'Trace network route', type: 'input', inputLabel: 'Enter hostname', inputPlaceholder: 'google.com' },
-      hash: { title: 'Hash Generator', icon: '#️⃣', description: 'Generate hashes', type: 'hash' },
-      ssl: { title: 'SSL Checker', icon: '🔒', description: 'Check SSL cert', type: 'input', inputLabel: 'Enter domain', inputPlaceholder: 'google.com' },
-      whois: { title: 'WHOIS', icon: '📜', description: 'Domain info', type: 'input', inputLabel: 'Enter domain', inputPlaceholder: 'example.com' },
-      color: { title: 'Color Converter', icon: '🎨', description: 'Convert colors', type: 'color' },
-      curl: { title: 'cURL Builder', icon: '🌐', description: 'Build cURL', type: 'curl' },
-      ssh: { title: 'SSH Terminal', icon: '🖥️', description: 'Connect to servers', type: 'ssh' },
-      jwt: { title: 'JWT Decoder', icon: '🎫', description: 'Decode JWT tokens', type: 'jwt' },
-      password: { title: 'Password Generator', icon: '🔑', description: 'Generate secure passwords', type: 'password' },
-      qrcode: { title: 'QR Code', icon: '⬛', description: 'Generate QR codes', type: 'qrcode' },
-      subnet: { title: 'Subnet Calculator', icon: '🔢', description: 'Calculate IP subnets', type: 'subnet' },
-      processes: { title: 'Process Monitor', icon: '📊', description: 'View running processes', type: 'system' },
-      disk: { title: 'Disk Usage', icon: '💾', description: 'Check disk space', type: 'system' },
-      memory: { title: 'Memory Info', icon: '🧠', description: 'View memory usage', type: 'system' },
-      netstats: { title: 'Network Stats', icon: '📈', description: 'Network interfaces', type: 'system' },
-      cron: { title: 'Cron Builder', icon: '⏰', description: 'Build cron expressions', type: 'developer' },
-      notes: { title: 'Quick Notes', icon: '📝', description: 'Save quick notes', type: 'utilities' },
-      history: { title: 'Command History', icon: '📜', description: 'Recent commands', type: 'utilities' }
+      ip: { name: 'IP Lookup', icon: '🌍', description: 'Look up IP address information', inputs: [{name: 'ip', label: 'IP Address or Domain', placeholder: '8.8.8.8', type: 'text'}], action: 'Lookup', endpoint: '/api/ip', method: 'POST' },
+      dns: { name: 'DNS Lookup', icon: '📡', description: 'Query DNS records', inputs: [{name: 'domain', label: 'Domain', placeholder: 'google.com', type: 'text'}], action: 'Lookup', endpoint: '/api/dns', method: 'POST' },
+      ping: { name: 'Ping', icon: '📶', description: 'Test network connectivity', inputs: [{name: 'host', label: 'Host', placeholder: 'google.com', type: 'text'}], action: 'Ping', endpoint: '/api/ping', method: 'POST' },
+      ports: { name: 'Port Scanner', icon: '🔌', description: 'Scan ports on a host', inputs: [{name: 'host', label: 'Host', placeholder: 'google.com', type: 'text'}, {name: 'ports', label: 'Ports', placeholder: '22,80,443', type: 'text'}], action: 'Scan', endpoint: '/api/ports', method: 'POST' },
+      traceroute: { name: 'Traceroute', icon: '🛤️', description: 'Trace network path', inputs: [{name: 'host', label: 'Host', placeholder: 'google.com', type: 'text'}], action: 'Trace', endpoint: '/api/traceroute', method: 'POST' },
+      speedtest: { name: 'Speed Test', icon: '⚡', description: 'Test network speed', inputs: [], action: 'Test', endpoint: '/api/speedtest/local', method: 'GET' },
+      ssl: { name: 'SSL Check', icon: '🔐', description: 'Check SSL certificate', inputs: [{name: 'domain', label: 'Domain', placeholder: 'google.com', type: 'text'}], action: 'Check', endpoint: '/api/ssl', method: 'POST' },
+      hash: { name: 'Hash Generator', icon: '#️⃣', description: 'Generate cryptographic hashes', inputs: [{name: 'text', label: 'Text to Hash', type: 'textarea'}, {name: 'algorithm', label: 'Algorithm', type: 'select', options: ['md5', 'sha1', 'sha256', 'sha512']}], action: 'Generate', endpoint: '/api/hash', method: 'POST' },
+      jwt: { name: 'JWT Decoder', icon: '🎫', description: 'Decode JWT tokens', inputs: [{name: 'token', label: 'JWT Token', type: 'textarea'}], action: 'Decode', endpoint: '/api/jwt/decode', method: 'POST' },
+      whois: { name: 'WHOIS Lookup', icon: '📋', description: 'Domain registration info', inputs: [{name: 'domain', label: 'Domain', placeholder: 'google.com', type: 'text'}], action: 'Lookup', endpoint: '/api/whois/', method: 'GET' },
+      json: { name: 'JSON Formatter', icon: '📄', description: 'Format and validate JSON', inputs: [{name: 'json', label: 'JSON', type: 'textarea'}], action: 'Format', local: true },
+      base64: { name: 'Base64 Encoder', icon: '🔡', description: 'Encode or decode Base64', inputs: [{name: 'text', label: 'Text', type: 'textarea'}, {name: 'mode', label: 'Mode', type: 'select', options: ['encode', 'decode']}], action: 'Convert', local: true },
+      url: { name: 'URL Encoder', icon: '🔗', description: 'Encode or decode URLs', inputs: [{name: 'text', label: 'URL', type: 'textarea'}, {name: 'mode', label: 'Mode', type: 'select', options: ['encode', 'decode']}], action: 'Encode', local: true },
+      curl: { name: 'cURL', icon: '🌐', description: 'Execute HTTP requests', inputs: [{name: 'url', label: 'URL', placeholder: 'https://api.example.com', type: 'text'}, {name: 'method', label: 'Method', type: 'select', options: ['GET', 'POST', 'PUT', 'DELETE']}, {name: 'headers', label: 'Headers (JSON)', type: 'textarea'}, {name: 'body', label: 'Body', type: 'textarea'}], action: 'Execute', endpoint: '/api/curl', method: 'POST' },
+      headers: { name: 'HTTP Headers', icon: '📨', description: 'Check HTTP headers', inputs: [{name: 'url', label: 'URL', placeholder: 'https://google.com', type: 'text'}], action: 'Check', endpoint: '/api/headers', method: 'POST' },
+      system: { name: 'System Info', icon: '📊', description: 'View system information', inputs: [], action: 'Get Info', endpoint: '/api/systeminfo', method: 'GET' },
+      docker: { name: 'Docker', icon: '🐳', description: 'Manage Docker containers', inputs: [], action: 'List', endpoint: '/api/docker/ps', method: 'GET' },
+      password: { name: 'Password Generator', icon: '🔑', description: 'Generate secure passwords', inputs: [{name: 'length', label: 'Length', type: 'text', value: '16'}], action: 'Generate', local: true },
+      uuid: { name: 'UUID Generator', icon: '🆔', description: 'Generate UUIDs', inputs: [], action: 'Generate', local: true },
+      qrcode: { name: 'QR Code', icon: '📱', description: 'Generate QR codes', inputs: [{name: 'text', label: 'Text', type: 'textarea'}], action: 'Generate', local: true },
+      color: { name: 'Color Picker', icon: '🎨', description: 'Pick and convert colors', inputs: [{name: 'color', label: 'Color', type: 'text', value: '#00d4aa'}], action: 'Convert', local: true }
     };
-    function init() { 
-      renderFavorites();
-      selectTool('home'); 
-    }
-    function toggleSidebar() { 
-      const sidebar = document.getElementById('sidebar');
-      sidebar.classList.toggle('collapsed');
-      const btn = sidebar.querySelector('.sidebar-toggle');
-      if (btn) btn.innerHTML = sidebar.classList.contains('collapsed') ? '▶' : '◀';
-    }
-    function toggleMobileSidebar() { document.getElementById('sidebar').classList.toggle('mobile-open'); document.querySelector('.sidebar-overlay').classList.toggle('mobile-open'); }
-    function selectTool(toolId) {
-      currentTool = toolId;
-      document.querySelectorAll('.nav-item').forEach(item => { item.classList.remove('active'); if (item.dataset.tool === toolId) item.classList.add('active'); });
-      document.getElementById('sidebar').classList.remove('mobile-open'); document.querySelector('.sidebar-overlay').classList.remove('mobile-open');
-      renderTool(toolId);
-    }
-    function renderTool(toolId) {
-      const tool = tools[toolId];
-      const container = document.getElementById('toolContainer');
-      document.getElementById('headerTitle').textContent = tool.title;
-      outputText = '';
-      if (tool.type === 'home') { container.innerHTML = renderHome(); return; }
-      
-      const isFavorite = favorites.includes(toolId);
-      let html = `
-        <div class="tool-header">
-          <div style="display:flex;justify-content:space-between;align-items:start;">
-            <div>
-              <h2 class="tool-title">
-                <span class="tool-title-icon">${tool.icon}</span>
-                ${tool.title}
-              </h2>
-              <p class="tool-description">${tool.description}</p>
-            </div>
-            <button onclick="toggleFavorite('${toolId}')" style="background:none;border:none;font-size:24px;cursor:pointer;padding:8px;" title="Toggle Favorite">
-              ${isFavorite ? '⭐' : '☆'}
-            </button>
-          </div>
-        </div>`;
-      if (tool.type === 'input-output') { html += `<div class="input-area"><label class="input-label">${tool.inputLabel}</label><textarea id="toolInput" class="input-field" placeholder="${tool.inputPlaceholder}"></textarea><div class="action-row" style="margin-top:16px"><button class="btn btn-primary" onclick="runTool('${toolId}')">✨ Process</button><button class="btn btn-secondary" onclick="document.getElementById('toolInput').value=''">Clear</button></div></div>`; }
-      else if (tool.type === 'input') { html += `<div class="input-area"><label class="input-label">${tool.inputLabel}</label><input type="text" id="toolInput" class="input-field" placeholder="${tool.inputPlaceholder}"><div class="action-row" style="margin-top:16px"><button class="btn btn-primary" onclick="runTool('${toolId}')">🔍 Lookup</button></div></div>`; }
-      else if (tool.type === 'generate') { html += `<div class="action-row"><button class="btn btn-primary" onclick="runTool('${toolId}')">🎲 Generate</button></div>`; }
-      else if (tool.type === 'timestamp') { html += `<div class="input-area"><div class="input-row"><div><label class="input-label">Timestamp</label><input type="text" id="tsInput" class="input-field" placeholder="${Math.floor(Date.now()/1000)}"></div><div><label class="input-label">Or Date</label><input type="text" id="dateInput" class="input-field" placeholder="2024-01-01"></div></div><div class="action-row" style="margin-top:16px"><button class="btn btn-primary" onclick="runTool('timestamp')">🔄 Convert</button></div></div>`; }
-      else if (tool.type === 'hash') { html += `<div class="input-area"><label class="input-label">Enter text</label><input type="text" id="hashInput" class="input-field" placeholder="Hello World"><div class="action-row" style="margin-top:16px"><button class="btn btn-primary" onclick="runTool('hash')">🔐 Generate</button></div></div>`; }
-      else if (tool.type === 'color') { html += `<div class="input-area"><label class="input-label">Enter color</label><input type="text" id="colorInput" class="input-field" placeholder="#00d4aa"><div class="action-row" style="margin-top:16px"><button class="btn btn-primary" onclick="runTool('color')">🎨 Convert</button></div></div>`; }
-      else if (tool.type === 'ports') { html += `<div class="input-area"><label class="input-label">Host</label><input type="text" id="portsHost" class="input-field" placeholder="example.com"><div class="action-row" style="margin-top:16px"><button class="btn btn-primary" onclick="runTool('ports')">🔍 Scan</button></div></div>`; }
-      else if (tool.type === 'curl') { html += `<div class="input-area"><label class="input-label">URL</label><input type="text" id="curlUrl" class="input-field" placeholder="https://api.example.com"><label class="input-label" style="margin-top:16px">Method</label><select id="curlMethod" class="input-field"><option>GET</option><option>POST</option><option>PUT</option><option>DELETE</option></select><div class="action-row" style="margin-top:16px"><button class="btn btn-primary" onclick="runTool('curl')">🌐 Send</button></div></div>`; }
-      html += `<div class="output-area"><div class="output-header"><span class="output-title">Output</span><button class="copy-btn" onclick="copyOutput()">📋 Copy</button></div><div class="output-content" id="outputContent"></div></div>`;
-      container.innerHTML = html;
-    }
-    function renderDashboard() {
-      const container = document.getElementById('toolContainer');
-      const toolCount = Object.keys(tools).length - 1;
-      const serverCount = sshServers ? sshServers.length : 0;
-      const favCount = favorites ? favorites.length : 0;
-      const noteCount = notes ? notes.length : 0;
-      
-      container.innerHTML = `
-        <div style="max-width:1400px;margin:0 auto;">
-          <div style="margin-bottom:32px;">
-            <h1 style="font-size:32px;font-weight:700;margin-bottom:8px;">🛠️ IT Toolbox</h1>
-            <p style="color:var(--text-secondary);font-size:15px;">All-in-one network diagnostics & server management platform</p>
-          </div>
-          
-          <!-- Stats Cards -->
-          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px;">
-            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;">
-              <div style="font-size:36px;font-weight:700;color:var(--accent);">${serverCount}</div>
-              <div style="font-size:13px;color:var(--text-secondary);">Servers</div>
-            </div>
-            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;">
-              <div style="font-size:36px;font-weight:700;color:#2ed573;">${toolCount}</div>
-              <div style="font-size:13px;color:var(--text-secondary);">Tools</div>
-            </div>
-            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;">
-              <div style="font-size:36px;font-weight:700;color:#ffa502;">${favCount}</div>
-              <div style="font-size:13px;color:var(--text-secondary);">Favorites</div>
-            </div>
-            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;">
-              <div style="font-size:36px;font-weight:700;color:#3b82f6;">${noteCount}</div>
-              <div style="font-size:13px;color:var(--text-secondary);">Notes</div>
-            </div>
-          </div>
-          
-          <!-- Quick Actions -->
-          <h2 style="font-size:18px;font-weight:600;margin-bottom:16px;">⚡ Quick Actions</h2>
-          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:32px;">
-            <button onclick="selectTool('ssh')" style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;cursor:pointer;text-align:left;">
-              <div style="font-size:28px;margin-bottom:8px;">🖥️</div>
-              <div style="font-weight:600;">SSH Terminal</div>
-              <div style="font-size:12px;color:var(--text-secondary);">Connect to servers</div>
-            </button>
-            <button onclick="selectTool('ping')" style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;cursor:pointer;text-align:left;">
-              <div style="font-size:28px;margin-bottom:8px;">📶</div>
-              <div style="font-weight:600;">Ping Test</div>
-              <div style="font-size:12px;color:var(--text-secondary);">Test connectivity</div>
-            </button>
-            <button onclick="selectTool('ports')" style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;cursor:pointer;text-align:left;">
-              <div style="font-size:28px;margin-bottom:8px;">🚪</div>
-              <div style="font-weight:600;">Port Scanner</div>
-              <div style="font-size:12px;color:var(--text-secondary);">Scan ports</div>
-            </button>
-            <button onclick="selectTool('uptime')" style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;cursor:pointer;text-align:left;">
-              <div style="font-size:28px;margin-bottom:8px;">✅</div>
-              <div style="font-weight:600;">Uptime</div>
-              <div style="font-size:12px;color:var(--text-secondary);">Check status</div>
-            </button>
-          </div>
-          
-          <!-- Two Columns -->
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
-            <!-- Servers -->
-            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;">
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-                <h3 style="font-size:16px;font-weight:600;">🖥️ Saved Servers</h3>
-                <button onclick="selectTool('ssh')" style="background:var(--accent);border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;">+ Add</button>
-              </div>
-              <p style="color:var(--text-secondary);font-size:13px;">No servers saved. Add one to get started.</p>
-            </div>
-            
-            <!-- Favorites -->
-            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;">
-              <h3 style="font-size:16px;font-weight:600;margin-bottom:16px;">⭐ Favorites</h3>
-              <p style="color:var(--text-secondary);font-size:13px;">Star tools to add them here.</p>
-            </div>
-          </div>
-        </div>`;
-    }
-    
-    function renderHome() { renderDashboard(); }
-    async function runTool(toolId) {
-      const outputEl = document.getElementById('outputContent');
-      outputEl.innerHTML = '<span class="loading">Processing...</span>';
-      
-      try {
-        let result = '';
-        let response;
-        
-        switch(toolId) {
-          case 'json': 
-            const j = JSON.parse(document.getElementById('toolInput').value); 
-            result = JSON.stringify(j, null, 2); 
-            break;
-          case 'base64': 
-            const b = document.getElementById('toolInput').value; 
-            result = 'Encoded: ' + btoa(b) + '\n\nDecoded: ' + atob(b); 
-            break;
-          case 'uuid': 
-            result = '';
-            for (let i = 0; i < 5; i++) {
-              // Generate UUID v4
-              const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                const r = Math.random() * 16 | 0;
-                const v = c === 'x' ? r : (r & 0x3 | 0x8);
-                return v.toString(16);
-              });
-              result += uuid + '\n';
-            }
-            break;
-          case 'url': 
-            const u = document.getElementById('toolInput').value; 
-            result = 'Encoded: ' + encodeURIComponent(u) + '\nDecoded: ' + decodeURIComponent(u); 
-            break;
-          case 'timestamp': 
-            const ts = document.getElementById('tsInput').value, d = document.getElementById('dateInput').value; 
-            if (ts) { const date = new Date(ts * 1000); result = 'Unix: ' + ts + '\nISO: ' + date.toISOString() + '\nLocal: ' + date.toLocaleString(); } 
-            else if (d) { const date = new Date(d); result = 'Unix: ' + Math.floor(date.getTime()/1000) + '\nISO: ' + date.toISOString(); } 
-            break;
-          case 'ip': 
-            const ipInput = document.getElementById('toolInput').value;
-            if (ipInput) {
-              response = await fetch(API + '/api/ip', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ip: ipInput}) });
-            } else {
-              response = await fetch(API + '/api/ip/my');
-            }
-            const ipData = await response.json();
-            result = JSON.stringify(ipData, null, 2);
-            break;
-          case 'dns': 
-            response = await fetch(API + '/api/dns', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({domain: document.getElementById('toolInput').value}) });
-            result = JSON.stringify(await response.json(), null, 2);
-            break;
-          case 'ports': 
-            response = await fetch(API + '/api/ports', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({host: document.getElementById('portsHost').value, ports: [21,22,25,53,80,110,143,443,445,3306,3389,8080]}) });
-            const portsData = await response.json();
-            result = 'Host: ' + portsData.host + '\n\n';
-            for (const [port, info] of Object.entries(portsData.ports || {})) {
-              result += `Port ${port} (${info.service}): ${info.open ? '🟢 OPEN' : '🔴 CLOSED'}\n`;
-            }
-            break;
-          case 'traceroute': 
-            response = await fetch(API + '/api/traceroute', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({host: document.getElementById('toolInput').value}) });
-            const traceData = await response.json();
-            if (traceData.hops) {
-              result = 'Traceroute to ' + traceData.host + ':\n\n';
-              traceData.hops.forEach(h => { result += `${h.hop}. ${h.ip} (${h.rtt}ms)\n`; });
-            } else {
-              result = traceData.output || 'Traceroute not available';
-            }
-            break;
-          case 'ping':
-            response = await fetch(API + '/api/ping', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({host: document.getElementById('toolInput').value, count: 4}) });
-            const pingData = await response.json();
-            result = JSON.stringify(pingData, null, 2);
-            break;
-          case 'uptime':
-            response = await fetch(API + '/api/uptime', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({url: document.getElementById('toolInput').value}) });
-            const uptimeData = await response.json();
-            result = 'URL: ' + uptimeData.url + '\nStatus: ' + (uptimeData.up ? '🟢 UP' : '🔴 DOWN') + '\nStatus Code: ' + uptimeData.status_code + '\nResponse Time: ' + uptimeData.response_time_ms + 'ms';
-            break;
-          case 'headers':
-            response = await fetch(API + '/api/headers', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({url: document.getElementById('toolInput').value}) });
-            const headersData = await response.json();
-            if (headersData.error) {
-              result = 'Error: ' + headersData.error;
-            } else {
-              result = 'URL: ' + headersData.url + '\nStatus: ' + headersData.status_code + '\n\nHeaders:\n';
-              for (const [key, value] of Object.entries(headersData.headers || {})) {
-                result += key + ': ' + value + '\n';
-              }
-            }
-            break;
-          case 'hash': 
-            response = await fetch(API + '/api/hash', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({text: document.getElementById('hashInput').value}) });
-            result = JSON.stringify(await response.json(), null, 2);
-            break;
-          case 'ssl': 
-            response = await fetch(API + '/api/ssl', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({domain: document.getElementById('toolInput').value}) });
-            result = JSON.stringify(await response.json(), null, 2);
-            break;
-          case 'whois': 
-            response = await fetch(API + '/api/whois/' + encodeURIComponent(document.getElementById('toolInput').value));
-            result = JSON.stringify(await response.json(), null, 2);
-            break;
-          case 'color': 
-            const c = document.getElementById('colorInput').value; 
-            const h = c.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i); 
-            if (h) { result = 'HEX: #' + h[1] + h[2] + h[3] + '\nRGB: rgb(' + parseInt(h[1],16) + ',' + parseInt(h[2],16) + ',' + parseInt(h[3],16) + ')'; } 
-            else { result = 'Enter hex color like #00d4aa'; } 
-            break;
-          case 'curl': 
-            const curlUrl = document.getElementById('curlUrl').value;
-            const curlMethod = document.getElementById('curlMethod').value;
-            response = await fetch(API + '/api/curl', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({url: curlUrl, method: curlMethod}) });
-            const curlData = await response.json();
-            result = JSON.stringify(curlData, null, 2);
-            break;
-          case 'ssh':
-            renderSSH(toolId);
-            return;
-          case 'jwt':
-            renderJWT(toolId);
-            return;
-          case 'password':
-            renderPassword(toolId);
-            return;
-          case 'qrcode':
-            renderQRCode(toolId);
-            return;
-          case 'subnet':
-            renderSubnet(toolId);
-            return;
-          case 'processes':
-            renderSystemTool('processes', 'View Running Processes', 'ps aux | head -20');
-            return;
-          case 'disk':
-            renderSystemTool('disk', 'Disk Usage', 'df -h');
-            return;
-          case 'memory':
-            renderSystemTool('memory', 'Memory Usage', 'free -h');
-            return;
-          case 'netstats':
-            renderSystemTool('netstats', 'Network Statistics', 'netstat -i');
-            return;
-          case 'cron':
-            renderCron(toolId);
-            return;
-          case 'notes':
-            renderNotes(toolId);
-            return;
-          case 'history':
-            renderHistory(toolId);
-            return;
-          default: 
-            result = 'Tool not implemented yet';
-        }
-        outputText = result;
-        outputEl.textContent = result;
-      } catch(e) { 
-        outputEl.innerHTML = '<span class="error">Error: ' + e.message + '</span>'; 
-      }
-    }
-    function copyOutput() { if (outputText) { navigator.clipboard.writeText(outputText); alert('Copied!'); } }
-    
-    // SSH Terminal Functions
-    let sshCurrentServer = null;
-    
-    function renderSSH(toolId) {
-      const tool = tools[toolId];
-      const container = document.getElementById('toolContainer');
-      document.getElementById('headerTitle').textContent = tool.title;
-      
-      const isFavorite = favorites.includes(toolId);
-      let html = `
-        <div class="tool-header">
-          <div style="display:flex;justify-content:space-between;align-items:start;">
-            <div>
-              <h2 class="tool-title"><span class="tool-title-icon">${tool.icon}</span>${tool.title}</h2>
-              <p class="tool-description">${tool.description}</p>
-            </div>
-            <button onclick="toggleFavorite('${toolId}')" style="background:none;border:none;font-size:24px;cursor:pointer;padding:8px;" title="Toggle Favorite">${isFavorite ? '⭐' : '☆'}</button>
-          </div>
-        </div>`;
-      
-      // Server list
-      html += `
-        <div style="display:grid;grid-template-columns:1fr 2fr;gap:20px;">
-          <div>
-            <div class="input-area">
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-                <label class="input-label" style="margin:0;">Saved Servers</label>
-                <button onclick="showAddServer()" style="background:var(--accent);border:none;padding:4px 8px;border-radius:4px;cursor:pointer;font-size:12px;">+ Add</button>
-              </div>
-              <div id="serverList">`;
-      
-      if (sshServers.length === 0) {
-        html += `<p style="color:var(--text-muted);font-size:12px;">No servers saved. Click + Add to add a server.</p>`;
-      } else {
-        sshServers.forEach((server, i) => {
-          html += `<div onclick="connectSSH(${i})" style="padding:10px;background:var(--bg-tertiary);border-radius:6px;margin-bottom:8px;cursor:pointer;border:1px solid var(--border);">
-            <div style="font-weight:600;font-size:13px;">${server.name}</div>
-            <div style="font-size:11px;color:var(--text2);">${server.user}@${server.host}:${server.port}</div>
-          </div>`;
-        });
-      }
-      
-      html += `</div>
-            </div>
-          </div>
-          
-          <div>
-            <div class="input-area">
-              <label class="input-label">Terminal</label>
-              <div id="terminal" style="background:#000;font-family:'JetBrains Mono',monospace;font-size:12px;padding:12px;min-height:300px;border-radius:8px;white-space:pre-wrap;overflow:auto;">
-${sshConnected ? 'Connected to ' + sshCurrentServer?.name + '\n$ ' : 'Select a server to connect'}
-              </div>
-              <div style="display:flex;gap:8px;margin-top:12px;">
-                <input type="text" id="sshCommand" class="input-field" placeholder="Enter command..." style="flex:1;" onkeypress="if(event.key==='Enter')sendSSHCommand()">
-                <button onclick="sendSSHCommand()" class="btn btn-primary" style="padding:12px 20px;">Send</button>
-                ${sshConnected ? '<button onclick="disconnectSSH()" class="btn btn-secondary">Disconnect</button>' : ''}
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Add Server Modal -->
-        <div id="addServerModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:1000;align-items:center;justify-content:center;">
-          <div style="background:var(--bg-card);padding:24px;border-radius:12px;max-width:400px;width:90%;">
-            <h3 style="margin-bottom:16px;">Add Server</h3>
-            <input type="text" id="newServerName" class="input-field" placeholder="Name (e.g., Production Server)" style="margin-bottom:12px;">
-            <input type="text" id="newServerHost" class="input-field" placeholder="Host (e.g., 192.168.1.1)" style="margin-bottom:12px;">
-            <input type="number" id="newServerPort" class="input-field" placeholder="Port (default 22)" value="22" style="margin-bottom:12px;">
-            <input type="text" id="newServerUser" class="input-field" placeholder="Username" style="margin-bottom:12px;">
-            <input type="password" id="newServerPass" class="input-field" placeholder="Password or SSH Key" style="margin-bottom:12px;">
-            <div style="display:flex;gap:8px;">
-              <button onclick="saveServer()" class="btn btn-primary" style="flex:1;">Save</button>
-              <button onclick="document.getElementById('addServerModal').style.display='none'" class="btn btn-secondary" style="flex:1;">Cancel</button>
-            </div>
-          </div>
-        </div>`;
-      
-      container.innerHTML = html;
-    }
-    
-    function showAddServer() {
-      document.getElementById('addServerModal').style.display = 'flex';
-    }
-    
-    function saveServer() {
-      const name = document.getElementById('newServerName').value;
-      const host = document.getElementById('newServerHost').value;
-      const port = document.getElementById('newServerPort').value;
-      const user = document.getElementById('newServerUser').value;
-      const pass = document.getElementById('newServerPass').value;
-      
-      if (!name || !host || !user) {
-        alert('Please fill in all required fields');
-        return;
-      }
-      
-      sshServers.push({ name, host, port: port || 22, user, pass });
-      localStorage.setItem('ittoolbox_ssh_servers', JSON.stringify(sshServers));
-      
-      document.getElementById('addServerModal').style.display = 'none';
-      renderSSH('ssh');
-    }
-    
-    async function connectSSH(index) {
-      const server = sshServers[index];
-      sshCurrentServer = server;
-      
-      const terminal = document.getElementById('terminal');
-      terminal.innerHTML = '<span class="loading">Connecting to ' + server.host + '...</span>';
-      
-      try {
-        const response = await fetch(API + '/api/ssh/connect', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({host: server.host, port: server.port, username: server.user, password: server.pass})
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-          sshConnected = true;
-          terminal.innerHTML = 'Connected to ' + server.name + ' (' + server.host + ')\nType commands below\n\n$ ';
-          renderSSH('ssh'); // Re-render to show disconnect button
-        } else {
-          terminal.innerHTML = '<span class="error">Connection failed: ' + data.error + '</span>';
-        }
-      } catch(e) {
-        terminal.innerHTML = '<span class="error">Error: ' + e.message + '</span>';
-      }
-    }
-    
-    async function sendSSHCommand() {
-      const cmd = document.getElementById('sshCommand').value;
-      if (!cmd || !sshConnected) return;
-      
-      addToHistory(cmd);
-      
-      const terminal = document.getElementById('terminal');
-      terminal.innerHTML += cmd + '\n';
-      
-      try {
-        const response = await fetch(API + '/api/ssh/exec', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({command: cmd})
-        });
-        
-        const data = await response.json();
-        terminal.innerHTML += (data.output || '') + '\n$ ';
-      } catch(e) {
-        terminal.innerHTML += 'Error: ' + e.message + '\n$ ';
-      }
-      
-      document.getElementById('sshCommand').value = '';
-      terminal.scrollTop = terminal.scrollHeight;
-    }
-    
-    async function disconnectSSH() {
-      try {
-        await fetch(API + '/api/ssh/disconnect', { method: 'POST' });
-      } catch(e) {}
-      
-      sshConnected = false;
-      sshCurrentServer = null;
-      renderSSH('ssh');
-    }
-    
-    // JWT Decoder
-    function renderJWT(toolId) {
-      const tool = tools[toolId];
-      const container = document.getElementById('toolContainer');
-      document.getElementById('headerTitle').textContent = tool.title;
-      
-      const isFavorite = favorites.includes(toolId);
-      let html = `
-        <div class="tool-header">
-          <div style="display:flex;justify-content:space-between;align-items:start;">
-            <div>
-              <h2 class="tool-title"><span class="tool-title-icon">${tool.icon}</span>${tool.title}</h2>
-              <p class="tool-description">${tool.description}</p>
-            </div>
-            <button onclick="toggleFavorite('${toolId}')" style="background:none;border:none;font-size:24px;cursor:pointer;padding:8px;">${isFavorite ? '⭐' : '☆'}</button>
-          </div>
-        </div>
-        <div class="input-area">
-          <label class="input-label">Paste JWT Token</label>
-          <textarea id="jwtInput" class="input-field" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." oninput="decodeJWT()"></textarea>
-        </div>
-        <div class="output-area">
-          <div class="output-header"><span class="output-title">Decoded Token</span></div>
-          <div class="output-content" id="jwtOutput"></div>
-        </div>`;
-      
-      container.innerHTML = html;
-    }
-    
-    function decodeJWT() {
-      const token = document.getElementById('jwtInput').value.trim();
-      const output = document.getElementById('jwtOutput');
-      
-      if (!token) {
-        output.textContent = '';
-        return;
-      }
-      
-      try {
-        const parts = token.split('.');
-        if (parts.length !== 3) {
-          output.innerHTML = '<span class="error">Invalid JWT format (need 3 parts)</span>';
-          return;
-        }
-        
-        const header = JSON.parse(atob(parts[0]));
-        const payload = JSON.parse(atob(parts[1]));
-        
-        output.innerHTML = '<div style="margin-bottom:16px;"><strong style="color:var(--accent);">HEADER:</strong>\n' + JSON.stringify(header, null, 2) + '</div>\n<div style="margin-bottom:16px;"><strong style="color:var(--accent);">PAYLOAD:</strong>\n' + JSON.stringify(payload, null, 2) + '</div>\n<strong style="color:var(--accent);">SIGNATURE:</strong>\n' + parts[2];
-      } catch(e) {
-        output.innerHTML = '<span class="error">Error decoding: ' + e.message + '</span>';
-      }
-    }
-    
-    // Password Generator
-    function renderPassword(toolId) {
-      const tool = tools[toolId];
-      const container = document.getElementById('toolContainer');
-      document.getElementById('headerTitle').textContent = tool.title;
-      
-      const isFavorite = favorites.includes(toolId);
-      let html = `
-        <div class="tool-header">
-          <div style="display:flex;justify-content:space-between;align-items:start;">
-            <div>
-              <h2 class="tool-title"><span class="tool-title-icon">${tool.icon}</span>${tool.title}</h2>
-              <p class="tool-description">${tool.description}</p>
-            </div>
-            <button onclick="toggleFavorite('${toolId}')" style="background:none;border:none;font-size:24px;cursor:pointer;padding:8px;">${isFavorite ? '⭐' : '☆'}</button>
-          </div>
-        </div>
-        <div class="input-area">
-          <label class="input-label">Password Length: <span id="passLengthVal">16</span></label>
-          <input type="range" id="passLength" min="8" max="64" value="16" oninput="document.getElementById('passLengthVal').textContent=this.value;generatePassword();" style="width:100%;margin-bottom:16px;">
-          <div style="display:flex;gap:16px;margin-bottom:16px;">
-            <label><input type="checkbox" id="passUpper" checked onchange="generatePassword()"> Uppercase (A-Z)</label>
-            <label><input type="checkbox" id="passLower" checked onchange="generatePassword()"> Lowercase (a-z)</label>
-            <label><input type="checkbox" id="passNumbers" checked onchange="generatePassword()"> Numbers (0-9)</label>
-            <label><input type="checkbox" id="passSymbols" checked onchange="generatePassword()"> Symbols (!@#$)</label>
-          </div>
-          <button class="btn btn-primary" onclick="generatePassword()" style="width:100%;">Generate Password</button>
-        </div>
-        <div class="output-area">
-          <div class="output-header"><span class="output-title">Generated Password</span><button class="copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('passwordOutput').textContent)">📋 Copy</button></div>
-          <div class="output-content" id="passwordOutput" style="font-size:18px;font-weight:600;"></div>
-        </div>`;
-      
-      container.innerHTML = html;
-      generatePassword();
-    }
-    
-    function generatePassword() {
-      const length = parseInt(document.getElementById('passLength').value);
-      const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-      const lower = 'abcdefghijklmnopqrstuvwxyz';
-      const numbers = '0123456789';
-      const symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?';
-      
-      let chars = '';
-      if (document.getElementById('passUpper').checked) chars += upper;
-      if (document.getElementById('passLower').checked) chars += lower;
-      if (document.getElementById('passNumbers').checked) chars += numbers;
-      if (document.getElementById('passSymbols').checked) chars += symbols;
-      
-      if (!chars) chars = lower;
-      
-      let password = '';
-      for (let i = 0; i < length; i++) {
-        password += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      
-      document.getElementById('passwordOutput').textContent = password;
-    }
-    
-    // QR Code Generator
-    function renderQRCode(toolId) {
-      const tool = tools[toolId];
-      const container = document.getElementById('toolContainer');
-      document.getElementById('headerTitle').textContent = tool.title;
-      
-      const isFavorite = favorites.includes(toolId);
-      let html = `
-        <div class="tool-header">
-          <div style="display:flex;justify-content:space-between;align-items:start;">
-            <div>
-              <h2 class="tool-title"><span class="tool-title-icon">${tool.icon}</span>${tool.title}</h2>
-              <p class="tool-description">${tool.description}</p>
-            </div>
-            <button onclick="toggleFavorite('${toolId}')" style="background:none;border:none;font-size:24px;cursor:pointer;padding:8px;">${isFavorite ? '⭐' : '☆'}</button>
-          </div>
-        </div>
-        <div class="input-area">
-          <label class="input-label">Enter content (URL, text, etc.)</label>
-          <input type="text" id="qrInput" class="input-field" placeholder="https://example.com" oninput="generateQR()">
-        </div>
-        <div class="output-area" style="text-align:center;padding:20px;">
-          <div id="qrOutput"></div>
-        </div>`;
-      
-      container.innerHTML = html;
-    }
-    
-    function generateQR() {
-      const text = document.getElementById('qrInput').value;
-      const output = document.getElementById('qrOutput');
-      
-      if (!text) {
-        output.innerHTML = '';
-        return;
-      }
-      
-      // Simple QR code using Google Charts API
-      const url = 'https://chart.googleapis.com/chart?cht=qr&chl=' + encodeURIComponent(text) + '&chs=200x200';
-      output.innerHTML = '<img src="' + url + '" alt="QR Code" style="max-width:200px;">';
-    }
-    
-    // Subnet Calculator
-    function renderSubnet(toolId) {
-      const tool = tools[toolId];
-      const container = document.getElementById('toolContainer');
-      document.getElementById('headerTitle').textContent = tool.title;
-      
-      const isFavorite = favorites.includes(toolId);
-      let html = `
-        <div class="tool-header">
-          <div style="display:flex;justify-content:space-between;align-items:start;">
-            <div>
-              <h2 class="tool-title"><span class="tool-title-icon">${tool.icon}</span>${tool.title}</h2>
-              <p class="tool-description">${tool.description}</p>
-            </div>
-            <button onclick="toggleFavorite('${toolId}')" style="background:none;border:none;font-size:24px;cursor:pointer;padding:8px;">${isFavorite ? '⭐' : '☆'}</button>
-          </div>
-        </div>
-        <div class="input-area">
-          <label class="input-label">IP Address / CIDR (e.g., 192.168.1.0/24)</label>
-          <input type="text" id="subnetInput" class="input-field" placeholder="192.168.1.0/24" onkeypress="if(event.key==='Enter')calculateSubnet()">
-          <button class="btn btn-primary" onclick="calculateSubnet()" style="width:100%;margin-top:12px;">Calculate</button>
-        </div>
-        <div class="output-area">
-          <div class="output-header"><span class="output-title">Subnet Details</span></div>
-          <div class="output-content" id="subnetOutput"></div>
-        </div>`;
-      
-      container.innerHTML = html;
-    }
-    
-    function calculateSubnet() {
-      const input = document.getElementById('subnetInput').value.trim();
-      const output = document.getElementById('subnetOutput');
-      
-      try {
-        const parts = input.split('/');
-        if (parts.length !== 2) {
-          output.innerHTML = '<span class="error">Use format: IP/CIDR (e.g., 192.168.1.0/24)</span>';
-          return;
-        }
-        
-        const ip = parts[0].split('.').map(Number);
-        const cidr = parseInt(parts[1]);
-        
-        if (cidr < 0 || cidr > 32) {
-          output.innerHTML = '<span class="error">CIDR must be 0-32</span>';
-          return;
-        }
-        
-        const mask = ~((1 << (32 - cidr)) - 1) >>> 0;
-        const ipInt = (ip[0] << 24) | (ip[1] << 16) | (ip[2] << 8) | ip[3];
-        const network = (ipInt & mask) >>> 0;
-        const broadcast = (network | ~mask) >>> 0;
-        const numHosts = Math.pow(2, 32 - cidr) - 2;
-        
-        const toIP = (n) => [(n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255].join('.');
-        
-        output.innerHTML = '<strong>Network:</strong> ' + toIP(network) + '/' + cidr + '\n' +
-          '<strong>Subnet Mask:</strong> ' + toIP(mask) + '\n' +
-          '<strong>Broadcast:</strong> ' + toIP(broadcast) + '\n' +
-          '<strong>First IP:</strong> ' + toIP(network + 1) + '\n' +
-          '<strong>Last IP:</strong> ' + toIP(broadcast - 1) + '\n' +
-          '<strong>Total Hosts:</strong> ' + (numHosts > 0 ? numHosts : '0') + '\n' +
-          '<strong>CIDR Notation:</strong> /' + cidr + '\n' +
-          '<strong>Wildcard Mask:</strong> ' + toIP(~mask >>> 0);
-      } catch(e) {
-        output.innerHTML = '<span class="error">Error: ' + e.message + '</span>';
-      }
-    }
-    
-    // System Monitor Tool
-    async function renderSystemTool(toolId, title, command) {
-      const tool = tools[toolId];
-      const container = document.getElementById('toolContainer');
-      document.getElementById('headerTitle').textContent = tool.title;
-      
-      const isFavorite = favorites.includes(toolId);
-      let html = `
-        <div class="tool-header">
-          <div style="display:flex;justify-content:space-between;align-items:start;">
-            <div>
-              <h2 class="tool-title"><span class="tool-title-icon">${tool.icon}</span>${tool.title}</h2>
-              <p class="tool-description">${tool.description}</p>
-            </div>
-            <button onclick="toggleFavorite('${toolId}')" style="background:none;border:none;font-size:24px;cursor:pointer;padding:8px;">${isFavorite ? '⭐' : '☆'}</button>
-          </div>
-        </div>
-        <div class="action-row">
-          <button class="btn btn-primary" onclick="runSystemCommand('${toolId}')">🔄 Refresh</button>
-        </div>
-        <div class="output-area">
-          <div class="output-header"><span class="output-title">Output</span></div>
-          <div class="output-content" id="systemOutput"><span class="loading">Loading...</span></div>
-        </div>`;
-      
-      container.innerHTML = html;
-      await runSystemCommand(toolId);
-    }
-    
-    async function runSystemCommand(toolId) {
-      const commands = {
-        processes: 'ps aux | head -30',
-        disk: 'df -h',
-        memory: 'free -h',
-        netstats: 'ifconfig'
-      };
-      
-      const command = commands[toolId];
-      const output = document.getElementById('systemOutput');
-      output.innerHTML = '<span class="loading">Loading...</span>';
-      
-      try {
-        const response = await fetch(API + '/api/system', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({command: command})
-        });
-        const data = await response.json();
-        output.textContent = data.output || data.error || 'No output';
-      } catch(e) {
-        output.textContent = 'Error: ' + e.message;
-      }
-    }
-    
-    // Cron Builder
-    function renderCron(toolId) {
-      const tool = tools[toolId];
-      const container = document.getElementById('toolContainer');
-      document.getElementById('headerTitle').textContent = tool.title;
-      
-      const isFavorite = favorites.includes(toolId);
-      let html = `
-        <div class="tool-header">
-          <div style="display:flex;justify-content:space-between;align-items:start;">
-            <div>
-              <h2 class="tool-title"><span class="tool-title-icon">${tool.icon}</span>${tool.title}</h2>
-              <p class="tool-description">${tool.description}</p>
-            </div>
-            <button onclick="toggleFavorite('${toolId}')" style="background:none;border:none;font-size:24px;cursor:pointer;padding:8px;">${isFavorite ? '⭐' : '☆'}</button>
-          </div>
-        </div>
-        <div class="input-area">
-          <div class="input-row">
-            <div><label class="input-label">Minute</label><select id="cronMin" class="input-field" onchange="buildCron()"><option value="*">Every minute</option><option value="0">At minute 0</option><option value="*/5">Every 5 min</option><option value="*/15">Every 15 min</option><option value="*/30">Every 30 min</option></select></div>
-            <div><label class="input-label">Hour</label><select id="cronHour" class="input-field" onchange="buildCron()"><option value="*">Every hour</option><option value="0">Midnight</option><option value="6">6 AM</option><option value="12">Noon</option><option value="18">6 PM</option></select></div>
-            <div><label class="input-label">Day</label><select id="cronDay" class="input-field" onchange="buildCron()"><option value="*">Every day</option><option value="1">1st</option><option value="15">15th</option></select></div>
-            <div><label class="input-label">Month</label><select id="cronMonth" class="input-field" onchange="buildCron()"><option value="*">Every month</option><option value="1">January</option><option value="6">June</option></select></div>
-            <div><label class="input-label">Weekday</label><select id="cronDow" class="input-field" onchange="buildCron()"><option value="*">Every day</option><option value="0">Sunday</option><option value="1">Monday</option><option value="5">Friday</option></select></div>
-          </div>
-        </div>
-        <div class="output-area">
-          <div class="output-header"><span class="output-title">Cron Expression</span><button class="copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('cronResult').textContent)">📋 Copy</button></div>
-          <div class="output-content" id="cronResult" style="font-size:20px;font-weight:600;">* * * * *</div>
-        </div>
-        <div class="output-area" style="margin-top:16px;">
-          <div class="output-header"><span class="output-title">Human Readable</span></div>
-          <div class="output-content" id="cronHuman">Every minute</div>
-        </div>
-        <div style="margin-top:16px;">
-          <h4 style="margin-bottom:12px;">Common Examples</h4>
-          <div style="display:flex;flex-wrap:wrap;gap:8px;">
-            <button onclick="setCron('0 * * * *')" style="background:var(--bg3);border:1px solid var(--border);padding:8px 12px;border-radius:6px;cursor:pointer;font-size:12px;">Every hour</button>
-            <button onclick="setCron('0 0 * * *')" style="background:var(--bg3);border:1px solid var(--border);padding:8px 12px;border-radius:6px;cursor:pointer;font-size:12px;">Daily midnight</button>
-            <button onclick="setCron('0 * * * 0')" style="background:var(--bg3);border:1px solid var(--border);padding:8px 12px;border-radius:6px;cursor:pointer;font-size:12px;">Every hour Sunday</button>
-            <button onclick="setCron('*/15 * * * *')" style="background:var(--bg3);border:1px solid var(--border);padding:8px 12px;border-radius:6px;cursor:pointer;font-size:12px;">Every 15 min</button>
-            <button onclick="setCron('0 9 * * 1-5')" style="background:var(--bg3);border:1px solid var(--border);padding:8px 12px;border-radius:6px;cursor:pointer;font-size:12px;">9AM weekdays</button>
-          </div>
-        </div>`;
-      
-      container.innerHTML = html;
-    }
-    
-    function buildCron() {
-      const min = document.getElementById('cronMin').value;
-      const hour = document.getElementById('cronHour').value;
-      const day = document.getElementById('cronDay').value;
-      const month = document.getElementById('cronMonth').value;
-      const dow = document.getElementById('cronDow').value;
-      
-      const expr = `${min} ${hour} ${day} ${month} ${dow}`;
-      document.getElementById('cronResult').textContent = expr;
-      document.getElementById('cronHuman').textContent = describeCron(expr);
-    }
-    
-    function describeCron(expr) {
-      const parts = expr.split(' ');
-      const [min, hour, day, month, dow] = parts;
-      let desc = 'Runs ';
-      if (min === '*') desc += 'every minute';
-      else if (min.startsWith('*/')) desc += `every ${min.slice(2)} minutes`;
-      else desc += `at minute ${min}`;
-      if (hour === '*') desc += ' every hour';
-      else if (hour.startsWith('*/')) desc += ` every ${hour.slice(2)} hours`;
-      else desc += ` at ${hour}:00`;
-      return desc;
-    }
-    
-    function setCron(expr) {
-      const parts = expr.split(' ');
-      document.getElementById('cronMin').value = parts[0];
-      document.getElementById('cronHour').value = parts[1];
-      document.getElementById('cronDay').value = parts[2];
-      document.getElementById('cronMonth').value = parts[3];
-      document.getElementById('cronDow').value = parts[4];
-      buildCron();
-    }
-    
-    // Notes
-    
-    
-    function renderNotes(toolId) {
-      const tool = tools[toolId];
-      const container = document.getElementById('toolContainer');
-      document.getElementById('headerTitle').textContent = tool.title;
-      
-      const isFavorite = favorites.includes(toolId);
-      let html = `
-        <div class="tool-header">
-          <div style="display:flex;justify-content:space-between;align-items:start;">
-            <div>
-              <h2 class="tool-title"><span class="tool-title-icon">${tool.icon}</span>${tool.title}</h2>
-              <p class="tool-description">${tool.description}</p>
-            </div>
-            <button onclick="toggleFavorite('${toolId}')" style="background:none;border:none;font-size:24px;cursor:pointer;padding:8px;">${isFavorite ? '⭐' : '☆'}</button>
-          </div>
-        </div>
-        <div class="input-area">
-          <textarea id="noteInput" class="input-field" placeholder="Type your note here..." style="min-height:100px;"></textarea>
-          <button class="btn btn-primary" onclick="saveNote()" style="width:100%;margin-top:12px;">Save Note</button>
-        </div>
-        <div id="notesList">`;
-      
-      notes.forEach((note, i) => {
-        html += `<div style="background:var(--bg3);padding:12px;border-radius:8px;margin-bottom:8px;position:relative;">
-          <div style="font-size:11px;color:var(--text2);margin-bottom:8px;">${note.date}</div>
-          <div>${note.text}</div>
-          <button onclick="deleteNote(${i})" style="position:absolute;top:8px;right:8px;background:none;border:none;color:var(--danger);cursor:pointer;">✕</button>
-        </div>`;
-      });
-      
-      html += '</div>';
-      container.innerHTML = html;
-    }
-    
-    function saveNote() {
-      const text = document.getElementById('noteInput').value.trim();
-      if (!text) return;
-      
-      notes.unshift({ text, date: new Date().toLocaleString() });
-      if (notes.length > 50) notes.pop();
-      
-      localStorage.setItem('ittoolbox_notes', JSON.stringify(notes));
-      document.getElementById('noteInput').value = '';
-      renderNotes('notes');
-    }
-    
-    function deleteNote(i) {
-      notes.splice(i, 1);
-      localStorage.setItem('ittoolbox_notes', JSON.stringify(notes));
-      renderNotes('notes');
-    }
-    
-    // Command History
-    
-    
-    function renderHistory(toolId) {
-      const tool = tools[toolId];
-      const container = document.getElementById('toolContainer');
-      document.getElementById('headerTitle').textContent = tool.title;
-      
-      const isFavorite = favorites.includes(toolId);
-      let html = `
-        <div class="tool-header">
-          <div style="display:flex;justify-content:space-between;align-items:start;">
-            <div>
-              <h2 class="tool-title"><span class="tool-title-icon">${tool.icon}</span>${tool.title}</h2>
-              <p class="tool-description">${tool.description}</p>
-            </div>
-            <button onclick="toggleFavorite('${toolId}')" style="background:none;border:none;font-size:24px;cursor:pointer;padding:8px;">${isFavorite ? '⭐' : '☆'}</button>
-          </div>
-        </div>
-        <div style="margin-bottom:16px;">
-          <button onclick="cmdHistory=[];localStorage.setItem('ittoolbox_history',JSON.stringify(cmdHistory));renderHistory('history')" class="btn btn-secondary">Clear History</button>
-        </div>`;
-      
-      if (cmdHistory.length === 0) {
-        html += '<p style="color:var(--text2);">No command history yet.</p>';
-      } else {
-        cmdHistory.forEach((cmd, i) => {
-          html += `<div style="background:var(--bg3);padding:10px;border-radius:6px;margin-bottom:6px;cursor:pointer;" onclick="document.getElementById('sshCommand').value='${cmd.replace(/'/g,"\\'")}';">
-            <span style="color:var(--accent);">$</span> ${cmd}
-          </div>`;
-        });
-      }
-      
-      container.innerHTML = html;
-    }
-    
-    // Add to history when command runs
-    function addToHistory(cmd) {
-      if (!cmd || cmd.trim() === '') return;
-      cmdHistory.unshift(cmd);
-      if (cmdHistory.length > 100) cmdHistory.pop();
-      localStorage.setItem('ittoolbox_history', JSON.stringify(cmdHistory));
-    }
-    
-    init();
+    let currentTool = null;
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('collapsed'); document.getElementById('toggleIcon').textContent = document.getElementById('sidebar').classList.contains('collapsed') ? '▶' : '◀'; }
+    function selectTool(toolId) { currentTool = toolId; const tool = tools[toolId]; if (!tool) return; document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active')); document.querySelector(`[data-tool="${toolId}"]`)?.classList.add('active'); document.getElementById('welcomeScreen').style.display = 'none'; document.getElementById('pageTitle').textContent = tool.name; let inputsHtml = ''; tool.inputs.forEach(inp => { if (inp.type === 'textarea') inputsHtml += `<div class="input-group"><label class="input-label">${inp.label}</label><textarea class="tool-textarea" id="inp_${inp.name}" placeholder="${inp.placeholder || ''}">${inp.value || ''}</textarea></div>`; else if (inp.type === 'select') { let opts = inp.options.map(o => `<option value="${o}" ${inp.value === o ? 'selected' : ''}>${o}</option>`).join(''); inputsHtml += `<div class="input-group"><label class="input-label">${inp.label}</label><select class="tool-select" id="inp_${inp.name}">${opts}</select></div>`; } else inputsHtml += `<div class="input-group"><label class="input-label">${inp.label}</label><input class="tool-input" type="text" id="inp_${inp.name}" placeholder="${inp.placeholder || ''}" value="${inp.value || ''}"></div>`; }); const container = document.getElementById('toolContainer'); container.innerHTML = `<div class="tool-container"><div class="tool-header"><div><div class="tool-title"><span class="tool-title-icon">${tool.icon}</span>${tool.name}</div><div class="tool-description">${tool.description}</div></div></div><div class="tool-inputs">${inputsHtml}</div><div class="tool-actions"><button class="tool-btn primary" onclick="runTool()">${tool.action}</button></div><div id="resultArea"></div></div>`; }
+    function runTool() { const tool = tools[currentTool]; if (!tool) return; const resultArea = document.getElementById('resultArea'); resultArea.innerHTML = '<div class="result-container"><div class="result-header"><span class="result-title">Result</span></div><div class="result-content loading">Loading...</div></div>'; if (tool.local) { let result = ''; const data = {}; tool.inputs.forEach(inp => { data[inp.name] = document.getElementById('inp_' + inp.name).value; }); if (currentTool === 'json') { try { result = JSON.stringify(JSON.parse(data.json), null, 2); } catch(e) { result = 'Error: ' + e.message; } } else if (currentTool === 'base64') { result = data.mode === 'encode' ? btoa(data.text) : atob(data.text); } else if (currentTool === 'url') { result = data.mode === 'encode' ? encodeURIComponent(data.text) : decodeURIComponent(data.text); } else if (currentTool === 'password') { const len = parseInt(data.length) || 16; const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*'; result = Array.from({length: len}, () => chars[Math.floor(Math.random() * chars.length)]).join(''); } else if (currentTool === 'uuid') { result = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16); }); } else if (currentTool === 'qrcode') { result = `![QR Code](https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data.text || 'Hello')})`; } else if (currentTool === 'color') { result = `Input: ${data.color}\nHEX: ${data.color}\nRGB: ${hexToRgb(data.color)}\nHSL: ${hexToHsl(data.color)}`; } setResult(result); } else { const data = {}; tool.inputs.forEach(inp => { data[inp.name] = document.getElementById('inp_' + inp.name).value; }); const url = tool.method === 'GET' ? API + tool.endpoint : API + tool.endpoint; const opts = { method: tool.method, headers: { 'Content-Type': 'application/json' } }; if (tool.method !== 'GET') opts.body = JSON.stringify(data); fetch(url, opts).then(r => r.json()).then(d => setResult(JSON.stringify(d, null, 2))).catch(e => setResult('Error: ' + e.message)); } }
+    function setResult(text) { document.querySelector('.result-content').classList.remove('loading'); document.querySelector('.result-content').textContent = text; }
+    function hexToRgb(hex) { const r = parseInt(hex.slice(1,3), 16), g = parseInt(hex.slice(3,5), 16), b = parseInt(hex.slice(5,7), 16); return `rgb(${r}, ${g}, ${b})`; }
+    function hexToHsl(hex) { const r = parseInt(hex.slice(1,3), 16) / 255, g = parseInt(hex.slice(3,5), 16) / 255, b = parseInt(hex.slice(5,7), 16) / 255; const max = Math.max(r,g,b), min = Math.min(r,g,b); let h, s, l = (max + min) / 2; if (max === min) h = s = 0; else { const d = max - min; s = l > 0.5 ? d / (2 - max - min) : d / (max + min); switch(max) { case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break; case g: h = ((b - r) / d + 2) / 6; break; case b: h = ((r - g) / d + 4) / 6; } } return `hsl(${Math.round(h * 360)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%)`; }
+    function filterTools() { const q = document.getElementById('searchInput').value.toLowerCase(); document.querySelectorAll('.nav-item').forEach(el => { el.style.display = el.textContent.toLowerCase().includes(q) ? 'flex' : 'none'; }); }
   </script>
 </body>
 </html>
