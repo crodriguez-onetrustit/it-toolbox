@@ -932,3 +932,74 @@ async def wifi_list():
             }
     except Exception as e:
         return {"error": str(e), "platform": sys.platform}
+
+# JWT Decoder
+@app.post("/api/jwt/decode")
+async def jwt_decode(data: dict):
+    """Decode JWT token"""
+    import base64
+    import json
+    
+    token = data.get("token", "")
+    
+    if not token:
+        return {"error": "Token required"}
+    
+    try:
+        parts = token.split('.')
+        if len(parts) != 3:
+            return {"error": "Invalid JWT format"}
+        
+        # Decode payload (second part)
+        payload = parts[1]
+        # Add padding if needed
+        padding = 4 - len(payload) % 4
+        if padding != 4:
+            payload += '=' * padding
+        
+        decoded = base64.urlsafe_b64decode(payload)
+        payload_data = json.loads(decoded)
+        
+        return {
+            "valid": True,
+            "payload": payload_data,
+            "header": json.loads(base64.urlsafe_b64decode(parts[0] + '=='))
+        }
+    except Exception as e:
+        return {"valid": False, "error": str(e)}
+
+@app.post("/api/jwt/encode")
+async def jwt_encode(data: dict):
+    """Encode JWT token"""
+    import base64
+    import json
+    import time
+    
+    payload = data.get("payload", {})
+    secret = data.get("secret", "secret")
+    algorithm = data.get("algorithm", "HS256")
+    
+    try:
+        # Create header
+        header = {"alg": algorithm, "typ": "JWT"}
+        
+        # Add timestamp if not present
+        if "iat" not in payload:
+            payload["iat"] = int(time.time())
+        
+        import hmac
+        import hashlib
+        
+        def b64encode(data):
+            return base64.urlsafe_b64encode(json.dumps(data).encode()).decode().rstrip('=')
+        
+        header_b64 = b64encode(header)
+        payload_b64 = b64encode(payload)
+        
+        # Sign
+        signature = hmac.new(secret.encode(), f"{header_b64}.{payload_b64}".encode(), hashlib.sha256).digest()
+        signature_b64 = base64.urlsafe_b64encode(signature).decode().rstrip('=')
+        
+        return {"token": f"{header_b64}.{payload_b64}.{signature_b64}"}
+    except Exception as e:
+        return {"error": str(e)}
