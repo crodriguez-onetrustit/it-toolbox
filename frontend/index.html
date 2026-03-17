@@ -227,8 +227,9 @@
     let outputText = '';
     let favorites = JSON.parse(localStorage.getItem('ittoolbox_favorites') || '[]');
     let sshServers = JSON.parse(localStorage.getItem('ittoolbox_ssh_servers') || '[]');
-    
-    
+    let notes = JSON.parse(localStorage.getItem('ittoolbox_notes') || '[]');
+    let cmdHistory = JSON.parse(localStorage.getItem('ittoolbox_history') || '[]');
+    let sshConnected = false;
     const API = window.location.protocol + '//' + window.location.hostname + ':8892';
     
     // Save favorites
