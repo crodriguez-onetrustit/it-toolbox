@@ -148,6 +148,10 @@
           <div class="nav-item" data-tool="color" onclick="selectTool('color')"><span class="nav-icon">🎨</span><span class="nav-label">Color Converter</span></div>
           <div class="nav-item" data-tool="curl" onclick="selectTool('curl')"><span class="nav-icon">🌐</span><span class="nav-label">cURL Builder</span></div>
           <div class="nav-item" data-tool="ssh" onclick="selectTool('ssh')"><span class="nav-icon">🖥️</span><span class="nav-label">SSH Terminal</span></div>
+          <div class="nav-item" data-tool="jwt" onclick="selectTool('jwt')"><span class="nav-icon">🎫</span><span class="nav-label">JWT Decoder</span></div>
+          <div class="nav-item" data-tool="password" onclick="selectTool('password')"><span class="nav-icon">🔑</span><span class="nav-label">Password Generator</span></div>
+          <div class="nav-item" data-tool="qrcode" onclick="selectTool('qrcode')"><span class="nav-icon">⬛</span><span class="nav-label">QR Code</span></div>
+          <div class="nav-item" data-tool="subnet" onclick="selectTool('subnet')"><span class="nav-icon">🔢</span><span class="nav-label">Subnet Calculator</span></div>
         </div>
       </div>
     </aside>
@@ -218,7 +222,11 @@
       whois: { title: 'WHOIS', icon: '📜', description: 'Domain info', type: 'input', inputLabel: 'Enter domain', inputPlaceholder: 'example.com' },
       color: { title: 'Color Converter', icon: '🎨', description: 'Convert colors', type: 'color' },
       curl: { title: 'cURL Builder', icon: '🌐', description: 'Build cURL', type: 'curl' },
-      ssh: { title: 'SSH Terminal', icon: '🖥️', description: 'Connect to servers', type: 'ssh' }
+      ssh: { title: 'SSH Terminal', icon: '🖥️', description: 'Connect to servers', type: 'ssh' },
+      jwt: { title: 'JWT Decoder', icon: '🎫', description: 'Decode JWT tokens', type: 'jwt' },
+      password: { title: 'Password Generator', icon: '🔑', description: 'Generate secure passwords', type: 'password' },
+      qrcode: { title: 'QR Code', icon: '⬛', description: 'Generate QR codes', type: 'qrcode' },
+      subnet: { title: 'Subnet Calculator', icon: '🔢', description: 'Calculate IP subnets', type: 'subnet' }
     };
     function init() { 
       renderFavorites();
@@ -391,6 +399,18 @@
             break;
           case 'ssh':
             renderSSH(toolId);
+            return;
+          case 'jwt':
+            renderJWT(toolId);
+            return;
+          case 'password':
+            renderPassword(toolId);
+            return;
+          case 'qrcode':
+            renderQRCode(toolId);
+            return;
+          case 'subnet':
+            renderSubnet(toolId);
             return;
           default: 
             result = 'Tool not implemented yet';
@@ -568,6 +588,232 @@ ${sshConnected ? 'Connected to ' + sshCurrentServer?.name + '\n$ ' : 'Select a s
       sshConnected = false;
       sshCurrentServer = null;
       renderSSH('ssh');
+    }
+    
+    // JWT Decoder
+    function renderJWT(toolId) {
+      const tool = tools[toolId];
+      const container = document.getElementById('toolContainer');
+      document.getElementById('headerTitle').textContent = tool.title;
+      
+      const isFavorite = favorites.includes(toolId);
+      let html = `
+        <div class="tool-header">
+          <div style="display:flex;justify-content:space-between;align-items:start;">
+            <div>
+              <h2 class="tool-title"><span class="tool-title-icon">${tool.icon}</span>${tool.title}</h2>
+              <p class="tool-description">${tool.description}</p>
+            </div>
+            <button onclick="toggleFavorite('${toolId}')" style="background:none;border:none;font-size:24px;cursor:pointer;padding:8px;">${isFavorite ? '⭐' : '☆'}</button>
+          </div>
+        </div>
+        <div class="input-area">
+          <label class="input-label">Paste JWT Token</label>
+          <textarea id="jwtInput" class="input-field" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." oninput="decodeJWT()"></textarea>
+        </div>
+        <div class="output-area">
+          <div class="output-header"><span class="output-title">Decoded Token</span></div>
+          <div class="output-content" id="jwtOutput"></div>
+        </div>`;
+      
+      container.innerHTML = html;
+    }
+    
+    function decodeJWT() {
+      const token = document.getElementById('jwtInput').value.trim();
+      const output = document.getElementById('jwtOutput');
+      
+      if (!token) {
+        output.textContent = '';
+        return;
+      }
+      
+      try {
+        const parts = token.split('.');
+        if (parts.length !== 3) {
+          output.innerHTML = '<span class="error">Invalid JWT format (need 3 parts)</span>';
+          return;
+        }
+        
+        const header = JSON.parse(atob(parts[0]));
+        const payload = JSON.parse(atob(parts[1]));
+        
+        output.innerHTML = '<div style="margin-bottom:16px;"><strong style="color:var(--accent);">HEADER:</strong>\n' + JSON.stringify(header, null, 2) + '</div>\n<div style="margin-bottom:16px;"><strong style="color:var(--accent);">PAYLOAD:</strong>\n' + JSON.stringify(payload, null, 2) + '</div>\n<strong style="color:var(--accent);">SIGNATURE:</strong>\n' + parts[2];
+      } catch(e) {
+        output.innerHTML = '<span class="error">Error decoding: ' + e.message + '</span>';
+      }
+    }
+    
+    // Password Generator
+    function renderPassword(toolId) {
+      const tool = tools[toolId];
+      const container = document.getElementById('toolContainer');
+      document.getElementById('headerTitle').textContent = tool.title;
+      
+      const isFavorite = favorites.includes(toolId);
+      let html = `
+        <div class="tool-header">
+          <div style="display:flex;justify-content:space-between;align-items:start;">
+            <div>
+              <h2 class="tool-title"><span class="tool-title-icon">${tool.icon}</span>${tool.title}</h2>
+              <p class="tool-description">${tool.description}</p>
+            </div>
+            <button onclick="toggleFavorite('${toolId}')" style="background:none;border:none;font-size:24px;cursor:pointer;padding:8px;">${isFavorite ? '⭐' : '☆'}</button>
+          </div>
+        </div>
+        <div class="input-area">
+          <label class="input-label">Password Length: <span id="passLengthVal">16</span></label>
+          <input type="range" id="passLength" min="8" max="64" value="16" oninput="document.getElementById('passLengthVal').textContent=this.value;generatePassword();" style="width:100%;margin-bottom:16px;">
+          <div style="display:flex;gap:16px;margin-bottom:16px;">
+            <label><input type="checkbox" id="passUpper" checked onchange="generatePassword()"> Uppercase (A-Z)</label>
+            <label><input type="checkbox" id="passLower" checked onchange="generatePassword()"> Lowercase (a-z)</label>
+            <label><input type="checkbox" id="passNumbers" checked onchange="generatePassword()"> Numbers (0-9)</label>
+            <label><input type="checkbox" id="passSymbols" checked onchange="generatePassword()"> Symbols (!@#$)</label>
+          </div>
+          <button class="btn btn-primary" onclick="generatePassword()" style="width:100%;">Generate Password</button>
+        </div>
+        <div class="output-area">
+          <div class="output-header"><span class="output-title">Generated Password</span><button class="copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('passwordOutput').textContent)">📋 Copy</button></div>
+          <div class="output-content" id="passwordOutput" style="font-size:18px;font-weight:600;"></div>
+        </div>`;
+      
+      container.innerHTML = html;
+      generatePassword();
+    }
+    
+    function generatePassword() {
+      const length = parseInt(document.getElementById('passLength').value);
+      const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      const lower = 'abcdefghijklmnopqrstuvwxyz';
+      const numbers = '0123456789';
+      const symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+      
+      let chars = '';
+      if (document.getElementById('passUpper').checked) chars += upper;
+      if (document.getElementById('passLower').checked) chars += lower;
+      if (document.getElementById('passNumbers').checked) chars += numbers;
+      if (document.getElementById('passSymbols').checked) chars += symbols;
+      
+      if (!chars) chars = lower;
+      
+      let password = '';
+      for (let i = 0; i < length; i++) {
+        password += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      
+      document.getElementById('passwordOutput').textContent = password;
+    }
+    
+    // QR Code Generator
+    function renderQRCode(toolId) {
+      const tool = tools[toolId];
+      const container = document.getElementById('toolContainer');
+      document.getElementById('headerTitle').textContent = tool.title;
+      
+      const isFavorite = favorites.includes(toolId);
+      let html = `
+        <div class="tool-header">
+          <div style="display:flex;justify-content:space-between;align-items:start;">
+            <div>
+              <h2 class="tool-title"><span class="tool-title-icon">${tool.icon}</span>${tool.title}</h2>
+              <p class="tool-description">${tool.description}</p>
+            </div>
+            <button onclick="toggleFavorite('${toolId}')" style="background:none;border:none;font-size:24px;cursor:pointer;padding:8px;">${isFavorite ? '⭐' : '☆'}</button>
+          </div>
+        </div>
+        <div class="input-area">
+          <label class="input-label">Enter content (URL, text, etc.)</label>
+          <input type="text" id="qrInput" class="input-field" placeholder="https://example.com" oninput="generateQR()">
+        </div>
+        <div class="output-area" style="text-align:center;padding:20px;">
+          <div id="qrOutput"></div>
+        </div>`;
+      
+      container.innerHTML = html;
+    }
+    
+    function generateQR() {
+      const text = document.getElementById('qrInput').value;
+      const output = document.getElementById('qrOutput');
+      
+      if (!text) {
+        output.innerHTML = '';
+        return;
+      }
+      
+      // Simple QR code using Google Charts API
+      const url = 'https://chart.googleapis.com/chart?cht=qr&chl=' + encodeURIComponent(text) + '&chs=200x200';
+      output.innerHTML = '<img src="' + url + '" alt="QR Code" style="max-width:200px;">';
+    }
+    
+    // Subnet Calculator
+    function renderSubnet(toolId) {
+      const tool = tools[toolId];
+      const container = document.getElementById('toolContainer');
+      document.getElementById('headerTitle').textContent = tool.title;
+      
+      const isFavorite = favorites.includes(toolId);
+      let html = `
+        <div class="tool-header">
+          <div style="display:flex;justify-content:space-between;align-items:start;">
+            <div>
+              <h2 class="tool-title"><span class="tool-title-icon">${tool.icon}</span>${tool.title}</h2>
+              <p class="tool-description">${tool.description}</p>
+            </div>
+            <button onclick="toggleFavorite('${toolId}')" style="background:none;border:none;font-size:24px;cursor:pointer;padding:8px;">${isFavorite ? '⭐' : '☆'}</button>
+          </div>
+        </div>
+        <div class="input-area">
+          <label class="input-label">IP Address / CIDR (e.g., 192.168.1.0/24)</label>
+          <input type="text" id="subnetInput" class="input-field" placeholder="192.168.1.0/24" onkeypress="if(event.key==='Enter')calculateSubnet()">
+          <button class="btn btn-primary" onclick="calculateSubnet()" style="width:100%;margin-top:12px;">Calculate</button>
+        </div>
+        <div class="output-area">
+          <div class="output-header"><span class="output-title">Subnet Details</span></div>
+          <div class="output-content" id="subnetOutput"></div>
+        </div>`;
+      
+      container.innerHTML = html;
+    }
+    
+    function calculateSubnet() {
+      const input = document.getElementById('subnetInput').value.trim();
+      const output = document.getElementById('subnetOutput');
+      
+      try {
+        const parts = input.split('/');
+        if (parts.length !== 2) {
+          output.innerHTML = '<span class="error">Use format: IP/CIDR (e.g., 192.168.1.0/24)</span>';
+          return;
+        }
+        
+        const ip = parts[0].split('.').map(Number);
+        const cidr = parseInt(parts[1]);
+        
+        if (cidr < 0 || cidr > 32) {
+          output.innerHTML = '<span class="error">CIDR must be 0-32</span>';
+          return;
+        }
+        
+        const mask = ~((1 << (32 - cidr)) - 1) >>> 0;
+        const ipInt = (ip[0] << 24) | (ip[1] << 16) | (ip[2] << 8) | ip[3];
+        const network = (ipInt & mask) >>> 0;
+        const broadcast = (network | ~mask) >>> 0;
+        const numHosts = Math.pow(2, 32 - cidr) - 2;
+        
+        const toIP = (n) => [(n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255].join('.');
+        
+        output.innerHTML = '<strong>Network:</strong> ' + toIP(network) + '/' + cidr + '\n' +
+          '<strong>Subnet Mask:</strong> ' + toIP(mask) + '\n' +
+          '<strong>Broadcast:</strong> ' + toIP(broadcast) + '\n' +
+          '<strong>First IP:</strong> ' + toIP(network + 1) + '\n' +
+          '<strong>Last IP:</strong> ' + toIP(broadcast - 1) + '\n' +
+          '<strong>Total Hosts:</strong> ' + (numHosts > 0 ? numHosts : '0') + '\n' +
+          '<strong>CIDR Notation:</strong> /' + cidr + '\n' +
+          '<strong>Wildcard Mask:</strong> ' + toIP(~mask >>> 0);
+      } catch(e) {
+        output.innerHTML = '<span class="error">Error: ' + e.message + '</span>';
+      }
     }
     
     init();
