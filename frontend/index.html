@@ -157,6 +157,8 @@
           <div class="nav-item" data-tool="memory" onclick="selectTool('memory')"><span class="nav-icon">🧠</span><span class="nav-label">Memory Info</span></div>
           <div class="nav-item" data-tool="netstats" onclick="selectTool('netstats')"><span class="nav-icon">📈</span><span class="nav-label">Network Stats</span></div>
           <div class="nav-item" data-tool="cron" onclick="selectTool('cron')"><span class="nav-icon">⏰</span><span class="nav-label">Cron Builder</span></div>
+          <div class="nav-item" data-tool="notes" onclick="selectTool('notes')"><span class="nav-icon">📝</span><span class="nav-label">Quick Notes</span></div>
+          <div class="nav-item" data-tool="history" onclick="selectTool('history')"><span class="nav-icon">📜</span><span class="nav-label">Command History</span></div>
         </div>
       </div>
     </aside>
@@ -236,7 +238,9 @@
       disk: { title: 'Disk Usage', icon: '💾', description: 'Check disk space', type: 'system' },
       memory: { title: 'Memory Info', icon: '🧠', description: 'View memory usage', type: 'system' },
       netstats: { title: 'Network Stats', icon: '📈', description: 'Network interfaces', type: 'system' },
-      cron: { title: 'Cron Builder', icon: '⏰', description: 'Build cron expressions', type: 'developer' }
+      cron: { title: 'Cron Builder', icon: '⏰', description: 'Build cron expressions', type: 'developer' },
+      notes: { title: 'Quick Notes', icon: '📝', description: 'Save quick notes', type: 'utilities' },
+      history: { title: 'Command History', icon: '📜', description: 'Recent commands', type: 'utilities' }
     };
     function init() { 
       renderFavorites();
@@ -437,6 +441,12 @@
           case 'cron':
             renderCron(toolId);
             return;
+          case 'notes':
+            renderNotes(toolId);
+            return;
+          case 'history':
+            renderHistory(toolId);
+            return;
           default: 
             result = 'Tool not implemented yet';
         }
@@ -584,6 +594,8 @@ ${sshConnected ? 'Connected to ' + sshCurrentServer?.name + '\n$ ' : 'Select a s
     async function sendSSHCommand() {
       const cmd = document.getElementById('sshCommand').value;
       if (!cmd || !sshConnected) return;
+      
+      addToHistory(cmd);
       
       const terminal = document.getElementById('terminal');
       terminal.innerHTML += cmd + '\n';
@@ -976,6 +988,105 @@ ${sshConnected ? 'Connected to ' + sshCurrentServer?.name + '\n$ ' : 'Select a s
       document.getElementById('cronMonth').value = parts[3];
       document.getElementById('cronDow').value = parts[4];
       buildCron();
+    }
+    
+    // Notes
+    let notes = JSON.parse(localStorage.getItem('ittoolbox_notes') || '[]');
+    
+    function renderNotes(toolId) {
+      const tool = tools[toolId];
+      const container = document.getElementById('toolContainer');
+      document.getElementById('headerTitle').textContent = tool.title;
+      
+      const isFavorite = favorites.includes(toolId);
+      let html = `
+        <div class="tool-header">
+          <div style="display:flex;justify-content:space-between;align-items:start;">
+            <div>
+              <h2 class="tool-title"><span class="tool-title-icon">${tool.icon}</span>${tool.title}</h2>
+              <p class="tool-description">${tool.description}</p>
+            </div>
+            <button onclick="toggleFavorite('${toolId}')" style="background:none;border:none;font-size:24px;cursor:pointer;padding:8px;">${isFavorite ? '⭐' : '☆'}</button>
+          </div>
+        </div>
+        <div class="input-area">
+          <textarea id="noteInput" class="input-field" placeholder="Type your note here..." style="min-height:100px;"></textarea>
+          <button class="btn btn-primary" onclick="saveNote()" style="width:100%;margin-top:12px;">Save Note</button>
+        </div>
+        <div id="notesList">`;
+      
+      notes.forEach((note, i) => {
+        html += `<div style="background:var(--bg3);padding:12px;border-radius:8px;margin-bottom:8px;position:relative;">
+          <div style="font-size:11px;color:var(--text2);margin-bottom:8px;">${note.date}</div>
+          <div>${note.text}</div>
+          <button onclick="deleteNote(${i})" style="position:absolute;top:8px;right:8px;background:none;border:none;color:var(--danger);cursor:pointer;">✕</button>
+        </div>`;
+      });
+      
+      html += '</div>';
+      container.innerHTML = html;
+    }
+    
+    function saveNote() {
+      const text = document.getElementById('noteInput').value.trim();
+      if (!text) return;
+      
+      notes.unshift({ text, date: new Date().toLocaleString() });
+      if (notes.length > 50) notes.pop();
+      
+      localStorage.setItem('ittoolbox_notes', JSON.stringify(notes));
+      document.getElementById('noteInput').value = '';
+      renderNotes('notes');
+    }
+    
+    function deleteNote(i) {
+      notes.splice(i, 1);
+      localStorage.setItem('ittoolbox_notes', JSON.stringify(notes));
+      renderNotes('notes');
+    }
+    
+    // Command History
+    let cmdHistory = JSON.parse(localStorage.getItem('ittoolbox_history') || '[]');
+    
+    function renderHistory(toolId) {
+      const tool = tools[toolId];
+      const container = document.getElementById('toolContainer');
+      document.getElementById('headerTitle').textContent = tool.title;
+      
+      const isFavorite = favorites.includes(toolId);
+      let html = `
+        <div class="tool-header">
+          <div style="display:flex;justify-content:space-between;align-items:start;">
+            <div>
+              <h2 class="tool-title"><span class="tool-title-icon">${tool.icon}</span>${tool.title}</h2>
+              <p class="tool-description">${tool.description}</p>
+            </div>
+            <button onclick="toggleFavorite('${toolId}')" style="background:none;border:none;font-size:24px;cursor:pointer;padding:8px;">${isFavorite ? '⭐' : '☆'}</button>
+          </div>
+        </div>
+        <div style="margin-bottom:16px;">
+          <button onclick="cmdHistory=[];localStorage.setItem('ittoolbox_history',JSON.stringify(cmdHistory));renderHistory('history')" class="btn btn-secondary">Clear History</button>
+        </div>`;
+      
+      if (cmdHistory.length === 0) {
+        html += '<p style="color:var(--text2);">No command history yet.</p>';
+      } else {
+        cmdHistory.forEach((cmd, i) => {
+          html += `<div style="background:var(--bg3);padding:10px;border-radius:6px;margin-bottom:6px;cursor:pointer;" onclick="document.getElementById('sshCommand').value='${cmd.replace(/'/g,"\\'")}';">
+            <span style="color:var(--accent);">$</span> ${cmd}
+          </div>`;
+        });
+      }
+      
+      container.innerHTML = html;
+    }
+    
+    // Add to history when command runs
+    function addToHistory(cmd) {
+      if (!cmd || cmd.trim() === '') return;
+      cmdHistory.unshift(cmd);
+      if (cmdHistory.length > 100) cmdHistory.pop();
+      localStorage.setItem('ittoolbox_history', JSON.stringify(cmdHistory));
     }
     
     init();
