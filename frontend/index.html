@@ -37,7 +37,9 @@
     .sidebar.collapsed .logo-text { opacity: 0; width: 0; }
     .sidebar-toggle { margin-left: auto; background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 8px; border-radius: 6px; transition: all 0.2s; }
     .sidebar-toggle:hover { background: var(--bg-tertiary); color: var(--text-primary); }
-    .sidebar.collapsed .sidebar-toggle { display: none; }
+    .sidebar.collapsed .sidebar-toggle { display: flex !important; }
+    .sidebar-handle { position: fixed; left: 0; top: 0; width: 6px; height: 100vh; background: transparent; z-index: 101; cursor: ew-resize; }
+    .sidebar-handle:hover { background: var(--accent); }
     .sidebar-content { flex: 1; overflow-y: auto; padding: 16px 12px; }
     .sidebar.collapsed .sidebar-content { padding: 16px 8px; }
     .category { margin-bottom: 8px; }
@@ -102,12 +104,20 @@
 <body>
   <div class="app-container">
     <div class="sidebar-overlay" onclick="toggleMobileSidebar()"></div>
+    <div class="sidebar-handle" onclick="toggleSidebar()" title="Click to expand sidebar"></div>
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
         <div class="logo">🛠️</div>
         <span class="logo-text">IT Toolbox</span>
-        <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+        <button class="sidebar-toggle" onclick="toggleSidebar()" title="Collapse">◀</button>
       </div>
+      
+      <!-- Favorites Section -->
+      <div class="category" id="favoritesCategory" style="display:none;">
+        <div class="category-title">⭐ Favorites</div>
+        <div id="favoritesList"></div>
+      </div>
+      
       <div class="sidebar-content">
         <div class="category">
           <div class="category-title">🔧 Developer</div>
@@ -149,6 +159,41 @@
   <script>
     let currentTool = 'json';
     let outputText = '';
+    let favorites = JSON.parse(localStorage.getItem('ittoolbox_favorites') || '[]');
+    
+    // Save favorites
+    function saveFavorites() {
+      localStorage.setItem('ittoolbox_favorites', JSON.stringify(favorites));
+      renderFavorites();
+    }
+    
+    // Toggle favorite
+    function toggleFavorite(toolId) {
+      if (favorites.includes(toolId)) {
+        favorites = favorites.filter(f => f !== toolId);
+      } else {
+        favorites.push(toolId);
+      }
+      saveFavorites();
+    }
+    
+    // Render favorites
+    function renderFavorites() {
+      const favCategory = document.getElementById('favoritesCategory');
+      const favList = document.getElementById('favoritesList');
+      
+      if (favorites.length === 0) {
+        favCategory.style.display = 'none';
+        return;
+      }
+      
+      favCategory.style.display = 'block';
+      favList.innerHTML = favorites.map(toolId => {
+        const tool = tools[toolId];
+        if (!tool) return '';
+        return `<div class="nav-item" data-tool="${toolId}" onclick="selectTool('${toolId}')"><span class="nav-icon">${tool.icon}</span><span class="nav-label">${tool.title}</span></div>`;
+      }).join('');
+    }
     const tools = {
       home: { title: 'Welcome', icon: '🛠️', description: 'Your all-in-one network diagnostics toolkit', type: 'home' },
       json: { title: 'JSON Formatter', icon: '📄', description: 'Format, validate JSON', type: 'input-output', inputLabel: 'Paste JSON', inputPlaceholder: '{"key": "value"}' },
@@ -166,8 +211,16 @@
       color: { title: 'Color Converter', icon: '🎨', description: 'Convert colors', type: 'color' },
       curl: { title: 'cURL Builder', icon: '🌐', description: 'Build cURL', type: 'curl' }
     };
-    function init() { selectTool('home'); }
-    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('collapsed'); }
+    function init() { 
+      renderFavorites();
+      selectTool('home'); 
+    }
+    function toggleSidebar() { 
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('collapsed');
+      const btn = sidebar.querySelector('.sidebar-toggle');
+      if (btn) btn.innerHTML = sidebar.classList.contains('collapsed') ? '▶' : '◀';
+    }
     function toggleMobileSidebar() { document.getElementById('sidebar').classList.toggle('mobile-open'); document.querySelector('.sidebar-overlay').classList.toggle('mobile-open'); }
     function selectTool(toolId) {
       currentTool = toolId;
@@ -181,7 +234,23 @@
       document.getElementById('headerTitle').textContent = tool.title;
       outputText = '';
       if (tool.type === 'home') { container.innerHTML = renderHome(); return; }
-      let html = `<div class="tool-header"><h2 class="tool-title"><span class="tool-title-icon">${tool.icon}</span>${tool.title}</h2><p class="tool-description">${tool.description}</p></div>`;
+      
+      const isFavorite = favorites.includes(toolId);
+      let html = `
+        <div class="tool-header">
+          <div style="display:flex;justify-content:space-between;align-items:start;">
+            <div>
+              <h2 class="tool-title">
+                <span class="tool-title-icon">${tool.icon}</span>
+                ${tool.title}
+              </h2>
+              <p class="tool-description">${tool.description}</p>
+            </div>
+            <button onclick="toggleFavorite('${toolId}')" style="background:none;border:none;font-size:24px;cursor:pointer;padding:8px;" title="Toggle Favorite">
+              ${isFavorite ? '⭐' : '☆'}
+            </button>
+          </div>
+        </div>`;
       if (tool.type === 'input-output') { html += `<div class="input-area"><label class="input-label">${tool.inputLabel}</label><textarea id="toolInput" class="input-field" placeholder="${tool.inputPlaceholder}"></textarea><div class="action-row" style="margin-top:16px"><button class="btn btn-primary" onclick="runTool('${toolId}')">✨ Process</button><button class="btn btn-secondary" onclick="document.getElementById('toolInput').value=''">Clear</button></div></div>`; }
       else if (tool.type === 'input') { html += `<div class="input-area"><label class="input-label">${tool.inputLabel}</label><input type="text" id="toolInput" class="input-field" placeholder="${tool.inputPlaceholder}"><div class="action-row" style="margin-top:16px"><button class="btn btn-primary" onclick="runTool('${toolId}')">🔍 Lookup</button></div></div>`; }
       else if (tool.type === 'generate') { html += `<div class="action-row"><button class="btn btn-primary" onclick="runTool('${toolId}')">🎲 Generate</button></div>`; }
