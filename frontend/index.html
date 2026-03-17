@@ -35,11 +35,11 @@
     .logo { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), #00a88a); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
     .logo-text { font-weight: 700; font-size: 18px; white-space: nowrap; overflow: hidden; }
     .sidebar.collapsed .logo-text { opacity: 0; width: 0; }
-    .sidebar-toggle { margin-left: auto; background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 8px; border-radius: 6px; transition: all 0.2s; }
-    .sidebar-toggle:hover { background: var(--bg-tertiary); color: var(--text-primary); }
-    .sidebar.collapsed .sidebar-toggle { display: flex !important; }
-    .sidebar-handle { position: fixed; left: 0; top: 0; width: 6px; height: 100vh; background: transparent; z-index: 101; cursor: ew-resize; }
-    .sidebar-handle:hover { background: var(--accent); }
+    .sidebar-toggle { position: absolute; right: 10px; background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-secondary); cursor: pointer; padding: 6px 10px; border-radius: 6px; transition: all 0.2s; font-size: 12px; }
+    .sidebar-toggle:hover { background: var(--accent); color: #000; }
+    .sidebar.collapsed .sidebar-toggle { right: -35px; left: auto; }
+    .sidebar-handle { position: fixed; left: 0; top: 50%; transform: translateY(-50%); width: 8px; height: 60px; background: var(--accent); z-index: 101; cursor: ew-resize; border-radius: 0 4px 4px 0; opacity: 0.3; transition: all 0.2s; }
+    .sidebar-handle:hover { opacity: 1; width: 12px; }
     .sidebar-content { flex: 1; overflow-y: auto; padding: 16px 12px; }
     .sidebar.collapsed .sidebar-content { padding: 16px 8px; }
     .category { margin-bottom: 8px; }
