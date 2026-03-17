@@ -168,7 +168,7 @@
     let currentTool = 'json';
     let outputText = '';
     let favorites = JSON.parse(localStorage.getItem('ittoolbox_favorites') || '[]');
-    const API = 'http://localhost:8892';
+    const API = window.location.protocol + '//' + window.location.hostname + ':8892';
     
     // Save favorites
     function saveFavorites() {
