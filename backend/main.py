@@ -492,6 +492,22 @@ async def ssh_disconnect():
     ssh_clients = {}
     return {"success": True}
 
+@app.post("/api/system")
+async def run_system_command(data: dict):
+    """Run system command locally"""
+    import subprocess
+    command = data.get("command", "")
+    
+    try:
+        result = subprocess.run(command, shell=True, capture_output=True, text=True, timeout=30)
+        return {
+            "success": True,
+            "output": result.stdout + result.stderr,
+            "returncode": result.returncode
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
 @app.get("/api/tools")
 async def list_tools():
     """List all available tools"""

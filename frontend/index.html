@@ -152,6 +152,11 @@
           <div class="nav-item" data-tool="password" onclick="selectTool('password')"><span class="nav-icon">🔑</span><span class="nav-label">Password Generator</span></div>
           <div class="nav-item" data-tool="qrcode" onclick="selectTool('qrcode')"><span class="nav-icon">⬛</span><span class="nav-label">QR Code</span></div>
           <div class="nav-item" data-tool="subnet" onclick="selectTool('subnet')"><span class="nav-icon">🔢</span><span class="nav-label">Subnet Calculator</span></div>
+          <div class="nav-item" data-tool="processes" onclick="selectTool('processes')"><span class="nav-icon">📊</span><span class="nav-label">Process Monitor</span></div>
+          <div class="nav-item" data-tool="disk" onclick="selectTool('disk')"><span class="nav-icon">💾</span><span class="nav-label">Disk Usage</span></div>
+          <div class="nav-item" data-tool="memory" onclick="selectTool('memory')"><span class="nav-icon">🧠</span><span class="nav-label">Memory Info</span></div>
+          <div class="nav-item" data-tool="netstats" onclick="selectTool('netstats')"><span class="nav-icon">📈</span><span class="nav-label">Network Stats</span></div>
+          <div class="nav-item" data-tool="cron" onclick="selectTool('cron')"><span class="nav-icon">⏰</span><span class="nav-label">Cron Builder</span></div>
         </div>
       </div>
     </aside>
@@ -226,7 +231,12 @@
       jwt: { title: 'JWT Decoder', icon: '🎫', description: 'Decode JWT tokens', type: 'jwt' },
       password: { title: 'Password Generator', icon: '🔑', description: 'Generate secure passwords', type: 'password' },
       qrcode: { title: 'QR Code', icon: '⬛', description: 'Generate QR codes', type: 'qrcode' },
-      subnet: { title: 'Subnet Calculator', icon: '🔢', description: 'Calculate IP subnets', type: 'subnet' }
+      subnet: { title: 'Subnet Calculator', icon: '🔢', description: 'Calculate IP subnets', type: 'subnet' },
+      processes: { title: 'Process Monitor', icon: '📊', description: 'View running processes', type: 'system' },
+      disk: { title: 'Disk Usage', icon: '💾', description: 'Check disk space', type: 'system' },
+      memory: { title: 'Memory Info', icon: '🧠', description: 'View memory usage', type: 'system' },
+      netstats: { title: 'Network Stats', icon: '📈', description: 'Network interfaces', type: 'system' },
+      cron: { title: 'Cron Builder', icon: '⏰', description: 'Build cron expressions', type: 'developer' }
     };
     function init() { 
       renderFavorites();
@@ -411,6 +421,21 @@
             return;
           case 'subnet':
             renderSubnet(toolId);
+            return;
+          case 'processes':
+            renderSystemTool('processes', 'View Running Processes', 'ps aux | head -20');
+            return;
+          case 'disk':
+            renderSystemTool('disk', 'Disk Usage', 'df -h');
+            return;
+          case 'memory':
+            renderSystemTool('memory', 'Memory Usage', 'free -h');
+            return;
+          case 'netstats':
+            renderSystemTool('netstats', 'Network Statistics', 'netstat -i');
+            return;
+          case 'cron':
+            renderCron(toolId);
             return;
           default: 
             result = 'Tool not implemented yet';
@@ -814,6 +839,143 @@ ${sshConnected ? 'Connected to ' + sshCurrentServer?.name + '\n$ ' : 'Select a s
       } catch(e) {
         output.innerHTML = '<span class="error">Error: ' + e.message + '</span>';
       }
+    }
+    
+    // System Monitor Tool
+    async function renderSystemTool(toolId, title, command) {
+      const tool = tools[toolId];
+      const container = document.getElementById('toolContainer');
+      document.getElementById('headerTitle').textContent = tool.title;
+      
+      const isFavorite = favorites.includes(toolId);
+      let html = `
+        <div class="tool-header">
+          <div style="display:flex;justify-content:space-between;align-items:start;">
+            <div>
+              <h2 class="tool-title"><span class="tool-title-icon">${tool.icon}</span>${tool.title}</h2>
+              <p class="tool-description">${tool.description}</p>
+            </div>
+            <button onclick="toggleFavorite('${toolId}')" style="background:none;border:none;font-size:24px;cursor:pointer;padding:8px;">${isFavorite ? '⭐' : '☆'}</button>
+          </div>
+        </div>
+        <div class="action-row">
+          <button class="btn btn-primary" onclick="runSystemCommand('${toolId}')">🔄 Refresh</button>
+        </div>
+        <div class="output-area">
+          <div class="output-header"><span class="output-title">Output</span></div>
+          <div class="output-content" id="systemOutput"><span class="loading">Loading...</span></div>
+        </div>`;
+      
+      container.innerHTML = html;
+      await runSystemCommand(toolId);
+    }
+    
+    async function runSystemCommand(toolId) {
+      const commands = {
+        processes: 'ps aux | head -30',
+        disk: 'df -h',
+        memory: 'free -h',
+        netstats: 'ifconfig'
+      };
+      
+      const command = commands[toolId];
+      const output = document.getElementById('systemOutput');
+      output.innerHTML = '<span class="loading">Loading...</span>';
+      
+      try {
+        const response = await fetch(API + '/api/system', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({command: command})
+        });
+        const data = await response.json();
+        output.textContent = data.output || data.error || 'No output';
+      } catch(e) {
+        output.textContent = 'Error: ' + e.message;
+      }
+    }
+    
+    // Cron Builder
+    function renderCron(toolId) {
+      const tool = tools[toolId];
+      const container = document.getElementById('toolContainer');
+      document.getElementById('headerTitle').textContent = tool.title;
+      
+      const isFavorite = favorites.includes(toolId);
+      let html = `
+        <div class="tool-header">
+          <div style="display:flex;justify-content:space-between;align-items:start;">
+            <div>
+              <h2 class="tool-title"><span class="tool-title-icon">${tool.icon}</span>${tool.title}</h2>
+              <p class="tool-description">${tool.description}</p>
+            </div>
+            <button onclick="toggleFavorite('${toolId}')" style="background:none;border:none;font-size:24px;cursor:pointer;padding:8px;">${isFavorite ? '⭐' : '☆'}</button>
+          </div>
+        </div>
+        <div class="input-area">
+          <div class="input-row">
+            <div><label class="input-label">Minute</label><select id="cronMin" class="input-field" onchange="buildCron()"><option value="*">Every minute</option><option value="0">At minute 0</option><option value="*/5">Every 5 min</option><option value="*/15">Every 15 min</option><option value="*/30">Every 30 min</option></select></div>
+            <div><label class="input-label">Hour</label><select id="cronHour" class="input-field" onchange="buildCron()"><option value="*">Every hour</option><option value="0">Midnight</option><option value="6">6 AM</option><option value="12">Noon</option><option value="18">6 PM</option></select></div>
+            <div><label class="input-label">Day</label><select id="cronDay" class="input-field" onchange="buildCron()"><option value="*">Every day</option><option value="1">1st</option><option value="15">15th</option></select></div>
+            <div><label class="input-label">Month</label><select id="cronMonth" class="input-field" onchange="buildCron()"><option value="*">Every month</option><option value="1">January</option><option value="6">June</option></select></div>
+            <div><label class="input-label">Weekday</label><select id="cronDow" class="input-field" onchange="buildCron()"><option value="*">Every day</option><option value="0">Sunday</option><option value="1">Monday</option><option value="5">Friday</option></select></div>
+          </div>
+        </div>
+        <div class="output-area">
+          <div class="output-header"><span class="output-title">Cron Expression</span><button class="copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('cronResult').textContent)">📋 Copy</button></div>
+          <div class="output-content" id="cronResult" style="font-size:20px;font-weight:600;">* * * * *</div>
+        </div>
+        <div class="output-area" style="margin-top:16px;">
+          <div class="output-header"><span class="output-title">Human Readable</span></div>
+          <div class="output-content" id="cronHuman">Every minute</div>
+        </div>
+        <div style="margin-top:16px;">
+          <h4 style="margin-bottom:12px;">Common Examples</h4>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <button onclick="setCron('0 * * * *')" style="background:var(--bg3);border:1px solid var(--border);padding:8px 12px;border-radius:6px;cursor:pointer;font-size:12px;">Every hour</button>
+            <button onclick="setCron('0 0 * * *')" style="background:var(--bg3);border:1px solid var(--border);padding:8px 12px;border-radius:6px;cursor:pointer;font-size:12px;">Daily midnight</button>
+            <button onclick="setCron('0 * * * 0')" style="background:var(--bg3);border:1px solid var(--border);padding:8px 12px;border-radius:6px;cursor:pointer;font-size:12px;">Every hour Sunday</button>
+            <button onclick="setCron('*/15 * * * *')" style="background:var(--bg3);border:1px solid var(--border);padding:8px 12px;border-radius:6px;cursor:pointer;font-size:12px;">Every 15 min</button>
+            <button onclick="setCron('0 9 * * 1-5')" style="background:var(--bg3);border:1px solid var(--border);padding:8px 12px;border-radius:6px;cursor:pointer;font-size:12px;">9AM weekdays</button>
+          </div>
+        </div>`;
+      
+      container.innerHTML = html;
+    }
+    
+    function buildCron() {
+      const min = document.getElementById('cronMin').value;
+      const hour = document.getElementById('cronHour').value;
+      const day = document.getElementById('cronDay').value;
+      const month = document.getElementById('cronMonth').value;
+      const dow = document.getElementById('cronDow').value;
+      
+      const expr = `${min} ${hour} ${day} ${month} ${dow}`;
+      document.getElementById('cronResult').textContent = expr;
+      document.getElementById('cronHuman').textContent = describeCron(expr);
+    }
+    
+    function describeCron(expr) {
+      const parts = expr.split(' ');
+      const [min, hour, day, month, dow] = parts;
+      let desc = 'Runs ';
+      if (min === '*') desc += 'every minute';
+      else if (min.startsWith('*/')) desc += `every ${min.slice(2)} minutes`;
+      else desc += `at minute ${min}`;
+      if (hour === '*') desc += ' every hour';
+      else if (hour.startsWith('*/')) desc += ` every ${hour.slice(2)} hours`;
+      else desc += ` at ${hour}:00`;
+      return desc;
+    }
+    
+    function setCron(expr) {
+      const parts = expr.split(' ');
+      document.getElementById('cronMin').value = parts[0];
+      document.getElementById('cronHour').value = parts[1];
+      document.getElementById('cronDay').value = parts[2];
+      document.getElementById('cronMonth').value = parts[3];
+      document.getElementById('cronDow').value = parts[4];
+      buildCron();
     }
     
     init();
