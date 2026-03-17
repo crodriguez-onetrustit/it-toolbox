@@ -769,3 +769,66 @@ async def system_info():
         "disk_used": psutil.disk_usage('/').used,
         "disk_percent": psutil.disk_usage('/').percent,
     }
+
+# Visual Traceroute
+@app.post("/api/traceroute-visual")
+async def traceroute_visual(data: dict):
+    """Visual traceroute with hops"""
+    import subprocess
+    
+    host = data.get("host", "google.com")
+    try:
+        result = subprocess.run(['traceroute', '-m', '15', host] if sys.platform != 'win32' 
+            else ['tracert', host], capture_output=True, text=True, timeout=30)
+        
+        hops = []
+        for line in result.stdout.split('\n'):
+            if line.strip():
+                hops.append(line.strip())
+        
+        return {"success": True, "host": host, "hops": hops}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+# AWS Info
+@app.get("/api/aws/status")
+async def aws_status():
+    """Check AWS service status"""
+    import urllib.request
+    try:
+        url = "https://status.aws.amazon.com/data.json"
+        req = urllib.request.Request(url)
+        with urllib.request.urlopen(req, timeout=10) as response:
+            data = json.loads(response.read())
+        return {"success": True, "status": data}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+# Certificate Info
+@app.post("/api/certinfo")
+async def cert_info(data: dict):
+    """Get SSL certificate info for a domain"""
+    import ssl
+    import socket
+    import datetime
+    
+    host = data.get("host", "")
+    port = int(data.get("port", 443))
+    
+    try:
+        context = ssl.create_default_context()
+        with socket.create_connection((host, port), timeout=5) as sock:
+            with context.wrap_socket(sock, server_hostname=host) as ssock:
+                cert = ssock.getpeercert()
+        
+        return {
+            "success": True,
+            "subject": dict(x[0] for x in cert['subject']),
+            "issuer": dict(x[0] for x in cert['issuer']),
+            "version": cert['version'],
+            "notBefore": cert['notBefore'],
+            "notAfter": cert['notAfter'],
+            "serialNumber": cert['serialNumber']
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e)}
