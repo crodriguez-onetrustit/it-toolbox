@@ -833,3 +833,102 @@ async def cert_info(data: dict):
         }
     except Exception as e:
         return {"success": False, "error": str(e)}
+
+# WiFi Scanner - Cross Platform
+@app.get("/api/wifi/scan")
+async def wifi_scan():
+    """Scan for WiFi networks - cross platform"""
+    import subprocess
+    import sys
+    import re
+    
+    networks = []
+    
+    try:
+        if sys.platform == "darwin":
+            result = subprocess.run(['/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport', '-s'], 
+                capture_output=True, text=True, timeout=10)
+            lines = result.stdout.strip().split('\n')[1:]
+            for line in lines:
+                parts = line.split()
+                if len(parts) >= 2:
+                    networks.append({'ssid': parts[0], 'signal': parts[1], 'security': parts[-1] if len(parts) > 2 else 'Open'})
+        
+        elif sys.platform == "win32":
+            result = subprocess.run(['netsh', 'wlan', 'show', 'networks', 'mode=bssid'], 
+                capture_output=True, text=True, timeout=15)
+            current_ssid = None
+            for line in result.stdout.split('\n'):
+                line = line.strip()
+                if 'SSID' in line and ':' in line:
+                    current_ssid = line.split(':', 1)[1].strip()
+                elif 'Signal' in line and ':' in line and current_ssid:
+                    signal = line.split(':', 1)[1].strip().replace('%', '')
+                    networks.append({'ssid': current_ssid, 'signal': signal + '%'})
+                    current_ssid = None
+        
+        elif sys.platform == "linux":
+            result = subprocess.run(['nmcli', '-t', '-f', 'SSID,SIGNAL,SECURITY', 'device', 'wifi'], 
+                capture_output=True, text=True, timeout=10)
+            for line in result.stdout.strip().split('\n'):
+                parts = line.split(':')
+                if len(parts) >= 2:
+                    networks.append({'ssid': parts[0], 'signal': parts[1], 'security': parts[2] if len(parts) > 2 else 'Open'})
+        
+        return {"networks": networks, "platform": sys.platform}
+    except Exception as e:
+        return {"networks": [], "platform": sys.platform, "error": str(e)}
+
+# Local Speed Test
+@app.get("/api/speedtest/local")
+async def local_speed_test():
+    """Local network speed test"""
+    import socket
+    import time
+    
+    result = {"latency_ms": 0, "method": "socket"}
+    
+    # Measure latency to local network
+    gateways = ['192.168.1.1', '10.0.0.1', '10.0.1.1', '172.16.0.1']
+    
+    for gateway in gateways:
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.settimeout(1)
+            start = time.time()
+            s.connect((gateway, 80))
+            result['latency_ms'] = round((time.time() - start) * 1000, 2)
+            result['gateway'] = gateway
+            s.close()
+            break
+        except:
+            continue
+    
+    return result
+
+@app.get("/api/wifi/list")
+async def wifi_list():
+    """List WiFi - alternative method"""
+    import subprocess
+    import sys
+    
+    try:
+        if sys.platform == "darwin":
+            # Try networksetup first
+            result = subprocess.run(['networksetup', '-listallhardwareports'], 
+                capture_output=True, text=True, timeout=10)
+            
+            # Check current WiFi status
+            result2 = subprocess.run(['networksetup', '-getairportnetwork', 'en0'], 
+                capture_output=True, text=True, timeout=5)
+            
+            current = result2.stdout.strip() if result2.returncode == 0 else "Not connected"
+            
+            return {
+                "current_network": current.replace("Current Wi-Fi Network: ", ""),
+                "platform": "darwin",
+                "method": "networksetup",
+                "note": "WiFi scanning requires elevated permissions on macOS"
+            }
+    except Exception as e:
+        return {"error": str(e), "platform": sys.platform}
