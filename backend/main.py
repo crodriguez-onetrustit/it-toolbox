@@ -533,3 +533,92 @@ async def health():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8890)
+
+# Service Management
+@app.post("/api/services")
+async def list_services(data: dict = {}):
+    """List running services"""
+    import subprocess
+    try:
+        if sys.platform == "win32":
+            result = subprocess.run(['sc', 'query', 'state=', 'all'], capture_output=True, text=True)
+        else:
+            result = subprocess.run(['systemctl', 'list-units', '--type=service', '--state=running'], capture_output=True, text=True)
+        return {"success": True, "output": result.stdout}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+@app.post("/api/service")
+async def service_action(data: dict):
+    """Start/stop/restart a service"""
+    import subprocess
+    service = data.get("service", "")
+    action = data.get("action", "status")  # start, stop, restart, status
+    
+    try:
+        if sys.platform == "win32":
+            result = subprocess.run(['sc', action, service], capture_output=True, text=True)
+        else:
+            result = subprocess.run(['sudo', 'systemctl', action, service], capture_output=True, text=True)
+        return {"success": True, "output": result.stdout + result.stderr}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+# Cron Manager
+@app.get("/api/cron")
+async def list_crons():
+    """List user crontab"""
+    import subprocess
+    try:
+        result = subprocess.run(['crontab', '-l'], capture_output=True, text=True)
+        return {"crons": result.stdout.split('\n') if result.stdout else []}
+    except:
+        return {"crons": [], "error": "Cannot access crontab"}
+
+@app.post("/api/cron")
+async def add_cron(data: dict):
+    """Add cron job"""
+    import subprocess
+    cron = data.get("cron", "")
+    try:
+        # Get current crontab
+        result = subprocess.run(['crontab', '-l'], capture_output=True, text=True)
+        current = result.stdout if result.returncode == 0 else ""
+        
+        # Add new cron
+        new_cron = current.strip() + '\n' + cron + '\n'
+        proc = subprocess.Popen(['crontab', '-'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc.communicate(input=new_cron.encode())
+        
+        return {"success": True, "message": "Cron job added"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+# Log Viewer
+@app.get("/api/logs")
+async def view_logs(data: dict):
+    """View system logs"""
+    import subprocess
+    try:
+        if sys.platform == "win32":
+            result = subprocess.run(['powershell', 'Get-EventLog', '-LogName', 'System', '-Newest', '20'], 
+                capture_output=True, text=True, shell=True)
+        else:
+            result = subprocess.run(['journalctl', '-n', '20', '--no-pager'], capture_output=True, text=True)
+        return {"success": True, "logs": result.stdout[:5000]}
+    except Exception as e:
+        return {"success": False, "error": str(e), "logs": ""}
+
+@app.get("/api/logs/auth")
+async def view_auth_logs():
+    """View auth logs"""
+    import subprocess
+    try:
+        if sys.platform == "win32":
+            result = subprocess.run(['powershell', 'Get-EventLog', '-LogName', 'Security', '-Newest', '20'],
+                capture_output=True, text=True, shell=True)
+        else:
+            result = subprocess.run(['journalctl', '-u', 'ssh', '-n', '20', '--no-pager'], capture_output=True, text=True)
+        return {"success": True, "logs": result.stdout[:5000]}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
