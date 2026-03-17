@@ -148,10 +148,19 @@
           <div class="nav-item" data-tool="traceroute" onclick="selectTool('traceroute')"><span class="nav-icon">🛤️</span><span class="nav-label">Traceroute</span></div>
         </div>
         <div class="category">
+          <div class="category-title">🖥️ Servers</div>
+          <div class="nav-item" data-tool="ssh" onclick="selectTool('ssh')"><span class="nav-icon">🖥️</span><span class="nav-label">SSH Terminal</span></div>
+          <div class="nav-item" data-tool="processes" onclick="selectTool('processes')"><span class="nav-icon">📊</span><span class="nav-label">Process Monitor</span></div>
+          <div class="nav-item" data-tool="disk" onclick="selectTool('disk')"><span class="nav-icon">💾</span><span class="nav-label">Disk Usage</span></div>
+          <div class="nav-item" data-tool="memory" onclick="selectTool('memory')"><span class="nav-icon">🧠</span><span class="nav-label">Memory Info</span></div>
+        </div>
+        
+        <div class="category">
           <div class="category-title">🔐 Security</div>
-          <div class="nav-item" data-tool="hash" onclick="selectTool('hash')"><span class="nav-icon">#️⃣</span><span class="nav-label">Hash Generator</span></div>
           <div class="nav-item" data-tool="ssl" onclick="selectTool('ssl')"><span class="nav-icon">🔒</span><span class="nav-label">SSL Checker</span></div>
           <div class="nav-item" data-tool="whois" onclick="selectTool('whois')"><span class="nav-icon">📜</span><span class="nav-label">WHOIS</span></div>
+          <div class="nav-item" data-tool="hash" onclick="selectTool('hash')"><span class="nav-icon">#️⃣</span><span class="nav-label">Hash Generator</span></div>
+          <div class="nav-item" data-tool="jwt" onclick="selectTool('jwt')"><span class="nav-icon">🎫</span><span class="nav-label">JWT Decoder</span></div>
         </div>
         <div class="category">
           <div class="category-title">🛠️ Utilities</div>
@@ -180,8 +189,8 @@
         </div>
         <h1 class="header-title" id="headerTitle">IT Toolbox</h1>
         <div class="header-actions">
+          <button class="header-btn" onclick="selectTool('home')" id="homeBtn">🏠 Home</button>
           <button class="header-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
-          <button class="header-btn" onclick="selectTool('home')">🏠 Home</button>
         </div>
       </header>
       <div class="tool-container" id="toolContainer"></div>
@@ -262,9 +271,14 @@
       uuid: { title: 'UUID Generator', icon: '🆔', description: 'Generate random UUIDs', type: 'generate' },
       url: { title: 'URL Encoder', icon: '🔗', description: 'Encode/Decode URLs', type: 'input-output', inputLabel: 'Enter URL', inputPlaceholder: 'https://example.com?q=hello' },
       timestamp: { title: 'Timestamp', icon: '⏰', description: 'Convert timestamps', type: 'timestamp' },
-      ping: { title: 'Ping', icon: '📶', description: 'Test connectivity to host', type: 'input', inputLabel: 'Enter hostname', inputPlaceholder: 'google.com' },
-      uptime: { title: 'Uptime Check', icon: '✅', description: 'Check if website is up', type: 'input', inputLabel: 'Enter URL', inputPlaceholder: 'https://example.com' },
-      headers: { title: 'HTTP Headers', icon: '📋', description: 'View HTTP response headers', type: 'input', inputLabel: 'Enter URL', inputPlaceholder: 'https://example.com' },
+      ping: { title: 'Ping', icon: '📶', description: 'Test connectivity to host', type: 'network' },
+      uptime: { title: 'Uptime Check', icon: '✅', description: 'Check if website is up', type: 'network' },
+      headers: { title: 'HTTP Headers', icon: '📋', description: 'View HTTP response headers', type: 'network' },
+      network: { title: 'Network Scan', icon: '🔍', description: 'Quick network scan', type: 'network' },
+      ssl: { title: 'SSL Checker', icon: '🔒', description: 'Check SSL cert', type: 'security' },
+      whois: { title: 'WHOIS', icon: '📜', description: 'Domain info', type: 'security' },
+      hash: { title: 'Hash Generator', icon: '#️⃣', description: 'Generate hashes', type: 'security' },
+      jwt: { title: 'JWT Decoder', icon: '🎫', description: 'Decode JWT tokens', type: 'security' },
       ip: { title: 'IP Lookup', icon: '📍', description: 'Get IP details', type: 'input', inputLabel: 'Enter IP', inputPlaceholder: '8.8.8.8' },
       dns: { title: 'DNS Lookup', icon: '🌐', description: 'Look up DNS records', type: 'input', inputLabel: 'Enter domain', inputPlaceholder: 'example.com' },
       ports: { title: 'Port Scanner', icon: '🚪', description: 'Scan ports', type: 'ports' },
