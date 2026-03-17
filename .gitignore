@@ -1,0 +1,7 @@
+it-toolbox/
+backend/__pycache__/
+backend/*.pyc
+.DS_Store
+venv/
+__pycache__/
+

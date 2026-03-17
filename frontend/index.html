@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IT Toolbox</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0a0f;
+      --bg-secondary: #12121a;
+      --bg-tertiary: #1a1a24;
+      --bg-card: #16161f;
+      --border: #2a2a3a;
+      --text-primary: #f0f0f5;
+      --text-secondary: #8888a0;
+      --text-muted: #555566;
+      --accent: #00d4aa;
+      --accent-hover: #00eebb;
+      --accent-dim: rgba(0, 212, 170, 0.15);
+      --danger: #ff4757;
+      --warning: #ffa502;
+      --success: #2ed573;
+      --sidebar-width: 260px;
+      --sidebar-collapsed: 70px;
+      --header-height: 60px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; overflow-x: hidden; }
+    .app-container { display: flex; min-height: 100vh; }
+    .sidebar { width: var(--sidebar-width); background: var(--bg-secondary); border-right: 1px solid var(--border); position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; transition: width 0.3s ease; display: flex; flex-direction: column; }
+    .sidebar.collapsed { width: var(--sidebar-collapsed); }
+    .sidebar-header { height: var(--header-height); display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid var(--border); gap: 12px; }
+    .logo { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), #00a88a); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+    .logo-text { font-weight: 700; font-size: 18px; white-space: nowrap; overflow: hidden; }
+    .sidebar.collapsed .logo-text { opacity: 0; width: 0; }
+    .sidebar-toggle { margin-left: auto; background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 8px; border-radius: 6px; transition: all 0.2s; }
+    .sidebar-toggle:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+    .sidebar.collapsed .sidebar-toggle { display: none; }
+    .sidebar-content { flex: 1; overflow-y: auto; padding: 16px 12px; }
+    .sidebar.collapsed .sidebar-content { padding: 16px 8px; }
+    .category { margin-bottom: 8px; }
+    .category-title { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 12px; margin-bottom: 4px; }
+    .sidebar.collapsed .category-title { opacity: 0; height: 0; padding: 0; margin: 0; overflow: hidden; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; cursor: pointer; transition: all 0.2s; color: var(--text-secondary); margin-bottom: 2px; }
+    .nav-item:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+    .nav-item.active { background: var(--accent-dim); color: var(--accent); }
+    .nav-icon { font-size: 18px; width: 24px; text-align: center; flex-shrink: 0; }
+    .nav-label { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; }
+    .sidebar.collapsed .nav-label { opacity: 0; width: 0; }
+    .main-content { flex: 1; margin-left: var(--sidebar-width); transition: margin-left 0.3s ease; min-height: 100vh; }
+    .sidebar.collapsed ~ .main-content { margin-left: var(--sidebar-collapsed); }
+    .header { height: var(--header-height); background: var(--bg-secondary); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; position: sticky; top: 0; z-index: 50; }
+    .header-title { font-size: 20px; font-weight: 600; }
+    .header-btn { background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-secondary); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; transition: all 0.2s; }
+    .header-btn:hover { background: var(--bg-card); color: var(--text-primary); }
+    .tool-container { padding: 24px; max-width: 1200px; margin: 0 auto; }
+    .tool-header { margin-bottom: 24px; }
+    .tool-title { font-size: 28px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+    .tool-title-icon { font-size: 32px; }
+    .tool-description { color: var(--text-secondary); font-size: 15px; }
+    .input-area { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+    .input-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 10px; display: block; }
+    .input-field { width: 100%; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; color: var(--text-primary); font-size: 14px; font-family: inherit; transition: border-color 0.2s; }
+    .input-field:focus { outline: none; border-color: var(--accent); }
+    .input-field::placeholder { color: var(--text-muted); }
+    textarea.input-field { min-height: 150px; resize: vertical; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.5; }
+    .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 600px) { .input-row { grid-template-columns: 1fr; } }
+    .action-row { display: flex; gap: 12px; margin-bottom: 20px; }
+    .btn { padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; display: inline-flex; align-items: center; gap: 8px; }
+    .btn-primary { background: var(--accent); color: #000; }
+    .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
+    .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: var(--bg-card); }
+    .output-area { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    .output-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--bg-tertiary); border-bottom: 1px solid var(--border); }
+    .output-title { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+    .copy-btn { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 13px; padding: 6px 12px; border-radius: 6px; transition: all 0.2s; }
+    .copy-btn:hover { background: var(--accent-dim); }
+    .output-content { padding: 20px; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-break: break-all; min-height: 100px; max-height: 500px; overflow-y: auto; }
+    .output-content:empty::after { content: 'Output will appear here...'; color: var(--text-muted); }
+    .loading { color: var(--text-muted); font-style: italic; }
+    .error { color: var(--danger); }
+    .success { color: var(--success); }
+    @media (max-width: 768px) { .sidebar { transform: translateX(-100%); width: var(--sidebar-width); } .sidebar.mobile-open { transform: translateX(0); } .main-content { margin-left: 0; } .sidebar.collapsed ~ .main-content { margin-left: 0; } .mobile-toggle { display: flex !important; } .tool-container { padding: 16px; } .tool-title { font-size: 22px; } }
+    .mobile-toggle { display: none; background: none; border: none; color: var(--text-primary); font-size: 24px; cursor: pointer; padding: 8px; }
+    .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 99; }
+    @media (max-width: 768px) { .sidebar-overlay.mobile-open { display: block; } }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; }
+    .stat-value { font-size: 28px; font-weight: 700; color: var(--accent); }
+    .stat-label { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+    .quick-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 24px; }
+    .quick-action { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; cursor: pointer; transition: all 0.2s; }
+    .quick-action:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .quick-action-title { font-weight: 600; margin-bottom: 4px; }
+    .quick-action-desc { font-size: 12px; color: var(--text-secondary); }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <div class="sidebar-overlay" onclick="toggleMobileSidebar()"></div>
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">🛠️</div>
+        <span class="logo-text">IT Toolbox</span>
+        <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+      </div>
+      <div class="sidebar-content">
+        <div class="category">
+          <div class="category-title">🔧 Developer</div>
+          <div class="nav-item active" data-tool="json" onclick="selectTool('json')"><span class="nav-icon">📄</span><span class="nav-label">JSON Formatter</span></div>
+          <div class="nav-item" data-tool="base64" onclick="selectTool('base64')"><span class="nav-icon">🔡</span><span class="nav-label">Base64</span></div>
+          <div class="nav-item" data-tool="uuid" onclick="selectTool('uuid')"><span class="nav-icon">🆔</span><span class="nav-label">UUID Generator</span></div>
+          <div class="nav-item" data-tool="url" onclick="selectTool('url')"><span class="nav-icon">🔗</span><span class="nav-label">URL Encoder</span></div>
+          <div class="nav-item" data-tool="timestamp" onclick="selectTool('timestamp')"><span class="nav-icon">⏰</span><span class="nav-label">Timestamp</span></div>
+        </div>
+        <div class="category">
+          <div class="category-title">🌐 Network</div>
+          <div class="nav-item" data-tool="ip" onclick="selectTool('ip')"><span class="nav-icon">📍</span><span class="nav-label">IP Lookup</span></div>
+          <div class="nav-item" data-tool="dns" onclick="selectTool('dns')"><span class="nav-icon">🌐</span><span class="nav-label">DNS Lookup</span></div>
+          <div class="nav-item" data-tool="ports" onclick="selectTool('ports')"><span class="nav-icon">🚪</span><span class="nav-label">Port Scanner</span></div>
+          <div class="nav-item" data-tool="traceroute" onclick="selectTool('traceroute')"><span class="nav-icon">🛤️</span><span class="nav-label">Traceroute</span></div>
+        </div>
+        <div class="category">
+          <div class="category-title">🔐 Security</div>
+          <div class="nav-item" data-tool="hash" onclick="selectTool('hash')"><span class="nav-icon">#️⃣</span><span class="nav-label">Hash Generator</span></div>
+          <div class="nav-item" data-tool="ssl" onclick="selectTool('ssl')"><span class="nav-icon">🔒</span><span class="nav-label">SSL Checker</span></div>
+          <div class="nav-item" data-tool="whois" onclick="selectTool('whois')"><span class="nav-icon">📜</span><span class="nav-label">WHOIS</span></div>
+        </div>
+        <div class="category">
+          <div class="category-title">🛠️ Utilities</div>
+          <div class="nav-item" data-tool="color" onclick="selectTool('color')"><span class="nav-icon">🎨</span><span class="nav-label">Color Converter</span></div>
+          <div class="nav-item" data-tool="curl" onclick="selectTool('curl')"><span class="nav-icon">🌐</span><span class="nav-label">cURL Builder</span></div>
+        </div>
+      </div>
+    </aside>
+    <main class="main-content">
+      <header class="header">
+        <button class="mobile-toggle" onclick="toggleMobileSidebar()">☰</button>
+        <h1 class="header-title" id="headerTitle">IT Toolbox</h1>
+        <div class="header-actions"><button class="header-btn" onclick="selectTool('home')">🏠 Home</button></div>
+      </header>
+      <div class="tool-container" id="toolContainer"></div>
+    </main>
+  </div>
+  <script>
+    let currentTool = 'json';
+    let outputText = '';
+    const tools = {
+      home: { title: 'Welcome', icon: '🛠️', description: 'Your all-in-one network diagnostics toolkit', type: 'home' },
+      json: { title: 'JSON Formatter', icon: '📄', description: 'Format, validate JSON', type: 'input-output', inputLabel: 'Paste JSON', inputPlaceholder: '{"key": "value"}' },
+      base64: { title: 'Base64', icon: '🔡', description: 'Encode/Decode Base64', type: 'input-output', inputLabel: 'Enter text', inputPlaceholder: 'Hello World' },
+      uuid: { title: 'UUID Generator', icon: '🆔', description: 'Generate random UUIDs', type: 'generate' },
+      url: { title: 'URL Encoder', icon: '🔗', description: 'Encode/Decode URLs', type: 'input-output', inputLabel: 'Enter URL', inputPlaceholder: 'https://example.com?q=hello' },
+      timestamp: { title: 'Timestamp', icon: '⏰', description: 'Convert timestamps', type: 'timestamp' },
+      ip: { title: 'IP Lookup', icon: '📍', description: 'Get IP details', type: 'input', inputLabel: 'Enter IP', inputPlaceholder: '8.8.8.8' },
+      dns: { title: 'DNS Lookup', icon: '🌐', description: 'Look up DNS records', type: 'input', inputLabel: 'Enter domain', inputPlaceholder: 'example.com' },
+      ports: { title: 'Port Scanner', icon: '🚪', description: 'Scan ports', type: 'ports' },
+      traceroute: { title: 'Traceroute', icon: '🛤️', description: 'Trace network route', type: 'input', inputLabel: 'Enter hostname', inputPlaceholder: 'google.com' },
+      hash: { title: 'Hash Generator', icon: '#️⃣', description: 'Generate hashes', type: 'hash' },
+      ssl: { title: 'SSL Checker', icon: '🔒', description: 'Check SSL cert', type: 'input', inputLabel: 'Enter domain', inputPlaceholder: 'google.com' },
+      whois: { title: 'WHOIS', icon: '📜', description: 'Domain info', type: 'input', inputLabel: 'Enter domain', inputPlaceholder: 'example.com' },
+      color: { title: 'Color Converter', icon: '🎨', description: 'Convert colors', type: 'color' },
+      curl: { title: 'cURL Builder', icon: '🌐', description: 'Build cURL', type: 'curl' }
+    };
+    function init() { selectTool('home'); }
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('collapsed'); }
+    function toggleMobileSidebar() { document.getElementById('sidebar').classList.toggle('mobile-open'); document.querySelector('.sidebar-overlay').classList.toggle('mobile-open'); }
+    function selectTool(toolId) {
+      currentTool = toolId;
+      document.querySelectorAll('.nav-item').forEach(item => { item.classList.remove('active'); if (item.dataset.tool === toolId) item.classList.add('active'); });
+      document.getElementById('sidebar').classList.remove('mobile-open'); document.querySelector('.sidebar-overlay').classList.remove('mobile-open');
+      renderTool(toolId);
+    }
+    function renderTool(toolId) {
+      const tool = tools[toolId];
+      const container = document.getElementById('toolContainer');
+      document.getElementById('headerTitle').textContent = tool.title;
+      outputText = '';
+      if (tool.type === 'home') { container.innerHTML = renderHome(); return; }
+      let html = `<div class="tool-header"><h2 class="tool-title"><span class="tool-title-icon">${tool.icon}</span>${tool.title}</h2><p class="tool-description">${tool.description}</p></div>`;
+      if (tool.type === 'input-output') { html += `<div class="input-area"><label class="input-label">${tool.inputLabel}</label><textarea id="toolInput" class="input-field" placeholder="${tool.inputPlaceholder}"></textarea><div class="action-row" style="margin-top:16px"><button class="btn btn-primary" onclick="runTool('${toolId}')">✨ Process</button><button class="btn btn-secondary" onclick="document.getElementById('toolInput').value=''">Clear</button></div></div>`; }
+      else if (tool.type === 'input') { html += `<div class="input-area"><label class="input-label">${tool.inputLabel}</label><input type="text" id="toolInput" class="input-field" placeholder="${tool.inputPlaceholder}"><div class="action-row" style="margin-top:16px"><button class="btn btn-primary" onclick="runTool('${toolId}')">🔍 Lookup</button></div></div>`; }
+      else if (tool.type === 'generate') { html += `<div class="action-row"><button class="btn btn-primary" onclick="runTool('${toolId}')">🎲 Generate</button></div>`; }
+      else if (tool.type === 'timestamp') { html += `<div class="input-area"><div class="input-row"><div><label class="input-label">Timestamp</label><input type="text" id="tsInput" class="input-field" placeholder="${Math.floor(Date.now()/1000)}"></div><div><label class="input-label">Or Date</label><input type="text" id="dateInput" class="input-field" placeholder="2024-01-01"></div></div><div class="action-row" style="margin-top:16px"><button class="btn btn-primary" onclick="runTool('timestamp')">🔄 Convert</button></div></div>`; }
+      else if (tool.type === 'hash') { html += `<div class="input-area"><label class="input-label">Enter text</label><input type="text" id="hashInput" class="input-field" placeholder="Hello World"><div class="action-row" style="margin-top:16px"><button class="btn btn-primary" onclick="runTool('hash')">🔐 Generate</button></div></div>`; }
+      else if (tool.type === 'color') { html += `<div class="input-area"><label class="input-label">Enter color</label><input type="text" id="colorInput" class="input-field" placeholder="#00d4aa"><div class="action-row" style="margin-top:16px"><button class="btn btn-primary" onclick="runTool('color')">🎨 Convert</button></div></div>`; }
+      else if (tool.type === 'ports') { html += `<div class="input-area"><label class="input-label">Host</label><input type="text" id="portsHost" class="input-field" placeholder="example.com"><div class="action-row" style="margin-top:16px"><button class="btn btn-primary" onclick="runTool('ports')">🔍 Scan</button></div></div>`; }
+      else if (tool.type === 'curl') { html += `<div class="input-area"><label class="input-label">URL</label><input type="text" id="curlUrl" class="input-field" placeholder="https://api.example.com"><label class="input-label" style="margin-top:16px">Method</label><select id="curlMethod" class="input-field"><option>GET</option><option>POST</option><option>PUT</option><option>DELETE</option></select><div class="action-row" style="margin-top:16px"><button class="btn btn-primary" onclick="runTool('curl')">🌐 Send</button></div></div>`; }
+      html += `<div class="output-area"><div class="output-header"><span class="output-title">Output</span><button class="copy-btn" onclick="copyOutput()">📋 Copy</button></div><div class="output-content" id="outputContent"></div></div>`;
+      container.innerHTML = html;
+    }
+    function renderHome() { return `<div class="tool-header"><h2 class="tool-title"><span class="tool-title-icon">🛠️</span>Welcome to IT Toolbox</h2><p class="tool-description">Your all-in-one network diagnostics toolkit</p></div><div class="stats-grid"><div class="stat-card"><div class="stat-value">${Object.keys(tools).length-1}</div><div class="stat-label">Tools Available</div></div><div class="stat-card"><div class="stat-value">${new Date().toLocaleDateString()}</div><div class="stat-label">Today's Date</div></div></div><h3 style="margin-bottom:16px;color:var(--text-secondary)">Quick Actions</h3><div class="quick-actions"><div class="quick-action" onclick="selectTool('ip')"><div class="quick-action-title">📍 My IP</div><div class="quick-action-desc">Get your public IP</div></div><div class="quick-action" onclick="selectTool('json')"><div class="quick-action-title">📄 JSON Formatter</div><div class="quick-action-desc">Format JSON</div></div><div class="quick-action" onclick="selectTool('uuid')"><div class="quick-action-title">🆔 UUID</div><div class="quick-action-desc">Generate IDs</div></div><div class="quick-action" onclick="selectTool('color')"><div class="quick-action-title">🎨 Colors</div><div class="quick-action-desc">Convert colors</div></div></div>`; }
+    async function runTool(toolId) {
+      const outputEl = document.getElementById('outputContent');
+      outputEl.innerHTML = '<span class="loading">Processing...</span>';
+      
+      try {
+        let result = '';
+        let response;
+        
+        switch(toolId) {
+          case 'json': 
+            const j = JSON.parse(document.getElementById('toolInput').value); 
+            result = JSON.stringify(j, null, 2); 
+            break;
+          case 'base64': 
+            const b = document.getElementById('toolInput').value; 
+            result = 'Encoded: ' + btoa(b) + '\n\nDecoded: ' + atob(b); 
+            break;
+          case 'uuid': 
+            for (let i = 0; i < 5; i++) result += crypto.randomUUID() + '\n'; 
+            break;
+          case 'url': 
+            const u = document.getElementById('toolInput').value; 
+            result = 'Encoded: ' + encodeURIComponent(u) + '\nDecoded: ' + decodeURIComponent(u); 
+            break;
+          case 'timestamp': 
+            const ts = document.getElementById('tsInput').value, d = document.getElementById('dateInput').value; 
+            if (ts) { const date = new Date(ts * 1000); result = 'Unix: ' + ts + '\nISO: ' + date.toISOString() + '\nLocal: ' + date.toLocaleString(); } 
+            else if (d) { const date = new Date(d); result = 'Unix: ' + Math.floor(date.getTime()/1000) + '\nISO: ' + date.toISOString(); } 
+            break;
+          case 'ip': 
+            const ipInput = document.getElementById('toolInput').value;
+            if (ipInput) {
+              response = await fetch('/api/ip', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ip: ipInput}) });
+            } else {
+              response = await fetch('/api/ip/my');
+            }
+            const ipData = await response.json();
+            result = JSON.stringify(ipData, null, 2);
+            break;
+          case 'dns': 
+            response = await fetch('/api/dns', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({domain: document.getElementById('toolInput').value}) });
+            result = JSON.stringify(await response.json(), null, 2);
+            break;
+          case 'ports': 
+            response = await fetch('/api/ports', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({host: document.getElementById('portsHost').value, ports: [21,22,25,53,80,110,143,443,445,3306,3389,8080]}) });
+            const portsData = await response.json();
+            result = 'Host: ' + portsData.host + '\n\n';
+            for (const [port, info] of Object.entries(portsData.ports || {})) {
+              result += `Port ${port} (${info.service}): ${info.open ? '🟢 OPEN' : '🔴 CLOSED'}\n`;
+            }
+            break;
+          case 'traceroute': 
+            response = await fetch('/api/traceroute', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({host: document.getElementById('toolInput').value}) });
+            const traceData = await response.json();
+            if (traceData.hops) {
+              result = 'Traceroute to ' + traceData.host + ':\n\n';
+              traceData.hops.forEach(h => { result += `${h.hop}. ${h.ip} (${h.rtt}ms)\n`; });
+            } else {
+              result = traceData.output || 'Traceroute not available';
+            }
+            break;
+          case 'hash': 
+            response = await fetch('/api/hash', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({text: document.getElementById('hashInput').value}) });
+            result = JSON.stringify(await response.json(), null, 2);
+            break;
+          case 'ssl': 
+            response = await fetch('/api/ssl', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({domain: document.getElementById('toolInput').value}) });
+            result = JSON.stringify(await response.json(), null, 2);
+            break;
+          case 'whois': 
+            response = await fetch('/api/whois/' + encodeURIComponent(document.getElementById('toolInput').value));
+            result = JSON.stringify(await response.json(), null, 2);
+            break;
+          case 'color': 
+            const c = document.getElementById('colorInput').value; 
+            const h = c.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i); 
+            if (h) { result = 'HEX: #' + h[1] + h[2] + h[3] + '\nRGB: rgb(' + parseInt(h[1],16) + ',' + parseInt(h[2],16) + ',' + parseInt(h[3],16) + ')'; } 
+            else { result = 'Enter hex color like #00d4aa'; } 
+            break;
+          case 'curl': 
+            const curlUrl = document.getElementById('curlUrl').value;
+            const curlMethod = document.getElementById('curlMethod').value;
+            response = await fetch('/api/curl', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({url: curlUrl, method: curlMethod}) });
+            const curlData = await response.json();
+            result = JSON.stringify(curlData, null, 2);
+            break;
+          default: 
+            result = 'Tool not implemented yet';
+        }
+        outputText = result;
+        outputEl.textContent = result;
+      } catch(e) { 
+        outputEl.innerHTML = '<span class="error">Error: ' + e.message + '</span>'; 
+      }
+    }
+    function copyOutput() { if (outputText) { navigator.clipboard.writeText(outputText); alert('Copied!'); } }
+    init();
+  </script>
+</body>
+</html>
