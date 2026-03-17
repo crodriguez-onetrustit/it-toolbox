@@ -218,3 +218,32 @@
   </script>
 </body>
 </html>
+
+  <script>
+    // Load favorites from localStorage
+    let favorites = JSON.parse(localStorage.getItem('toolbox_favorites') || '[]');
+    let history = JSON.parse(localStorage.getItem('toolbox_history') || '[]');
+    
+    function updateFavorites() {
+      localStorage.setItem('toolbox_favorites', JSON.stringify(favorites));
+    }
+    
+    function addToHistory(tool, result) {
+      const item = { tool, result: result.substring(0, 100), time: new Date().toISOString() };
+      history = [item, ...history.filter(h => h.tool !== tool)].slice(0, 20);
+      localStorage.setItem('toolbox_history', JSON.stringify(history));
+    }
+    
+    // Add result saving to runTool
+    const originalRunTool = runTool;
+    runTool = function() {
+      originalRunTool();
+      // Save to history after a delay
+      setTimeout(() => {
+        const result = document.querySelector('.result-content');
+        if (result && !result.classList.contains('loading')) {
+          addToHistory(currentTool, result.textContent);
+        }
+      }, 1000);
+    }
+  </script>
