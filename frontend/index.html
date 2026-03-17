@@ -597,7 +597,6 @@
     function copyOutput() { if (outputText) { navigator.clipboard.writeText(outputText); alert('Copied!'); } }
     
     // SSH Terminal Functions
-    let sshServers = JSON.parse(localStorage.getItem('ittoolbox_ssh_servers') || '[]');
     let sshConnected = false;
     let sshCurrentServer = null;
     
