@@ -137,6 +137,12 @@
         </div>
         <div class="category"><div class="category-title">🖥️ Server</div>
           <div class="nav-item" data-tool="system" onclick="selectTool('system')"><span class="nav-icon">📊</span><span class="nav-label">System Info</span></div>
+          <div class="nav-item" data-tool="cpu" onclick="selectTool('cpu')"><span class="nav-icon">🔥</span><span class="nav-label">CPU Info</span></div>
+          <div class="nav-item" data-tool="memory" onclick="selectTool('memory')"><span class="nav-icon">💾</span><span class="nav-label">Memory</span></div>
+          <div class="nav-item" data-tool="disk" onclick="selectTool('disk')"><span class="nav-icon">💿</span><span class="nav-label">Disk Usage</span></div>
+          <div class="nav-item" data-tool="processes" onclick="selectTool('processes')"><span class="nav-icon">📋</span><span class="nav-label">Processes</span></div>
+          <div class="nav-item" data-tool="interfaces" onclick="selectTool('interfaces')"><span class="nav-icon">🔀</span><span class="nav-label">Interfaces</span></div>
+          <div class="nav-item" data-tool="netstat" onclick="selectTool('netstat')"><span class="nav-icon">🔍</span><span class="nav-label">Netstat</span></div>
           <div class="nav-item" data-tool="docker" onclick="selectTool('docker')"><span class="nav-icon">🐳</span><span class="nav-label">Docker</span></div>
         </div>
         <div class="category"><div class="category-title">🛠️ Utilities</div>
@@ -193,7 +199,13 @@
       password: { name: 'Password Generator', icon: '🔑', description: 'Generate secure passwords', inputs: [{name: 'length', label: 'Length', type: 'text', value: '16'}], action: 'Generate', local: true },
       uuid: { name: 'UUID Generator', icon: '🆔', description: 'Generate UUIDs', inputs: [], action: 'Generate', local: true },
       qrcode: { name: 'QR Code', icon: '📱', description: 'Generate QR codes', inputs: [{name: 'text', label: 'Text', type: 'textarea'}], action: 'Generate', local: true },
-      color: { name: 'Color Picker', icon: '🎨', description: 'Pick and convert colors', inputs: [{name: 'color', label: 'Color', type: 'text', value: '#00d4aa'}], action: 'Convert', local: true }
+      color: { name: 'Color Picker', icon: '🎨', description: 'Pick and convert colors', inputs: [{name: 'color', label: 'Color', type: 'text', value: '#00d4aa'}], action: 'Convert', local: true },
+      cpu: { name: 'CPU Info', icon: '🔥', description: 'View CPU details', inputs: [], action: 'Get Info', endpoint: '/api/cpu', method: 'GET' },
+      memory: { name: 'Memory Info', icon: '💾', description: 'View memory details', inputs: [], action: 'Get Info', endpoint: '/api/memory', method: 'GET' },
+      disk: { name: 'Disk Usage', icon: '💿', description: 'Check disk space', inputs: [], action: 'Get Info', endpoint: '/api/disk', method: 'GET' },
+      processes: { name: 'Process List', icon: '📋', description: 'View running processes', inputs: [], action: 'List', endpoint: '/api/processes', method: 'GET' },
+      interfaces: { name: 'Network Interfaces', icon: '🔀', description: 'View network interfaces', inputs: [], action: 'List', endpoint: '/api/network/interfaces', method: 'GET' },
+      netstat: { name: 'Netstat', icon: '🔍', description: 'View network connections', inputs: [], action: 'List', endpoint: '/api/netstat', method: 'GET' }
     };
     let currentTool = null;
     function toggleSidebar() { document.getElementById('sidebar').classList.toggle('collapsed'); document.getElementById('toggleIcon').textContent = document.getElementById('sidebar').classList.contains('collapsed') ? '▶' : '◀'; }

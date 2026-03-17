@@ -1003,3 +1003,197 @@ async def jwt_encode(data: dict):
         return {"token": f"{header_b64}.{payload_b64}.{signature_b64}"}
     except Exception as e:
         return {"error": str(e)}
+
+# Network Interfaces
+@app.get("/api/network/interfaces")
+async def network_interfaces():
+    """Get network interfaces"""
+    import psutil
+    interfaces = {}
+    for iface, addrs in psutil.net_if_addrs().items():
+        interfaces[iface] = []
+        for addr in addrs:
+            interfaces[iface].append({
+                'family': str(addr.family),
+                'address': addr.address,
+                'netmask': addr.netmask,
+                'broadcast': addr.broadcast
+            })
+    return {"interfaces": interfaces}
+
+# Process List
+@app.get("/api/processes")
+async def list_processes():
+    """List running processes"""
+    import psutil
+    processes = []
+    for p in psutil.process_iter(['pid', 'name', 'cpu_percent', 'memory_percent']):
+        try:
+            processes.append({
+                'pid': p.info['pid'],
+                'name': p.info['name'],
+                'cpu': p.info['cpu_percent'] or 0,
+                'memory': p.info['memory_percent'] or 0
+            })
+        except:
+            pass
+    return {"processes": sorted(processes, key=lambda x: x['cpu'], reverse=True)[:20]}
+
+# Kill Process
+@app.post("/api/process/kill")
+async def kill_process(data: dict):
+    """Kill a process by PID"""
+    import psutil
+    pid = data.get("pid")
+    try:
+        p = psutil.Process(pid)
+        p.terminate()
+        return {"success": True, "message": f"Process {pid} terminated"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+# Disk Usage
+@app.get("/api/disk")
+async def disk_usage():
+    """Get disk usage"""
+    import psutil
+    partitions = []
+    for part in psutil.disk_partitions():
+        try:
+            usage = psutil.disk_usage(part.mountpoint)
+            partitions.append({
+                'device': part.device,
+                'mountpoint': part.mountpoint,
+                'fstype': part.fstype,
+                'total': usage.total,
+                'used': usage.used,
+                'free': usage.free,
+                'percent': usage.percent
+            })
+        except:
+            pass
+    return {"disks": partitions}
+
+# Memory Info
+@app.get("/api/memory")
+async def memory_info():
+    """Get detailed memory info"""
+    import psutil
+    vm = psutil.virtual_memory()
+    swap = psutil.swap_memory()
+    return {
+        "virtual": {
+            "total": vm.total,
+            "available": vm.available,
+            "used": vm.used,
+            "free": vm.free,
+            "percent": vm.percent
+        },
+        "swap": {
+            "total": swap.total,
+            "used": swap.used,
+            "free": swap.free,
+            "percent": swap.percent
+        }
+    }
+
+# CPU Info
+@app.get("/api/cpu")
+async def cpu_info():
+    """Get CPU information"""
+    import psutil
+    return {
+        "physical_cores": psutil.cpu_count(logical=False),
+        "logical_cores": psutil.cpu_count(logical=True),
+        "current_freq": psutil.cpu_freq().current if psutil.cpu_freq() else None,
+        "usage_per_cpu": psutil.cpu_percent(interval=0.5, percpu=True),
+        "total_usage": psutil.cpu_percent(interval=0.5)
+    }
+
+# Network Connections
+@app.get("/api/netstat")
+async def netstat():
+    """Get network connections"""
+    import psutil
+    connections = []
+    for conn in psutil.net_connections():
+        if conn.laddr:
+            connections.append({
+                "proto": str(conn.type),
+                "local": f"{conn.laddr.ip}:{conn.laddr.port}",
+                "status": conn.status,
+                "pid": conn.pid
+            })
+    return {"connections": connections[:50]}
+
+# Timestamp Converter
+@app.post("/api/timestamp")
+async def timestamp_converter(data: dict):
+    """Convert timestamps"""
+    import time
+    import datetime
+    
+    ts = data.get("timestamp")
+    action = data.get("action", "to_iso")  # to_iso, to_unix, now
+    
+    try:
+        if action == "now":
+            now = datetime.datetime.now()
+            return {
+                "unix": int(now.timestamp()),
+                "iso": now.isoformat(),
+                "human": now.strftime("%Y-%m-%d %H:%M:%S")
+            }
+        elif action == "to_iso":
+            # Assume unix timestamp
+            dt = datetime.datetime.fromtimestamp(int(ts))
+            return {
+                "unix": int(ts),
+                "iso": dt.isoformat(),
+                "human": dt.strftime("%Y-%m-%d %H:%M:%S")
+            }
+        elif action == "to_unix":
+            # Parse ISO date
+            dt = datetime.datetime.fromisoformat(ts)
+            return {
+                "unix": int(dt.timestamp()),
+                "iso": ts,
+                "human": dt.strftime("%Y-%m-%d %H:%M:%S")
+            }
+    except Exception as e:
+        return {"error": str(e)}
+
+# HMAC Generator
+@app.post("/api/hmac")
+async def hmac_generator(data: dict):
+    """Generate HMAC"""
+    import hmac
+    import hashlib
+    
+    message = data.get("message", "")
+    secret = data.get("secret", "")
+    algorithm = data.get("algorithm", "sha256")
+    
+    algorithms = {
+        "md5": hashlib.md5,
+        "sha1": hashlib.sha1,
+        "sha256": hashlib.sha256,
+        "sha512": hashlib.sha512
+    }
+    
+    hash_func = algorithms.get(algorithm, hashlib.sha256)
+    h = hmac.new(secret.encode(), message.encode(), hash_func)
+    
+    return {
+        "message": message,
+        "secret": secret,
+        "algorithm": algorithm,
+        "hmac": h.hexdigest()
+    }
+
+# UUID v4 Generator (client-side friendly)
+@app.get("/api/uuid/generate")
+async def generate_uuid():
+    """Generate UUID v4"""
+    import uuid
+    return {"uuid": str(uuid.uuid4()), "version": "v4"}
