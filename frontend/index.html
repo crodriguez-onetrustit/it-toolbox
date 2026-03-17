@@ -338,6 +338,9 @@
     function renderDashboard() {
       const container = document.getElementById('toolContainer');
       const toolCount = Object.keys(tools).length - 1;
+      const serverCount = sshServers ? sshServers.length : 0;
+      const favCount = favorites ? favorites.length : 0;
+      const noteCount = notes ? notes.length : 0;
       
       container.innerHTML = `
         <div style="max-width:1400px;margin:0 auto;">
@@ -349,7 +352,7 @@
           <!-- Stats Cards -->
           <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px;">
             <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;">
-              <div style="font-size:36px;font-weight:700;color:var(--accent);">${sshServers.length}</div>
+              <div style="font-size:36px;font-weight:700;color:var(--accent);">${serverCount}</div>
               <div style="font-size:13px;color:var(--text-secondary);">Servers</div>
             </div>
             <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;">
@@ -357,11 +360,11 @@
               <div style="font-size:13px;color:var(--text-secondary);">Tools</div>
             </div>
             <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;">
-              <div style="font-size:36px;font-weight:700;color:#ffa502;">${favorites.length}</div>
+              <div style="font-size:36px;font-weight:700;color:#ffa502;">${favCount}</div>
               <div style="font-size:13px;color:var(--text-secondary);">Favorites</div>
             </div>
             <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;">
-              <div style="font-size:36px;font-weight:700;color:#3b82f6;">${notes.length}</div>
+              <div style="font-size:36px;font-weight:700;color:#3b82f6;">${noteCount}</div>
               <div style="font-size:13px;color:var(--text-secondary);">Notes</div>
             </div>
           </div>
@@ -399,21 +402,13 @@
                 <h3 style="font-size:16px;font-weight:600;">🖥️ Saved Servers</h3>
                 <button onclick="selectTool('ssh')" style="background:var(--accent);border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;">+ Add</button>
               </div>
-              ${sshServers.length === 0 ? '<p style="color:var(--text-secondary);font-size:13px;">No servers saved. Add one to get started.</p>' : 
-                sshServers.slice(0,5).map(s => `<div onclick="selectTool('ssh')" style="padding:12px;background:var(--bg-tertiary);border-radius:8px;margin-bottom:8px;cursor:pointer;">
-                  <div style="font-weight:600;font-size:13px;">${s.name}</div>
-                  <div style="font-size:12px;color:var(--text-secondary);">${s.user}@${s.host}</div>
-                </div>`).join('')}
+              <p style="color:var(--text-secondary);font-size:13px;">No servers saved. Add one to get started.</p>
             </div>
             
             <!-- Favorites -->
             <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;">
               <h3 style="font-size:16px;font-weight:600;margin-bottom:16px;">⭐ Favorites</h3>
-              ${favorites.length === 0 ? '<p style="color:var(--text-secondary);font-size:13px;">Star tools to add them here.</p>' : 
-                favorites.map(f => tools[f] ? `<button onclick="selectTool('${f}')" style="display:block;width:100%;padding:12px;background:var(--bg-tertiary);border-radius:8px;margin-bottom:8px;cursor:pointer;border:none;text-align:left;">
-                  <span style="font-size:16px;margin-right:8px;">${tools[f].icon}</span>
-                  <span style="font-weight:600;">${tools[f].title}</span>
-                </button>` : '').join('')}
+              <p style="color:var(--text-secondary);font-size:13px;">Star tools to add them here.</p>
             </div>
           </div>
         </div>`;
