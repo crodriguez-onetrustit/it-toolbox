@@ -514,16 +514,50 @@ async def list_tools():
     """List all available tools"""
     return {
         "tools": [
+            # Network
             {"name": "DNS Lookup", "endpoint": "/api/dns", "method": "POST"},
             {"name": "IP Lookup", "endpoint": "/api/ip", "method": "POST"},
+            {"name": "My IP", "endpoint": "/api/ip/my", "method": "GET"},
             {"name": "Ping", "endpoint": "/api/ping", "method": "POST"},
             {"name": "Traceroute", "endpoint": "/api/traceroute", "method": "POST"},
             {"name": "Port Scan", "endpoint": "/api/ports", "method": "POST"},
+            {"name": "Speed Test", "endpoint": "/api/speedtest/local", "method": "GET"},
+            {"name": "Network Interfaces", "endpoint": "/api/network/interfaces", "method": "GET"},
+            {"name": "Netstat", "endpoint": "/api/netstat", "method": "GET"},
+            
+            # Security
             {"name": "SSL Check", "endpoint": "/api/ssl", "method": "POST"},
-            {"name": "WHOIS", "endpoint": "/api/whois/{domain}", "method": "GET"},
-            {"name": "HTTP Request", "endpoint": "/api/curl", "method": "POST"},
             {"name": "Hash Generator", "endpoint": "/api/hash", "method": "POST"},
-            {"name": "My IP", "endpoint": "/api/ip/my", "method": "GET"},
+            {"name": "HMAC Generator", "endpoint": "/api/hmac", "method": "POST"},
+            {"name": "JWT Decode", "endpoint": "/api/jwt/decode", "method": "POST"},
+            {"name": "JWT Encode", "endpoint": "/api/jwt/encode", "method": "POST"},
+            {"name": "WHOIS", "endpoint": "/api/whois/", "method": "GET"},
+            
+            # Developer
+            {"name": "JSON Formatter", "endpoint": "/api/json", "method": "POST", "local": True},
+            {"name": "Base64 Encoder", "endpoint": "/api/base64", "method": "POST", "local": True},
+            {"name": "URL Encoder", "endpoint": "/api/url", "method": "POST", "local": True},
+            {"name": "cURL", "endpoint": "/api/curl", "method": "POST"},
+            {"name": "HTTP Headers", "endpoint": "/api/headers", "method": "POST"},
+            
+            # System Monitoring
+            {"name": "System Info", "endpoint": "/api/systeminfo", "method": "GET"},
+            {"name": "CPU Info", "endpoint": "/api/cpu", "method": "GET"},
+            {"name": "Memory Info", "endpoint": "/api/memory", "method": "GET"},
+            {"name": "Disk Usage", "endpoint": "/api/disk", "method": "GET"},
+            {"name": "Process List", "endpoint": "/api/processes", "method": "GET"},
+            
+            # Server
+            {"name": "Docker", "endpoint": "/api/docker/ps", "method": "GET"},
+            {"name": "Services", "endpoint": "/api/services", "method": "POST"},
+            {"name": "Cron Jobs", "endpoint": "/api/cron", "method": "GET"},
+            
+            # Utilities
+            {"name": "Password Generator", "endpoint": "/api/password", "method": "GET", "local": True},
+            {"name": "UUID Generator", "endpoint": "/api/uuid/generate", "method": "GET"},
+            {"name": "QR Code", "endpoint": "/api/qrcode", "method": "POST", "local": True},
+            {"name": "Color Picker", "endpoint": "/api/color", "method": "POST", "local": True},
+            {"name": "Timestamp", "endpoint": "/api/timestamp", "method": "POST"},
         ]
     }
 
