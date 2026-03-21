@@ -1231,3 +1231,14 @@ async def generate_uuid():
     """Generate UUID v4"""
     import uuid
     return {"uuid": str(uuid.uuid4()), "version": "v4"}
+
+# Environment variables config
+import os
+
+# Config
+API_CONFIG = {
+    "debug": os.getenv("DEBUG", "false").lower() == "true",
+    "api_keys": {
+        "nba": os.getenv("NBA_API_KEY", ""),
+    }
+}
