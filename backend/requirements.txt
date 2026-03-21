@@ -3,4 +3,6 @@ uvicorn
 python-multipart
 dnspython
 requests
-whois
+python-whois
+psutil
+paramiko

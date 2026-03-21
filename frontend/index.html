@@ -22,8 +22,11 @@
       --accent-dim: rgba(0, 212, 170, 0.15);
       --accent-gradient: linear-gradient(135deg, #00d4aa 0%, #00a88a 100%);
       --danger: #ff4757;
+      --danger-dim: rgba(255, 71, 87, 0.15);
       --warning: #ffa502;
+      --warning-dim: rgba(255, 165, 2, 0.15);
       --success: #2ed573;
+      --success-dim: rgba(46, 213, 115, 0.15);
       --purple: #a855f7;
       --sidebar-width: 280px;
       --header-height: 64px;
@@ -31,6 +34,8 @@
       --radius-md: 12px;
       --radius-lg: 16px;
       --shadow-glow: 0 0 30px rgba(0, 212, 170, 0.2);
+      --shadow-card: 0 4px 20px rgba(0,0,0,0.3);
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { font-size: 16px; }
@@ -39,82 +44,108 @@
     .app-container { display: flex; min-height: 100vh; }
     
     /* Sidebar */
-    .sidebar { width: var(--sidebar-width); background: var(--bg-secondary); border-right: 1px solid var(--border); position: fixed; top: 0; left: 0; height: 100vh; z-index: 1000; display: flex; flex-direction: column; overflow: hidden; transition: all 0.3s; }
+    .sidebar { width: var(--sidebar-width); background: var(--bg-secondary); border-right: 1px solid var(--border); position: fixed; top: 0; left: 0; height: 100vh; z-index: 1000; display: flex; flex-direction: column; overflow: hidden; transition: var(--transition); }
     .sidebar.collapsed { width: 72px; }
-    .sidebar-header { height: var(--header-height); display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid var(--border); gap: 12px; }
+    .sidebar-header { height: var(--header-height); display: flex; align-items: center; padding: 0 16px; border-bottom: 1px solid var(--border); gap: 12px; position: relative; }
     .logo { width: 40px; height: 40px; background: var(--accent-gradient); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; box-shadow: var(--shadow-glow); }
-    .logo-text { font-weight: 700; font-size: 18px; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; white-space: nowrap; }
-    .sidebar.collapsed .logo-text { opacity: 0; width: 0; }
-    .sidebar-toggle { position: absolute; right: 16px; background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-secondary); cursor: pointer; padding: 8px 12px; border-radius: var(--radius-sm); transition: all 0.2s; }
-    .sidebar-toggle:hover { background: var(--accent-dim); color: var(--accent); }
-    .sidebar.collapsed .sidebar-toggle { right: 50%; transform: translateX(50%); }
+    .logo-text { font-weight: 700; font-size: 18px; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; white-space: nowrap; overflow: hidden; }
+    .sidebar.collapsed .logo-text { width: 0; opacity: 0; }
+    .sidebar-toggle { background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-secondary); cursor: pointer; padding: 8px; border-radius: var(--radius-sm); transition: var(--transition); display: flex; align-items: center; justify-content: center; }
+    .sidebar-toggle:hover { background: var(--accent-dim); color: var(--accent); border-color: var(--accent); }
+    .sidebar.collapsed .sidebar-toggle { position: absolute; right: -16px; top: 50%; transform: translateY(-50%); }
     .search-container { padding: 16px; border-bottom: 1px solid var(--border); }
-    .search-input { width: 100%; padding: 12px 16px; padding-left: 40px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-primary); font-size: 14px; outline: none; transition: all 0.2s; }
+    .search-input { width: 100%; padding: 12px 16px; padding-left: 40px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-primary); font-size: 14px; outline: none; transition: var(--transition); }
     .search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
     .search-wrapper { position: relative; }
-    .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
-    .sidebar.collapsed .search-container, .sidebar.collapsed .category-title, .sidebar.collapsed .nav-label { display: none; }
+    .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
+    .sidebar.collapsed .search-container, .sidebar.collapsed .category-title, .sidebar.collapsed .nav-label, .sidebar.collapsed .favorites-section { display: none; }
     .sidebar-content { flex: 1; overflow-y: auto; padding: 8px 12px; }
     .sidebar-content::-webkit-scrollbar { width: 6px; }
     .sidebar-content::-webkit-scrollbar-track { background: transparent; }
     .sidebar-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    
+    .favorites-section { padding: 8px 12px; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
+    .favorites-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); padding: 8px 0 4px; display: flex; align-items: center; gap: 6px; }
+    .favorite-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: var(--radius-sm); color: var(--text-secondary); cursor: pointer; transition: var(--transition); font-size: 13px; }
+    .favorite-item:hover { background: var(--bg-hover); color: var(--accent); }
+    
     .category { margin-bottom: 8px; }
     .category-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); padding: 12px 12px 8px; }
-    .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: var(--radius-sm); color: var(--text-secondary); cursor: pointer; transition: all 0.15s; margin-bottom: 2px; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: var(--radius-sm); color: var(--text-secondary); cursor: pointer; transition: var(--transition); margin-bottom: 2px; position: relative; }
     .nav-item:hover { background: var(--bg-hover); color: var(--text-primary); }
     .nav-item.active { background: var(--accent-dim); color: var(--accent); }
+    .nav-item .star { opacity: 0; transition: var(--transition); margin-left: auto; font-size: 12px; }
+    .nav-item:hover .star, .nav-item.starred .star { opacity: 1; color: var(--warning); }
     .nav-icon { font-size: 18px; width: 24px; text-align: center; flex-shrink: 0; }
     .nav-label { font-size: 14px; font-weight: 500; white-space: nowrap; }
     
     /* Main Content */
-    .main-content { flex: 1; margin-left: var(--sidebar-width); transition: margin-left 0.3s; min-height: 100vh; }
+    .main-content { flex: 1; margin-left: var(--sidebar-width); transition: var(--transition); min-height: 100vh; display: flex; flex-direction: column; }
     .sidebar.collapsed ~ .main-content { margin-left: 72px; }
     
     /* Header */
-    .header { height: var(--header-height); background: rgba(18, 18, 26, 0.8); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; position: sticky; top: 0; z-index: 50; }
-    .header-title { font-size: 20px; font-weight: 600; }
-    .header-actions { display: flex; align-items: center; gap: 16px; }
-    .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; background: rgba(46, 213, 115, 0.15); color: var(--success); }
-    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .header { height: var(--header-height); background: rgba(18, 18, 26, 0.95); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; position: sticky; top: 0; z-index: 50; }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    .mobile-menu-btn { display: none; background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-primary); padding: 8px; border-radius: var(--radius-sm); cursor: pointer; }
+    .header-title { font-size: 20px; font-weight: 600; display: flex; align-items: center; gap: 12px; }
+    .breadcrumb { font-size: 12px; color: var(--text-muted); }
+    .header-actions { display: flex; align-items: center; gap: 12px; }
+    .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; background: var(--success-dim); color: var(--success); border: 1px solid rgba(46, 213, 115, 0.3); transition: var(--transition); }
+    .status-badge.offline { background: var(--danger-dim); color: var(--danger); border-color: rgba(255, 71, 87, 0.3); }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .header-btn { background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-secondary); padding: 8px 12px; border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition); display: flex; align-items: center; gap: 6px; font-size: 13px; }
+    .header-btn:hover { background: var(--bg-hover); color: var(--text-primary); border-color: var(--border-light); }
     
     /* Content */
-    .content { padding: 32px; }
+    .content { padding: 32px; flex: 1; }
     
     /* Tool Container */
-    .tool-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); animation: fadeIn 0.3s ease-out; }
+    .tool-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px; box-shadow: var(--shadow-card); animation: fadeIn 0.3s ease-out; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    .tool-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+    .tool-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border); gap: 16px; }
+    .tool-info { flex: 1; }
     .tool-title { font-size: 24px; font-weight: 600; display: flex; align-items: center; gap: 12px; }
     .tool-title-icon { font-size: 28px; }
-    .tool-description { color: var(--text-secondary); font-size: 14px; margin-top: 4px; }
+    .tool-description { color: var(--text-secondary); font-size: 14px; margin-top: 6px; }
+    .tool-actions-header { display: flex; gap: 8px; }
+    .tool-action-btn { background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-secondary); padding: 8px 12px; border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition); font-size: 13px; display: flex; align-items: center; gap: 6px; }
+    .tool-action-btn:hover { background: var(--bg-hover); color: var(--accent); }
     
     /* Inputs */
-    .tool-inputs { display: grid; gap: 16px; margin-bottom: 24px; }
+    .tool-inputs { display: grid; gap: 20px; margin-bottom: 24px; }
     .input-group { display: flex; flex-direction: column; gap: 8px; }
-    .input-label { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
-    .tool-input, .tool-textarea, .tool-select { padding: 12px 16px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 14px; font-family: inherit; outline: none; transition: all 0.2s; }
+    .input-label { font-size: 13px; font-weight: 500; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
+    .input-hint { font-size: 11px; color: var(--text-muted); font-weight: 400; }
+    .tool-input, .tool-textarea, .tool-select { padding: 12px 16px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 14px; font-family: inherit; outline: none; transition: var(--transition); width: 100%; }
     .tool-input:focus, .tool-textarea:focus, .tool-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
-    .tool-textarea { min-height: 120px; resize: vertical; font-family: 'JetBrains Mono', monospace; }
-    .tool-select { cursor: pointer; }
+    .tool-textarea { min-height: 140px; resize: vertical; font-family: 'JetBrains Mono', monospace; line-height: 1.6; }
+    .tool-select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238888a0' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; }
     
     /* Buttons */
-    .tool-actions { display: flex; gap: 12px; margin-bottom: 24px; }
-    .tool-btn { padding: 12px 24px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; border: none; display: flex; align-items: center; gap: 8px; }
+    .tool-actions { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+    .tool-btn { padding: 12px 28px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 500; cursor: pointer; transition: var(--transition); border: none; display: flex; align-items: center; gap: 8px; }
     .tool-btn.primary { background: var(--accent-gradient); color: #000; }
     .tool-btn.primary:hover { box-shadow: var(--shadow-glow); transform: translateY(-1px); }
+    .tool-btn.primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
     .tool-btn.secondary { background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-primary); }
-    .tool-btn.secondary:hover { background: var(--bg-hover); }
+    .tool-btn.secondary:hover { background: var(--bg-hover); border-color: var(--border-light); }
+    .tool-btn.danger { background: var(--danger-dim); border: 1px solid var(--danger); color: var(--danger); }
+    .tool-btn.danger:hover { background: var(--danger); color: #fff; }
+    .tool-btn .spinner { width: 16px; height: 16px; border: 2px solid transparent; border-top-color: currentColor; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
     
     /* Results */
     .result-container { background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
-    .result-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--bg-secondary); border-bottom: 1px solid var(--border); }
+    .result-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--bg-secondary); border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 8px; }
     .result-title { font-size: 13px; font-weight: 500; color: var(--text-secondary); display: flex; align-items: center; gap: 8px; }
-    .result-actions { display: flex; gap: 8px; }
-    .result-btn { background: transparent; border: none; color: var(--text-muted); cursor: pointer; padding: 4px 8px; border-radius: 4px; font-size: 12px; transition: all 0.2s; }
-    .result-btn:hover { background: var(--bg-hover); color: var(--accent); }
-    .result-content { padding: 20px; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.7; white-space: pre-wrap; word-break: break-all; max-height: 500px; overflow-y: auto; }
-    .result-content::-webkit-scrollbar { width: 6px; }
-    .result-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    .result-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .result-btn { background: transparent; border: 1px solid var(--border); color: var(--text-muted); cursor: pointer; padding: 6px 10px; border-radius: 6px; font-size: 12px; transition: var(--transition); display: flex; align-items: center; gap: 4px; }
+    .result-btn:hover { background: var(--bg-hover); color: var(--accent); border-color: var(--accent); }
+    .result-content { padding: 20px; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.7; white-space: pre-wrap; word-break: break-all; max-height: 600px; overflow-y: auto; }
+    .result-content::-webkit-scrollbar { width: 8px; }
+    .result-content::-webkit-scrollbar-track { background: var(--bg-tertiary); }
+    .result-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
     
     /* JSON Display */
     .json-key { color: #00d4aa; }
@@ -126,16 +157,18 @@
     
     /* System Info Cards */
     .sys-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; margin-bottom: 16px; }
-    .sys-card-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; color: var(--accent); }
-    .sys-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+    .sys-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .sys-card-title { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; color: var(--accent); }
+    .sys-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
     .sys-stat { background: var(--bg-tertiary); padding: 16px; border-radius: var(--radius-sm); }
     .sys-stat-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
     .sys-stat-value { font-size: 24px; font-weight: 700; }
     .sys-stat-unit { font-size: 12px; color: var(--text-secondary); font-weight: 400; }
     
     /* Process Table */
-    .proc-table { width: 100%; border-collapse: collapse; }
-    .proc-table th { text-align: left; padding: 12px; background: var(--bg-secondary); border-bottom: 1px solid var(--border); font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; }
+    .proc-table-wrapper { overflow-x: auto; }
+    .proc-table { width: 100%; border-collapse: collapse; min-width: 500px; }
+    .proc-table th { text-align: left; padding: 12px; background: var(--bg-secondary); border-bottom: 1px solid var(--border); font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
     .proc-table td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 13px; }
     .proc-table tr:hover td { background: var(--bg-hover); }
     .proc-table tr:last-child td { border: none; }
@@ -143,34 +176,70 @@
     .proc-name { font-weight: 500; }
     .proc-cpu.high { color: var(--danger); font-weight: 600; }
     .proc-mem.high { color: var(--warning); font-weight: 600; }
+    .proc-actions { display: flex; gap: 6px; }
+    .proc-kill-btn { background: var(--danger-dim); border: 1px solid var(--danger); color: var(--danger); padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; transition: var(--transition); }
+    .proc-kill-btn:hover { background: var(--danger); color: #fff; }
+    
+    /* Docker Cards */
+    .docker-card { background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; margin-bottom: 12px; transition: var(--transition); }
+    .docker-card:hover { border-color: var(--border-light); }
+    .docker-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 12px; flex-wrap: wrap; }
+    .docker-name { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+    .docker-status { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+    .docker-status.running { background: var(--success-dim); color: var(--success); }
+    .docker-status.stopped { background: var(--warning-dim); color: var(--warning); }
+    .docker-status.exited { background: var(--text-muted); color: var(--text-primary); }
+    .docker-meta { font-size: 12px; color: var(--text-secondary); margin-bottom: 12px; }
+    .docker-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .docker-btn { padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; transition: var(--transition); border: 1px solid var(--border); background: var(--bg-card); color: var(--text-secondary); }
+    .docker-btn:hover { background: var(--accent-dim); color: var(--accent); border-color: var(--accent); }
+    .docker-btn.danger:hover { background: var(--danger-dim); color: var(--danger); border-color: var(--danger); }
+    
+    /* Collapsible Sections */
+    .collapsible { margin-bottom: 8px; }
+    .collapsible-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition); }
+    .collapsible-header:hover { background: var(--bg-hover); }
+    .collapsible-header .chevron { transition: transform 0.2s; }
+    .collapsible.open .collapsible-header .chevron { transform: rotate(180deg); }
+    .collapsible-content { display: none; padding: 16px; background: var(--bg-tertiary); border: 1px solid var(--border); border-top: none; border-radius: 0 0 var(--radius-sm) var(--radius-sm); }
+    .collapsible.open .collapsible-content { display: block; }
+    
+    /* Color Picker */
+    .color-picker-wrapper { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+    .color-preview { width: 120px; height: 120px; border-radius: var(--radius-md); border: 2px solid var(--border); transition: var(--transition); }
+    .color-inputs { flex: 1; min-width: 200px; }
+    input[type="color"] { width: 100%; height: 50px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-tertiary); cursor: pointer; padding: 4px; }
+    input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+    input[type="color"]::-webkit-color-swatch { border: none; border-radius: 4px; }
     
     /* Welcome */
-    .welcome { text-align: center; padding: 60px 40px; }
-    .welcome-icon { font-size: 64px; margin-bottom: 24px; }
-    .welcome-title { font-size: 28px; font-weight: 600; margin-bottom: 12px; }
-    .welcome-subtitle { color: var(--text-secondary); font-size: 16px; max-width: 400px; margin: 0 auto; }
+    .welcome { text-align: center; padding: 80px 40px; max-width: 600px; margin: 0 auto; }
+    .welcome-icon { font-size: 80px; margin-bottom: 24px; animation: float 3s ease-in-out infinite; }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    .welcome-title { font-size: 32px; font-weight: 600; margin-bottom: 12px; }
+    .welcome-subtitle { color: var(--text-secondary); font-size: 16px; margin-bottom: 32px; line-height: 1.6; }
+    .quick-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 32px; }
+    .quick-action { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; text-align: left; cursor: pointer; transition: var(--transition); }
+    .quick-action:hover { border-color: var(--accent); background: var(--accent-dim); transform: translateY(-2px); }
+    .quick-action-icon { font-size: 24px; margin-bottom: 8px; }
+    .quick-action-title { font-weight: 600; margin-bottom: 4px; }
+    .quick-action-desc { font-size: 12px; color: var(--text-secondary); }
     
-    /* Loading */
-    .loading { animation: pulse 1.5s infinite; color: var(--text-secondary); }
-    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    /* Loading skeleton */
+    .skeleton { background: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--bg-hover) 50%, var(--bg-tertiary) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
     
-    /* Success/Error badges */
-    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-    .badge-success { background: rgba(46, 213, 115, 0.15); color: var(--success); }
-    .badge-error { background: rgba(255, 71, 87, 0.15); color: var(--danger); }
-    .badge-warning { background: rgba(255, 165, 2, 0.15); color: var(--warning); }
+    /* Keyboard shortcuts hint */
+    .shortcuts-hint { position: fixed; bottom: 20px; right: 20px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 16px; font-size: 12px; color: var(--text-muted); display: flex; gap: 16px; }
+    .shortcut { display: flex; align-items: center; gap: 6px; }
+    .shortcut kbd { background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
     
-    /* Progress bars */
-    .progress-bar { height: 8px; background: var(--bg-tertiary); border-radius: 4px; overflow: hidden; margin-top: 8px; }
-    .progress-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
-    .progress-fill.low { background: var(--success); }
-    .progress-fill.medium { background: var(--warning); }
-    .progress-fill.high { background: var(--danger); }
-    
-    /* Copy tooltip */
-    .copy-tooltip { position: relative; }
-    .copy-tooltip::after { content: 'Copied!'; position: absolute; top: -30px; right: 0; background: var(--accent); color: #000; padding: 4px 8px; border-radius: 4px; font-size: 11px; opacity: 0; transition: opacity 0.2s; pointer-events: none; }
-    .copy-tooltip.active::after { opacity: 1; }
+    /* Toast notifications */
+    .toast-container { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 20px; display: flex; align-items: center; gap: 10px; font-size: 14px; box-shadow: var(--shadow-card); animation: slideUp 0.3s ease-out; }
+    .toast.success { border-color: var(--success); }
+    .toast.error { border-color: var(--danger); }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     
     /* Responsive */
     @media (max-width: 768px) {
@@ -179,17 +248,28 @@
       .main-content { margin-left: 0; }
       .header { padding: 0 16px; }
       .content { padding: 16px; }
-      .sys-grid { grid-template-columns: 1fr; }
+      .sys-grid { grid-template-columns: 1fr 1fr; }
+      .mobile-menu-btn { display: flex; }
+      .shortcuts-hint { display: none; }
+      .tool-header { flex-direction: column; }
     }
+    
+    /* Overlay for mobile */
+    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999; }
+    .sidebar-overlay.active { display: block; }
   </style>
 </head>
 <body>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+  
   <div class="app-container">
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
-        <div class="logo">🔧</div>
-        <span class="logo-text">IT Toolbox Pro</span>
-        <button class="sidebar-toggle" onclick="toggleSidebar()">◀</button>
+        <div class="logo">🛠️</div>
+        <span class="logo-text">IT Toolbox</span>
+        <button class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle sidebar (Ctrl+B)">
+          <span id="toggleIcon">◀</span>
+        </button>
       </div>
       <div class="search-container">
         <div class="search-wrapper">
@@ -198,51 +278,66 @@
         </div>
       </div>
       <div class="sidebar-content">
-        <div class="category"><div class="category-title">🌐 Network</div>
-          <div class="nav-item" data-tool="ip" onclick="selectTool('ip')"><span class="nav-icon">🌍</span><span class="nav-label">IP Lookup</span></div>
-          <div class="nav-item" data-tool="dns" onclick="selectTool('dns')"><span class="nav-icon">📡</span><span class="nav-label">DNS Lookup</span></div>
-          <div class="nav-item" data-tool="ping" onclick="selectTool('ping')"><span class="nav-icon">📶</span><span class="nav-label">Ping</span></div>
-          <div class="nav-item" data-tool="ports" onclick="selectTool('ports')"><span class="nav-icon">🔌</span><span class="nav-label">Port Scanner</span></div>
-          <div class="nav-item" data-tool="traceroute" onclick="selectTool('traceroute')"><span class="nav-icon">🛤️</span><span class="nav-label">Traceroute</span></div>
-          <div class="nav-item" data-tool="speedtest" onclick="selectTool('speedtest')"><span class="nav-icon">⚡</span><span class="nav-label">Speed Test</span></div>
+        <div class="favorites-section" id="favoritesSection" style="display: none;">
+          <div class="favorites-title">⭐ Favorites</div>
+          <div id="favoritesList"></div>
         </div>
-        <div class="category"><div class="category-title">🔒 Security</div>
-          <div class="nav-item" data-tool="ssl" onclick="selectTool('ssl')"><span class="nav-icon">🔐</span><span class="nav-label">SSL Check</span></div>
-          <div class="nav-item" data-tool="hash" onclick="selectTool('hash')"><span class="nav-icon">#️⃣</span><span class="nav-label">Hash Generator</span></div>
-          <div class="nav-item" data-tool="jwt" onclick="selectTool('jwt')"><span class="nav-icon">🎫</span><span class="nav-label">JWT Decoder</span></div>
-          <div class="nav-item" data-tool="whois" onclick="selectTool('whois')"><span class="nav-icon">📋</span><span class="nav-label">WHOIS</span></div>
+        <div class="category">
+          <div class="category-title">🌐 Network</div>
+          <div class="nav-item" data-tool="ip" onclick="selectTool('ip')"><span class="nav-icon">🌍</span><span class="nav-label">IP Lookup</span><span class="star" onclick="event.stopPropagation(); toggleFavorite('ip')">★</span></div>
+          <div class="nav-item" data-tool="dns" onclick="selectTool('dns')"><span class="nav-icon">📡</span><span class="nav-label">DNS Lookup</span><span class="star" onclick="event.stopPropagation(); toggleFavorite('dns')">★</span></div>
+          <div class="nav-item" data-tool="ping" onclick="selectTool('ping')"><span class="nav-icon">📶</span><span class="nav-label">Ping</span><span class="star" onclick="event.stopPropagation(); toggleFavorite('ping')">★</span></div>
+          <div class="nav-item" data-tool="ports" onclick="selectTool('ports')"><span class="nav-icon">🔌</span><span class="nav-label">Port Scanner</span><span class="star" onclick="event.stopPropagation(); toggleFavorite('ports')">★</span></div>
+          <div class="nav-item" data-tool="traceroute" onclick="selectTool('traceroute')"><span class="nav-icon">🛤️</span><span class="nav-label">Traceroute</span><span class="star" onclick="event.stopPropagation(); toggleFavorite('traceroute')">★</span></div>
+          <div class="nav-item" data-tool="speedtest" onclick="selectTool('speedtest')"><span class="nav-icon">⚡</span><span class="nav-label">Speed Test</span><span class="star" onclick="event.stopPropagation(); toggleFavorite('speedtest')">★</span></div>
+          <div class="nav-item" data-tool="network" onclick="selectTool('network')"><span class="nav-icon">🔍</span><span class="nav-label">Net Scanner</span><span class="star" onclick="event.stopPropagation(); toggleFavorite('network')">★</span></div>
         </div>
-        <div class="category"><div class="category-title">💻 Developer</div>
-          <div class="nav-item" data-tool="json" onclick="selectTool('json')"><span class="nav-icon">📄</span><span class="nav-label">JSON Formatter</span></div>
-          <div class="nav-item" data-tool="base64" onclick="selectTool('base64')"><span class="nav-icon">🔡</span><span class="nav-label">Base64</span></div>
-          <div class="nav-item" data-tool="url" onclick="selectTool('url')"><span class="nav-icon">🔗</span><span class="nav-label">URL Encoder</span></div>
-          <div class="nav-item" data-tool="curl" onclick="selectTool('curl')"><span class="nav-icon">🌐</span><span class="nav-label">cURL</span></div>
-          <div class="nav-item" data-tool="headers" onclick="selectTool('headers')"><span class="nav-icon">📨</span><span class="nav-label">HTTP Headers</span></div>
+        <div class="category">
+          <div class="category-title">🔒 Security</div>
+          <div class="nav-item" data-tool="ssl" onclick="selectTool('ssl')"><span class="nav-icon">🔐</span><span class="nav-label">SSL Check</span><span class="star" onclick="event.stopPropagation(); toggleFavorite('ssl')">★</span></div>
+          <div class="nav-item" data-tool="hash" onclick="selectTool('hash')"><span class="nav-icon">#️⃣</span><span class="nav-label">Hash Generator</span><span class="star" onclick="event.stopPropagation(); toggleFavorite('hash')">★</span></div>
+          <div class="nav-item" data-tool="jwt" onclick="selectTool('jwt')"><span class="nav-icon">🎫</span><span class="nav-label">JWT Decoder</span><span class="star" onclick="event.stopPropagation(); toggleFavorite('jwt')">★</span></div>
+          <div class="nav-item" data-tool="whois" onclick="selectTool('whois')"><span class="nav-icon">📋</span><span class="nav-label">WHOIS</span><span class="star" onclick="event.stopPropagation(); toggleFavorite('whois')">★</span></div>
         </div>
-        <div class="category"><div class="category-title">🖥️ Server</div>
-          <div class="nav-item" data-tool="system" onclick="selectTool('system')"><span class="nav-icon">📊</span><span class="nav-label">System Info</span></div>
-          <div class="nav-item" data-tool="cpu" onclick="selectTool('cpu')"><span class="nav-icon">🔥</span><span class="nav-label">CPU Info</span></div>
-          <div class="nav-item" data-tool="memory" onclick="selectTool('memory')"><span class="nav-icon">💾</span><span class="nav-label">Memory</span></div>
-          <div class="nav-item" data-tool="disk" onclick="selectTool('disk')"><span class="nav-icon">💿</span><span class="nav-label">Disk Usage</span></div>
-          <div class="nav-item" data-tool="processes" onclick="selectTool('processes')"><span class="nav-icon">📋</span><span class="nav-label">Processes</span></div>
-          <div class="nav-item" data-tool="interfaces" onclick="selectTool('interfaces')"><span class="nav-icon">🔀</span><span class="nav-label">Interfaces</span></div>
-          <div class="nav-item" data-tool="docker" onclick="selectTool('docker')"><span class="nav-icon">🐳</span><span class="nav-label">Docker</span></div>
+        <div class="category">
+          <div class="category-title">💻 Developer</div>
+          <div class="nav-item" data-tool="json" onclick="selectTool('json')"><span class="nav-icon">📄</span><span class="nav-label">JSON Formatter</span><span class="star" onclick="event.stopPropagation(); toggleFavorite('json')">★</span></div>
+          <div class="nav-item" data-tool="base64" onclick="selectTool('base64')"><span class="nav-icon">🔡</span><span class="nav-label">Base64</span><span class="star" onclick="event.stopPropagation(); toggleFavorite('base64')">★</span></div>
+          <div class="nav-item" data-tool="url" onclick="selectTool('url')"><span class="nav-icon">🔗</span><span class="nav-label">URL Encoder</span><span class="star" onclick="event.stopPropagation(); toggleFavorite('url')">★</span></div>
+          <div class="nav-item" data-tool="curl" onclick="selectTool('curl')"><span class="nav-icon">🌐</span><span class="nav-label">cURL</span><span class="star" onclick="event.stopPropagation(); toggleFavorite('curl')">★</span></div>
+          <div class="nav-item" data-tool="headers" onclick="selectTool('headers')"><span class="nav-icon">📨</span><span class="nav-label">HTTP Headers</span><span class="star" onclick="event.stopPropagation(); toggleFavorite('headers')">★</span></div>
         </div>
-        <div class="category"><div class="category-title">🛠️ Utilities</div>
-          <div class="nav-item" data-tool="password" onclick="selectTool('password')"><span class="nav-icon">🔑</span><span class="nav-label">Password Gen</span></div>
-          <div class="nav-item" data-tool="uuid" onclick="selectTool('uuid')"><span class="nav-icon">🆔</span><span class="nav-label">UUID</span></div>
-          <div class="nav-item" data-tool="qrcode" onclick="selectTool('qrcode')"><span class="nav-icon">📱</span><span class="nav-label">QR Code</span></div>
-          <div class="nav-item" data-tool="color" onclick="selectTool('color')"><span class="nav-icon">🎨</span><span class="nav-label">Color Picker</span></div>
-          <div class="nav-item" data-tool="timestamp" onclick="selectTool('timestamp')"><span class="nav-icon">⏰</span><span class="nav-label">Timestamp</span></div>
+        <div class="category">
+          <div class="category-title">🖥️ Server</div>
+          <div class="nav-item" data-tool="system" onclick="selectTool('system')"><span class="nav-icon">📊</span><span class="nav-label">System Info</span><span class="star" onclick="event.stopPropagation(); toggleFavorite('system')">★</span></div>
+          <div class="nav-item" data-tool="cpu" onclick="selectTool('cpu')"><span class="nav-icon">🔥</span><span class="nav-label">CPU Info</span><span class="star" onclick="event.stopPropagation(); toggleFavorite('cpu')">★</span></div>
+          <div class="nav-item" data-tool="memory" onclick="selectTool('memory')"><span class="nav-icon">💾</span><span class="nav-label">Memory</span><span class="star" onclick="event.stopPropagation(); toggleFavorite('memory')">★</span></div>
+          <div class="nav-item" data-tool="disk" onclick="selectTool('disk')"><span class="nav-icon">💿</span><span class="nav-label">Disk Usage</span><span class="star" onclick="event.stopPropagation(); toggleFavorite('disk')">★</span></div>
+          <div class="nav-item" data-tool="processes" onclick="selectTool('processes')"><span class="nav-icon">📋</span><span class="nav-label">Processes</span><span class="star" onclick="event.stopPropagation(); toggleFavorite('processes')">★</span></div>
+          <div class="nav-item" data-tool="interfaces" onclick="selectTool('interfaces')"><span class="nav-icon">🔀</span><span class="nav-label">Interfaces</span><span class="star" onclick="event.stopPropagation(); toggleFavorite('interfaces')">★</span></div>
+          <div class="nav-item" data-tool="docker" onclick="selectTool('docker')"><span class="nav-icon">🐳</span><span class="nav-label">Docker</span><span class="star" onclick="event.stopPropagation(); toggleFavorite('docker')">★</span></div>
+          <div class="nav-item" data-tool="logs" onclick="selectTool('logs')"><span class="nav-icon">📜</span><span class="nav-label">Log Viewer</span><span class="star" onclick="event.stopPropagation(); toggleFavorite('logs')">★</span></div>
+        </div>
+        <div class="category">
+          <div class="category-title">🛠️ Utilities</div>
+          <div class="nav-item" data-tool="password" onclick="selectTool('password')"><span class="nav-icon">🔑</span><span class="nav-label">Password Gen</span><span class="star" onclick="event.stopPropagation(); toggleFavorite('password')">★</span></div>
+          <div class="nav-item" data-tool="uuid" onclick="selectTool('uuid')"><span class="nav-icon">🆔</span><span class="nav-label">UUID</span><span class="star" onclick="event.stopPropagation(); toggleFavorite('uuid')">★</span></div>
+          <div class="nav-item" data-tool="qrcode" onclick="selectTool('qrcode')"><span class="nav-icon">📱</span><span class="nav-label">QR Code</span><span class="star" onclick="event.stopPropagation(); toggleFavorite('qrcode')">★</span></div>
+          <div class="nav-item" data-tool="color" onclick="selectTool('color')"><span class="nav-icon">🎨</span><span class="nav-label">Color Picker</span><span class="star" onclick="event.stopPropagation(); toggleFavorite('color')">★</span></div>
+          <div class="nav-item" data-tool="timestamp" onclick="selectTool('timestamp')"><span class="nav-icon">⏰</span><span class="nav-label">Timestamp</span><span class="star" onclick="event.stopPropagation(); toggleFavorite('timestamp')">★</span></div>
         </div>
       </div>
     </aside>
     
     <main class="main-content">
       <header class="header">
-        <h1 class="header-title" id="pageTitle">IT Toolbox Pro</h1>
+        <div class="header-left">
+          <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+          <h1 class="header-title" id="pageTitle">IT Toolbox Pro</h1>
+          <span class="breadcrumb" id="breadcrumb"></span>
+        </div>
         <div class="header-actions">
-          <span class="status-badge"><span class="status-dot"></span>API Connected</span>
+          <span class="status-badge" id="statusBadge"><span class="status-dot"></span><span id="statusText">Checking...</span></span>
         </div>
       </header>
       
@@ -250,147 +345,302 @@
         <div class="welcome" id="welcomeScreen">
           <div class="welcome-icon">🛠️</div>
           <h2 class="welcome-title">Welcome to IT Toolbox Pro</h2>
-          <p class="welcome-subtitle">Select a tool from the sidebar to get started.</p>
+          <p class="welcome-subtitle">Your all-in-one network diagnostics and developer toolkit. Select a tool from the sidebar or try one of these quick actions:</p>
+          <div class="quick-actions">
+            <div class="quick-action" onclick="selectTool('ip')">
+              <div class="quick-action-icon">🌍</div>
+              <div class="quick-action-title">IP Lookup</div>
+              <div class="quick-action-desc">Check your public IP and location</div>
+            </div>
+            <div class="quick-action" onclick="selectTool('ping')">
+              <div class="quick-action-icon">📶</div>
+              <div class="quick-action-title">Ping Test</div>
+              <div class="quick-action-desc">Test network connectivity</div>
+            </div>
+            <div class="quick-action" onclick="selectTool('json')">
+              <div class="quick-action-icon">📄</div>
+              <div class="quick-action-title">JSON Formatter</div>
+              <div class="quick-action-desc">Format and validate JSON</div>
+            </div>
+            <div class="quick-action" onclick="selectTool('docker')">
+              <div class="quick-action-icon">🐳</div>
+              <div class="quick-action-title">Docker Status</div>
+              <div class="quick-action-desc">Monitor containers</div>
+            </div>
+          </div>
         </div>
         <div id="toolContainer"></div>
       </div>
     </main>
   </div>
 
+  <div class="shortcuts-hint">
+    <div class="shortcut"><kbd>Ctrl</kbd>+<kbd>B</kbd> Toggle sidebar</div>
+    <div class="shortcut"><kbd>Ctrl</kbd>+<kbd>K</kbd> Search</div>
+    <div class="shortcut"><kbd>Esc</kbd> Close tool</div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
   <script>
-    const API = window.location.protocol + '//' + window.location.hostname + ':8892';
+    const API = window.location.protocol + '//' + window.location.hostname + ':8890';
     let currentTool = null;
+    let isLoading = false;
+    let favorites = JSON.parse(localStorage.getItem('toolbox_favorites') || '[]');
+    let recentTools = JSON.parse(localStorage.getItem('toolbox_recent') || '[]');
     
     const tools = {
-      ip: { name: 'IP Lookup', icon: '🌍', description: 'Look up IP address information', inputs: [{name: 'ip', label: 'IP Address or Domain', placeholder: '8.8.8.8', type: 'text'}], action: 'Lookup', endpoint: '/api/ip', method: 'POST' },
-      dns: { name: 'DNS Lookup', icon: '📡', description: 'Query DNS records', inputs: [{name: 'domain', label: 'Domain', placeholder: 'google.com', type: 'text'}], action: 'Lookup', endpoint: '/api/dns', method: 'POST' },
-      ping: { name: 'Ping', icon: '📶', description: 'Test network connectivity', inputs: [{name: 'host', label: 'Host', placeholder: 'google.com', type: 'text'}], action: 'Ping', endpoint: '/api/ping', method: 'POST' },
-      ports: { name: 'Port Scanner', icon: '🔌', description: 'Scan ports on a host', inputs: [{name: 'host', label: 'Host', placeholder: 'google.com', type: 'text'}, {name: 'ports', label: 'Ports (comma separated)', placeholder: '22,80,443,8080', type: 'text'}], action: 'Scan', endpoint: '/api/ports', method: 'POST' },
-      traceroute: { name: 'Traceroute', icon: '🛤️', description: 'Trace network path', inputs: [{name: 'host', label: 'Host', placeholder: 'google.com', type: 'text'}], action: 'Trace', endpoint: '/api/traceroute', method: 'POST' },
-      speedtest: { name: 'Speed Test', icon: '⚡', description: 'Test network speed', inputs: [], action: 'Test', endpoint: '/api/speedtest/local', method: 'GET' },
-      ssl: { name: 'SSL Check', icon: '🔐', description: 'Check SSL certificate', inputs: [{name: 'domain', label: 'Domain', placeholder: 'google.com', type: 'text'}], action: 'Check', endpoint: '/api/ssl', method: 'POST' },
-      hash: { name: 'Hash Generator', icon: '#️⃣', description: 'Generate cryptographic hashes', inputs: [{name: 'text', label: 'Text to Hash', type: 'textarea'}, {name: 'algorithm', label: 'Algorithm', type: 'select', options: ['md5', 'sha1', 'sha256', 'sha512']}], action: 'Generate', endpoint: '/api/hash', method: 'POST' },
-      jwt: { name: 'JWT Decoder', icon: '🎫', description: 'Decode JWT tokens', inputs: [{name: 'token', label: 'JWT Token', type: 'textarea'}], action: 'Decode', endpoint: '/api/jwt/decode', method: 'POST' },
-      whois: { name: 'WHOIS Lookup', icon: '📋', description: 'Domain registration info', inputs: [{name: 'domain', label: 'Domain', placeholder: 'google.com', type: 'text'}], action: 'Lookup', endpoint: '/api/whois/', method: 'GET' },
-      json: { name: 'JSON Formatter', icon: '📄', description: 'Format and validate JSON', inputs: [{name: 'json', label: 'JSON', type: 'textarea'}], action: 'Format', local: true },
-      base64: { name: 'Base64 Encoder', icon: '🔡', description: 'Encode or decode Base64', inputs: [{name: 'text', label: 'Text', type: 'textarea'}, {name: 'mode', label: 'Mode', type: 'select', options: ['encode', 'decode']}], action: 'Convert', local: true },
-      url: { name: 'URL Encoder', icon: '🔗', description: 'Encode or decode URLs', inputs: [{name: 'text', label: 'URL', type: 'textarea'}, {name: 'mode', label: 'Mode', type: 'select', options: ['encode', 'decode']}], action: 'Encode', local: true },
-      curl: { name: 'cURL', icon: '🌐', description: 'Execute HTTP requests', inputs: [{name: 'url', label: 'URL', placeholder: 'https://api.example.com', type: 'text'}, {name: 'method', label: 'Method', type: 'select', options: ['GET', 'POST', 'PUT', 'DELETE']}, {name: 'headers', label: 'Headers (JSON)', type: 'textarea'}, {name: 'body', label: 'Body', type: 'textarea'}], action: 'Execute', endpoint: '/api/curl', method: 'POST' },
-      headers: { name: 'HTTP Headers', icon: '📨', description: 'Check HTTP headers', inputs: [{name: 'url', label: 'URL', placeholder: 'https://google.com', type: 'text'}], action: 'Check', endpoint: '/api/headers', method: 'POST' },
-      system: { name: 'System Info', icon: '📊', description: 'View system information', inputs: [], action: 'Get Info', endpoint: '/api/systeminfo', method: 'GET' },
-      cpu: { name: 'CPU Info', icon: '🔥', description: 'View CPU details', inputs: [], action: 'Get Info', endpoint: '/api/cpu', method: 'GET' },
-      memory: { name: 'Memory Info', icon: '💾', description: 'View memory details', inputs: [], action: 'Get Info', endpoint: '/api/memory', method: 'GET' },
-      disk: { name: 'Disk Usage', icon: '💿', description: 'Check disk space', inputs: [], action: 'Get Info', endpoint: '/api/disk', method: 'GET' },
-      processes: { name: 'Process List', icon: '📋', description: 'View running processes', inputs: [], action: 'List', endpoint: '/api/processes', method: 'GET' },
-      interfaces: { name: 'Network Interfaces', icon: '🔀', description: 'View network interfaces', inputs: [], action: 'List', endpoint: '/api/network/interfaces', method: 'GET' },
-      docker: { name: 'Docker', icon: '🐳', description: 'Manage Docker containers', inputs: [], action: 'List', endpoint: '/api/docker/ps', method: 'GET' },
-      password: { name: 'Password Generator', icon: '🔑', description: 'Generate secure passwords', inputs: [{name: 'length', label: 'Length', type: 'text', value: '16'}], action: 'Generate', local: true },
-      uuid: { name: 'UUID Generator', icon: '🆔', description: 'Generate UUIDs', inputs: [], action: 'Generate', local: true },
-      qrcode: { name: 'QR Code', icon: '📱', description: 'Generate QR codes', inputs: [{name: 'text', label: 'Text', type: 'textarea'}], action: 'Generate', local: true },
-      color: { name: 'Color Picker', icon: '🎨', description: 'Pick and convert colors', inputs: [{name: 'color', label: 'Color', type: 'text', value: '#00d4aa'}], action: 'Convert', local: true },
-      timestamp: { name: 'Timestamp', icon: '⏰', description: 'Convert timestamps', inputs: [{name: 'timestamp', label: 'Unix Timestamp', type: 'text', placeholder: 'Leave empty for current time'}, {name: 'action', label: 'Action', type: 'select', options: ['now', 'to_unix']}], action: 'Convert', endpoint: '/api/timestamp', method: 'POST' }
+      ip: { name: 'IP Lookup', icon: '🌍', description: 'Look up IP address information and geolocation', category: 'network', inputs: [{name: 'ip', label: 'IP Address or Domain', placeholder: '8.8.8.8 or google.com', type: 'text'}], action: 'Lookup', endpoint: '/api/ip', method: 'POST' },
+      dns: { name: 'DNS Lookup', icon: '📡', description: 'Query DNS records for a domain', category: 'network', inputs: [{name: 'domain', label: 'Domain', placeholder: 'google.com', type: 'text'}, {name: 'records', label: 'Record Types', type: 'text', value: 'A, AAAA, MX, TXT, NS, CNAME', hint: 'Comma separated' }], action: 'Lookup', endpoint: '/api/dns', method: 'POST' },
+      ping: { name: 'Ping', icon: '📶', description: 'Test network connectivity to a host', category: 'network', inputs: [{name: 'host', label: 'Host', placeholder: 'google.com', type: 'text'}, {name: 'count', label: 'Count', type: 'text', value: '4', hint: 'Number of pings' }], action: 'Ping', endpoint: '/api/ping', method: 'POST' },
+      ports: { name: 'Port Scanner', icon: '🔌', description: 'Scan common ports on a host', category: 'network', inputs: [{name: 'host', label: 'Host', placeholder: 'google.com', type: 'text'}, {name: 'ports', label: 'Ports', placeholder: '22,80,443,8080', type: 'text', hint: 'Comma separated' }], action: 'Scan', endpoint: '/api/ports', method: 'POST' },
+      traceroute: { name: 'Traceroute', icon: '🛤️', description: 'Trace the network path to a host', category: 'network', inputs: [{name: 'host', label: 'Host', placeholder: 'google.com', type: 'text'}], action: 'Trace', endpoint: '/api/traceroute', method: 'POST' },
+      speedtest: { name: 'Speed Test', icon: '⚡', description: 'Test local network latency', category: 'network', inputs: [], action: 'Test', endpoint: '/api/speedtest/local', method: 'GET' },
+      network: { name: 'Network Scanner', icon: '🔍', description: 'Scan IP range for online hosts', category: 'network', inputs: [{name: 'base_ip', label: 'Base IP', placeholder: '192.168.1', type: 'text'}, {name: 'start', label: 'Start', type: 'text', value: '1'}, {name: 'end', label: 'End', type: 'text', value: '254'}], action: 'Scan', endpoint: '/api/scan', method: 'POST' },
+      ssl: { name: 'SSL Check', icon: '🔐', description: 'Check SSL certificate validity', category: 'security', inputs: [{name: 'domain', label: 'Domain', placeholder: 'google.com', type: 'text'}, {name: 'port', label: 'Port', type: 'text', value: '443'}], action: 'Check', endpoint: '/api/ssl', method: 'POST' },
+      hash: { name: 'Hash Generator', icon: '#️⃣', description: 'Generate cryptographic hashes', category: 'security', inputs: [{name: 'text', label: 'Text to Hash', type: 'textarea'}, {name: 'algorithm', label: 'Algorithm', type: 'select', options: ['md5', 'sha1', 'sha256', 'sha512']}], action: 'Generate', endpoint: '/api/hash', method: 'POST' },
+      jwt: { name: 'JWT Decoder', icon: '🎫', description: 'Decode and inspect JWT tokens', category: 'security', inputs: [{name: 'token', label: 'JWT Token', type: 'textarea', placeholder: 'Paste your JWT token here...'}], action: 'Decode', endpoint: '/api/jwt/decode', method: 'POST' },
+      whois: { name: 'WHOIS Lookup', icon: '📋', description: 'Domain registration information', category: 'security', inputs: [{name: 'domain', label: 'Domain', placeholder: 'google.com', type: 'text'}], action: 'Lookup', endpoint: '/api/whois/', method: 'GET' },
+      json: { name: 'JSON Formatter', icon: '📄', description: 'Format, validate, and minify JSON', category: 'developer', inputs: [{name: 'json', label: 'JSON Input', type: 'textarea', placeholder: '{"key": "value"}'}, {name: 'mode', label: 'Mode', type: 'select', options: ['format', 'minify', 'validate']}], action: 'Format', local: true },
+      base64: { name: 'Base64 Encoder', icon: '🔡', description: 'Encode or decode Base64', category: 'developer', inputs: [{name: 'text', label: 'Text', type: 'textarea'}, {name: 'mode', label: 'Mode', type: 'select', options: ['encode', 'decode']}], action: 'Convert', local: true },
+      url: { name: 'URL Encoder', icon: '🔗', description: 'Encode or decode URLs', category: 'developer', inputs: [{name: 'text', label: 'URL or Text', type: 'textarea'}, {name: 'mode', label: 'Mode', type: 'select', options: ['encode', 'decode']}], action: 'Convert', local: true },
+      curl: { name: 'cURL', icon: '🌐', description: 'Execute HTTP requests', category: 'developer', inputs: [{name: 'url', label: 'URL', placeholder: 'https://api.example.com', type: 'text'}, {name: 'method', label: 'Method', type: 'select', options: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']}, {name: 'headers', label: 'Headers (JSON)', type: 'textarea', placeholder: '{"Authorization": "Bearer token"}'}, {name: 'body', label: 'Body (JSON)', type: 'textarea'}], action: 'Execute', endpoint: '/api/curl', method: 'POST' },
+      headers: { name: 'HTTP Headers', icon: '📨', description: 'Check HTTP headers of a URL', category: 'developer', inputs: [{name: 'url', label: 'URL', placeholder: 'https://google.com', type: 'text'}], action: 'Check', endpoint: '/api/headers', method: 'POST' },
+      system: { name: 'System Info', icon: '📊', description: 'View system information', category: 'server', inputs: [], action: 'Get Info', endpoint: '/api/systeminfo', method: 'GET' },
+      cpu: { name: 'CPU Info', icon: '🔥', description: 'View CPU details and usage', category: 'server', inputs: [], action: 'Get Info', endpoint: '/api/cpu', method: 'GET' },
+      memory: { name: 'Memory Info', icon: '💾', description: 'View memory usage', category: 'server', inputs: [], action: 'Get Info', endpoint: '/api/memory', method: 'GET' },
+      disk: { name: 'Disk Usage', icon: '💿', description: 'Check disk space', category: 'server', inputs: [], action: 'Get Info', endpoint: '/api/disk', method: 'GET' },
+      processes: { name: 'Process List', icon: '📋', description: 'View and manage running processes', category: 'server', inputs: [], action: 'List', endpoint: '/api/processes', method: 'GET' },
+      interfaces: { name: 'Network Interfaces', icon: '🔀', description: 'View network interfaces', category: 'server', inputs: [], action: 'List', endpoint: '/api/network/interfaces', method: 'GET' },
+      docker: { name: 'Docker', icon: '🐳', description: 'Manage Docker containers', category: 'server', inputs: [], action: 'List', endpoint: '/api/docker/ps', method: 'GET' },
+      logs: { name: 'Log Viewer', icon: '📜', description: 'View system logs', category: 'server', inputs: [{name: 'type', label: 'Log Type', type: 'select', options: ['system', 'auth']}], action: 'View', endpoint: '/api/logs', method: 'GET' },
+      password: { name: 'Password Generator', icon: '🔑', description: 'Generate secure passwords', category: 'utilities', inputs: [{name: 'length', label: 'Length', type: 'text', value: '16'}, {name: 'options', label: 'Options', type: 'select', options: ['all', 'alphanumeric', 'letters', 'numbers']}], action: 'Generate', local: true },
+      uuid: { name: 'UUID Generator', icon: '🆔', description: 'Generate UUIDs', category: 'utilities', inputs: [{name: 'count', label: 'Count', type: 'text', value: '4'}], action: 'Generate', local: true },
+      qrcode: { name: 'QR Code', icon: '📱', description: 'Generate QR codes', category: 'utilities', inputs: [{name: 'text', label: 'Text or URL', type: 'textarea', placeholder: 'https://example.com'}, {name: 'size', label: 'Size', type: 'text', value: '200'}], action: 'Generate', local: true },
+      color: { name: 'Color Picker', icon: '🎨', description: 'Pick and convert colors', category: 'utilities', inputs: [{name: 'color', label: 'Color', type: 'color', value: '#00d4aa'}], action: 'Convert', local: true },
+      timestamp: { name: 'Timestamp', icon: '⏰', description: 'Convert timestamps', category: 'utilities', inputs: [{name: 'timestamp', label: 'Unix Timestamp', type: 'text', placeholder: 'Leave empty for current time'}, {name: 'action', label: 'Action', type: 'select', options: ['now', 'to_unix', 'to_iso']}], action: 'Convert', endpoint: '/api/timestamp', method: 'POST' }
     };
     
     function toggleSidebar() {
       document.getElementById('sidebar').classList.toggle('collapsed');
-      document.getElementById('toggleIcon').textContent = document.getElementById('sidebar').classList.contains('collapsed') ? '▶' : '◀';
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('sidebarOverlay').classList.toggle('active');
+      const icon = document.getElementById('toggleIcon');
+      icon.textContent = document.getElementById('sidebar').classList.contains('collapsed') ? '▶' : '◀';
     }
     
     function selectTool(toolId) {
+      if (window.innerWidth <= 768) {
+        document.getElementById('sidebar').classList.remove('open');
+        document.getElementById('sidebarOverlay').classList.remove('active');
+      }
       currentTool = toolId;
       const tool = tools[toolId];
       if (!tool) return;
+      
+      addToRecent(toolId);
+      updateFavoritesUI();
       
       document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
       document.querySelector(`[data-tool="${toolId}"]`)?.classList.add('active');
       document.getElementById('welcomeScreen').style.display = 'none';
       document.getElementById('pageTitle').textContent = tool.name;
+      document.getElementById('breadcrumb').textContent = `› ${tool.category}`;
       
       let inputsHtml = '';
       tool.inputs.forEach(inp => {
-        if (inp.type === 'textarea') inputsHtml += `<div class="input-group"><label class="input-label">${inp.label}</label><textarea class="tool-textarea" id="inp_${inp.name}" placeholder="${inp.placeholder || ''}">${inp.value || ''}</textarea></div>`;
-        else if (inp.type === 'select') {
+        const hint = inp.hint ? `<span class="input-hint">${inp.hint}</span>` : '';
+        if (inp.type === 'textarea') {
+          inputsHtml += `<div class="input-group"><label class="input-label">${inp.label} ${hint}</label><textarea class="tool-textarea" id="inp_${inp.name}" placeholder="${inp.placeholder || ''}">${inp.value || ''}</textarea></div>`;
+        } else if (inp.type === 'select') {
           let opts = inp.options.map(o => `<option value="${o}" ${inp.value === o ? 'selected' : ''}>${o}</option>`).join('');
-          inputsHtml += `<div class="input-group"><label class="input-label">${inp.label}</label><select class="tool-select" id="inp_${inp.name}">${opts}</select></div>`;
-        } else inputsHtml += `<div class="input-group"><label class="input-label">${inp.label}</label><input class="tool-input" type="text" id="inp_${inp.name}" placeholder="${inp.placeholder || ''}" value="${inp.value || ''}"></div>`;
+          inputsHtml += `<div class="input-group"><label class="input-label">${inp.label} ${hint}</label><select class="tool-select" id="inp_${inp.name}">${opts}</select></div>`;
+        } else if (inp.type === 'color') {
+          inputsHtml += `<div class="input-group"><label class="input-label">${inp.label}</label><input type="color" id="inp_${inp.name}" value="${inp.value || '#00d4aa'}"></div>`;
+        } else {
+          inputsHtml += `<div class="input-group"><label class="input-label">${inp.label} ${hint}</label><input class="tool-input" type="text" id="inp_${inp.name}" placeholder="${inp.placeholder || ''}" value="${inp.value || ''}"></div>`;
+        }
       });
       
       const container = document.getElementById('toolContainer');
-      container.innerHTML = `<div class="tool-container"><div class="tool-header"><div><div class="tool-title"><span class="tool-title-icon">${tool.icon}</span>${tool.name}</div><div class="tool-description">${tool.description}</div></div></div><div class="tool-inputs">${inputsHtml}</div><div class="tool-actions"><button class="tool-btn primary" onclick="runTool()">${tool.action}</button></div><div id="resultArea"></div></div>`;
+      container.innerHTML = `<div class="tool-container">
+        <div class="tool-header">
+          <div class="tool-info">
+            <div class="tool-title"><span class="tool-title-icon">${tool.icon}</span>${tool.name}</div>
+            <div class="tool-description">${tool.description}</div>
+          </div>
+          <div class="tool-actions-header">
+            <button class="tool-action-btn" onclick="addToFavorites('${toolId}')" title="Add to favorites">⭐</button>
+          </div>
+        </div>
+        <div class="tool-inputs">${inputsHtml}</div>
+        <div class="tool-actions"><button class="tool-btn primary" id="runBtn" onclick="runTool()">${tool.action}</button></div>
+        <div id="resultArea"></div>
+      </div>`;
     }
     
-    function runTool() {
+    async function runTool() {
       const tool = tools[currentTool];
       if (!tool) return;
       
       const resultArea = document.getElementById('resultArea');
-      resultArea.innerHTML = '<div class="result-container"><div class="result-header"><span class="result-title">📊 Result</span></div><div class="result-content loading">Loading...</div></div>';
+      const runBtn = document.getElementById('runBtn');
       
-      if (tool.local) {
+      resultArea.innerHTML = `<div class="result-container">
+        <div class="result-header"><span class="result-title">📊 Result</span></div>
+        <div class="result-content loading"><span class="spinner"></span> Loading...</div>
+      </div>`;
+      
+      runBtn.disabled = true;
+      runBtn.innerHTML = '<span class="spinner"></span> Running...';
+      isLoading = true;
+      
+      try {
         let result = '';
-        const data = {};
-        tool.inputs.forEach(inp => { data[inp.name] = document.getElementById('inp_' + inp.name).value; });
         
-        if (currentTool === 'json') { try { result = JSON.stringify(JSON.parse(data.json), null, 2); } catch(e) { result = 'Error: ' + e.message; } }
-        else if (currentTool === 'base64') { try { result = data.mode === 'encode' ? btoa(data.text) : atob(data.text); } catch(e) { result = 'Error: Invalid input for decode'; } }
-        else if (currentTool === 'url') { try { result = data.mode === 'encode' ? encodeURIComponent(data.text) : decodeURIComponent(data.text); } catch(e) { result = 'Error: Invalid URL encoding'; } }
-        else if (currentTool === 'password') { const len = parseInt(data.length) || 16; const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*'; result = Array.from({length: len}, () => chars[Math.floor(Math.random() * chars.length)]).join(''); }
-        else if (currentTool === 'uuid') { result = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16); }); }
-        else if (currentTool === 'qrcode') { result = `![QR Code](https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data.text || 'Hello')})`; }
-        else if (currentTool === 'color') { result = formatColorOutput(data.color); }
-        
-        displayResult(result);
-      } else {
-        const data = {};
-        tool.inputs.forEach(inp => { data[inp.name] = document.getElementById('inp_' + inp.name)?.value || ''; });
-        
-        const url = API + tool.endpoint;
-        const opts = { method: tool.method, headers: { 'Content-Type': 'application/json' } };
-        if (tool.method !== 'GET') opts.body = JSON.stringify(data);
-        
-        fetch(url, opts).then(r => r.json()).then(d => displayResult(d)).catch(e => displayResult('Error: ' + e.message));
+        if (tool.local) {
+          const data = {};
+          tool.inputs.forEach(inp => { data[inp.name] = document.getElementById('inp_' + inp.name)?.value || ''; });
+          
+          if (currentTool === 'json') {
+            try {
+              const parsed = JSON.parse(data.json);
+              if (data.mode === 'minify') {
+                result = JSON.stringify(parsed);
+              } else if (data.mode === 'validate') {
+                result = '✅ Valid JSON\n\n' + JSON.stringify(parsed, null, 2);
+              } else {
+                result = JSON.stringify(parsed, null, 2);
+              }
+            } catch(e) {
+              result = '❌ Invalid JSON: ' + e.message;
+            }
+          } else if (currentTool === 'base64') {
+            try { result = data.mode === 'encode' ? btoa(unescape(encodeURIComponent(data.text))) : decodeURIComponent(escape(atob(data.text))); }
+            catch(e) { result = '❌ Error: Invalid input for decode'; }
+          } else if (currentTool === 'url') {
+            try { result = data.mode === 'encode' ? encodeURIComponent(data.text) : decodeURIComponent(data.text); }
+            catch(e) { result = '❌ Error: Invalid URL encoding'; }
+          } else if (currentTool === 'password') {
+            const len = parseInt(data.length) || 16;
+            let chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+            if (data.options === 'alphanumeric') chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            else if (data.options === 'letters') chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            else if (data.options === 'numbers') chars = '0123456789';
+            result = Array.from({length: len}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+          } else if (currentTool === 'uuid') {
+            const count = parseInt(data.count) || 4;
+            result = Array.from({length: count}, () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16); })).join('\n');
+          } else if (currentTool === 'qrcode') {
+            const size = parseInt(data.size) || 200;
+            result = `📱 QR Code for: ${data.text || 'Hello'}\n\n<img src="https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(data.text || 'Hello')}" alt="QR Code" style="max-width: 100%; border-radius: 8px; margin-top: 12px;">`;
+          } else if (currentTool === 'color') {
+            result = formatColorOutput(data.color);
+          }
+          
+          displayResult(result);
+        } else {
+          const data = {};
+          tool.inputs.forEach(inp => { data[inp.name] = document.getElementById('inp_' + inp.name)?.value || ''; });
+          
+          let url = API + tool.endpoint;
+          const opts = { method: tool.method, headers: { 'Content-Type': 'application/json' } };
+          if (tool.method !== 'GET') opts.body = JSON.stringify(data);
+          
+          const response = await fetch(url, opts);
+          const d = await response.json();
+          displayResult(d);
+        }
+      } catch (e) {
+        displayResult('❌ Error: ' + e.message);
+      } finally {
+        runBtn.disabled = false;
+        runBtn.innerHTML = tool.action;
+        isLoading = false;
       }
     }
     
     function formatColorOutput(hex) {
       const r = parseInt(hex.slice(1,3), 16), g = parseInt(hex.slice(3,5), 16), b = parseInt(hex.slice(5,7), 16);
-      const r2 = parseInt(hex.slice(1,3), 16)/255, g2 = parseInt(hex.slice(3,5), 16)/255, b2 = parseInt(hex.slice(5,7), 16)/255;
+      const r2 = r/255, g2 = g/255, b2 = b/255;
       const max = Math.max(r2,g2,b2), min = Math.min(r2,g2,b2);
       let h, s, l = (max + min) / 2;
       if (max === min) h = s = 0;
       else { const d = max - min; s = l > 0.5 ? d / (2 - max - min) : d / (max + min); switch(max) { case r2: h = ((g2 - b2) / d + (g2 < b2 ? 6 : 0)) / 6; break; case g2: h = ((b2 - r2) / d + 2) / 6; break; case b2: h = ((r2 - g2) / d + 4) / 6; } }
-      return `Color: ${hex}\n\nHEX: ${hex}\nRGB: rgb(${r}, ${g}, ${b})\nHSL: hsl(${Math.round(h * 360)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%)`;
+      const hsl = `hsl(${Math.round(h * 360)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%)`;
+      return `Color Preview: ${hex}
+
+<div class="color-preview" style="background: ${hex}; width: 100px; height: 100px; border-radius: 8px; margin: 12px 0;"></div>
+
+HEX: ${hex}
+RGB: rgb(${r}, ${g}, ${b})
+HSL: ${hsl}
+CSS: ${hsl}`;
     }
     
     function displayResult(data) {
       const content = document.querySelector('.result-content');
+      if (!content) return;
       content.classList.remove('loading');
       
-      // Detect type and format accordingly
       if (typeof data === 'object') {
         if (data.error) {
-          content.innerHTML = `<div class="badge badge-error">❌ Error: ${data.error}</div>`;
+          content.innerHTML = `<div style="color: var(--danger);">❌ ${data.error}</div>`;
+        } else if (data.containers !== undefined) {
+          content.innerHTML = formatDocker(data.containers, data.allContainers);
+        } else if (data.processes) {
+          content.innerHTML = formatProcesses(data.processes);
+        } else if (data.logs !== undefined) {
+          content.innerHTML = `<pre style="white-space: pre-wrap; word-break: break-all;">${data.logs || 'No logs available'}</pre>`;
         } else {
           content.innerHTML = formatObject(data);
         }
       } else {
-        content.textContent = data;
+        content.innerHTML = `<pre style="white-space: pre-wrap; word-break: break-all;">${data}</pre>`;
       }
     }
     
     function formatObject(obj) {
-      // Special formatters for system info
       if (obj.platform || obj.cpu_percent !== undefined) return formatSystemInfo(obj);
-      if (obj.processes) return formatProcesses(obj.processes);
       if (obj.disks) return formatDisks(obj.disks);
       if (obj.virtual) return formatMemory(obj);
       if (obj.interfaces) return formatInterfaces(obj.interfaces);
-      if (obj.containers !== undefined) return formatDocker(obj.containers);
       if (obj.latency_ms !== undefined) return formatSpeedtest(obj);
       if (obj.valid !== undefined) return formatJWT(obj);
-      
-      // Generic JSON formatter
+      if (obj.records) return formatDNS(obj);
+      if (obj.output) return formatCommandOutput(obj);
       return syntaxHighlight(JSON.stringify(obj, null, 2));
+    }
+    
+    function formatDNS(data) {
+      let html = `<div class="sys-card"><div class="sys-card-title">📡 DNS Records for ${data.domain}</div>`;
+      for (const [type, records] of Object.entries(data.records)) {
+        const status = records[0] === 'NXDOMAIN' ? '❌' : records[0].startsWith('Error') ? '⚠️' : '✅';
+        html += `<div class="collapsible">
+          <div class="collapsible-header" onclick="this.parentElement.classList.toggle('open')">
+            <span>${status} ${type} <span style="color: var(--text-muted); font-size: 12px;">(${records.length} records)</span></span>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="collapsible-content"><pre style="white-space: pre-wrap;">${records.join('\n')}</pre></div>
+        </div>`;
+      }
+      html += '</div>';
+      return html;
+    }
+    
+    function formatCommandOutput(data) {
+      let html = `<div class="sys-card"><div class="sys-card-title">📊 ${data.host || 'Command Output'}</div>`;
+      if (data.stats) {
+        html += '<div class="sys-grid">';
+        if (data.stats.avg) html += `<div class="sys-stat"><div class="sys-stat-label">Avg Latency</div><div class="sys-stat-value">${data.stats.avg}<span class="sys-stat-unit">ms</span></div></div>`;
+        if (data.stats.min) html += `<div class="sys-stat"><div class="sys-stat-label">Min</div><div class="sys-stat-value">${data.stats.min}<span class="sys-stat-unit">ms</span></div></div>`;
+        if (data.stats.max) html += `<div class="sys-stat"><div class="sys-stat-label">Max</div><div class="sys-stat-value">${data.stats.max}<span class="sys-stat-unit">ms</span></div></div>`;
+        if (data.stats.loss) html += `<div class="sys-stat"><div class="sys-stat-label">Packet Loss</div><div class="sys-stat-value">${data.stats.loss}</div></div>`;
+        html += '</div>';
+      }
+      if (data.output) html += `<pre style="margin-top: 16px; white-space: pre-wrap; background: var(--bg-tertiary); padding: 12px; border-radius: 8px; max-height: 300px; overflow-y: auto;">${data.output}</pre>`;
+      html += '</div>';
+      return html;
     }
     
     function formatSystemInfo(data) {
@@ -412,8 +662,9 @@
             <div class="sys-stat-value">${data.cpu_count || data.logical_cores || 'N/A'}</div>
           </div>
           <div class="sys-stat">
-            <div class="sys-stat-label">Python</div>
-            <div class="sys-stat-value" style="font-size:14px;">${data.python_version || 'N/A'}</div>
+            <div class="sys-stat-label">Memory Usage</div>
+            <div class="sys-stat-value">${data.memory_percent?.toFixed(1) || 0}<span class="sys-stat-unit">%</span></div>
+            <div class="progress-bar"><div class="progress-fill ${data.memory_percent > 80 ? 'high' : data.memory_percent > 50 ? 'medium' : 'low'}" style="width:${data.memory_percent || 0}%"></div></div>
           </div>
         </div>
       </div>`;
@@ -424,24 +675,16 @@
       return `<div class="sys-card">
         <div class="sys-card-title">🔥 CPU Information</div>
         <div class="sys-grid">
-          <div class="sys-stat">
-            <div class="sys-stat-label">Physical Cores</div>
-            <div class="sys-stat-value">${data.physical_cores || 'N/A'}</div>
-          </div>
-          <div class="sys-stat">
-            <div class="sys-stat-label">Logical Cores</div>
-            <div class="sys-stat-value">${data.logical_cores || 'N/A'}</div>
-          </div>
+          <div class="sys-stat"><div class="sys-stat-label">Physical Cores</div><div class="sys-stat-value">${data.physical_cores || 'N/A'}</div></div>
+          <div class="sys-stat"><div class="sys-stat-label">Logical Cores</div><div class="sys-stat-value">${data.logical_cores || 'N/A'}</div></div>
           <div class="sys-stat">
             <div class="sys-stat-label">Current Usage</div>
             <div class="sys-stat-value">${data.total_usage?.toFixed(1) || 0}<span class="sys-stat-unit">%</span></div>
             <div class="progress-bar"><div class="progress-fill ${usageClass}" style="width:${data.total_usage || 0}%"></div></div>
           </div>
-          <div class="sys-stat">
-            <div class="sys-stat-label">Frequency</div>
-            <div class="sys-stat-value">${data.current_freq || 'N/A'}<span class="sys-stat-unit"> MHz</span></div>
-          </div>
+          <div class="sys-stat"><div class="sys-stat-label">Frequency</div><div class="sys-stat-value">${data.current_freq ? data.current_freq.toFixed(0) + ' MHz' : 'N/A'}</div></div>
         </div>
+        ${data.usage_per_cpu ? `<div style="margin-top: 16px;"><div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px;">Per-Core Usage</div>${data.usage_per_cpu.map((u, i) => `<div style="display:inline-block; width: 40px; margin-right: 8px; text-align: center;"><div style="font-size: 11px; color: var(--text-muted);">${i}</div><div class="progress-bar" style="margin-top: 4px;"><div class="progress-fill ${u > 80 ? 'high' : u > 50 ? 'medium' : 'low'}" style="width:${u}%"></div></div></div>`).join('')}</div>` : ''}
       </div>`;
     }
     
@@ -449,28 +692,27 @@
       const v = data.virtual;
       const usedPercent = (v.used / v.total * 100).toFixed(1);
       const memClass = usedPercent > 90 ? 'high' : usedPercent > 70 ? 'medium' : 'low';
-      return `<div class="sys-card">
+      let html = `<div class="sys-card">
         <div class="sys-card-title">💾 Memory</div>
         <div class="sys-grid">
-          <div class="sys-stat">
-            <div class="sys-stat-label">Total</div>
-            <div class="sys-stat-value">${formatBytes(v.total)}</div>
-          </div>
-          <div class="sys-stat">
-            <div class="sys-stat-label">Used</div>
-            <div class="sys-stat-value">${formatBytes(v.used)}</div>
-          </div>
-          <div class="sys-stat">
-            <div class="sys-stat-label">Available</div>
-            <div class="sys-stat-value">${formatBytes(v.available)}</div>
-          </div>
+          <div class="sys-stat"><div class="sys-stat-label">Total</div><div class="sys-stat-value">${formatBytes(v.total)}</div></div>
+          <div class="sys-stat"><div class="sys-stat-label">Used</div><div class="sys-stat-value">${formatBytes(v.used)}</div></div>
+          <div class="sys-stat"><div class="sys-stat-label">Available</div><div class="sys-stat-value">${formatBytes(v.available)}</div></div>
           <div class="sys-stat">
             <div class="sys-stat-label">Usage</div>
             <div class="sys-stat-value">${usedPercent}<span class="sys-stat-unit">%</span></div>
             <div class="progress-bar"><div class="progress-fill ${memClass}" style="width:${usedPercent}%"></div></div>
           </div>
-        </div>
-      </div>`;
+        </div>`;
+      if (data.swap) {
+        const swapPercent = (data.swap.used / data.swap.total * 100).toFixed(1);
+        html += `<div style="margin-top: 16px;"><div class="sys-stat-label">Swap</div><div style="display: flex; gap: 24px; margin-top: 8px;">
+          <div>Used: ${formatBytes(data.swap.used)} / ${formatBytes(data.swap.total)}</div>
+          <div class="progress-bar" style="flex: 1;"><div class="progress-fill ${swapPercent > 80 ? 'high' : 'medium'}" style="width:${swapPercent}%"></div></div>
+        </div></div>`;
+      }
+      html += '</div>';
+      return html;
     }
     
     function formatDisks(disks) {
@@ -478,87 +720,152 @@
         <div class="sys-card-title">💿 Disk Usage</div>
         ${disks.map(d => {
           const cls = d.percent > 90 ? 'high' : d.percent > 75 ? 'medium' : 'low';
-          return `<div style="margin-bottom:16px;">
+          return `<div style="margin-bottom:20px;">
             <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
               <strong>${d.device || d.mountpoint}</strong>
-              <span>${formatBytes(d.used)} / ${formatBytes(d.total)}</span>
+              <span>${formatBytes(d.used)} / ${formatBytes(d.total)} (${d.percent}%)</span>
             </div>
-            <div class="progress-bar"><div class="progress-fill ${cls}" style="width:${d.percent}%"></div></div>
+            <div class="progress-bar" style="height: 10px;"><div class="progress-fill ${cls}" style="width:${d.percent}%"></div></div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">${d.fstype} • ${formatBytes(d.free)} free</div>
           </div>`;
         }).join('')}
       </div>`;
     }
     
     function formatProcesses(procs) {
-      if (!procs.length) return '<div class="badge badge-warning">No processes found</div>';
+      if (!procs || !procs.length) return '<div style="color: var(--warning);">No processes found</div>';
       return `<div class="sys-card">
-        <div class="sys-card-title">📋 Top Processes</div>
-        <table class="proc-table">
-          <thead><tr><th>PID</th><th>Name</th><th>CPU %</th><th>Memory %</th></tr></thead>
-          <tbody>
-            ${procs.slice(0, 15).map(p => `
-              <tr>
-                <td class="proc-pid">${p.pid}</td>
-                <td class="proc-name">${p.name}</td>
-                <td class="proc-cpu ${p.cpu > 50 ? 'high' : ''}">${p.cpu?.toFixed(1) || 0}%</td>
-                <td class="proc-mem ${p.memory > 50 ? 'high' : ''}">${p.memory?.toFixed(1) || 0}%</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
+        <div class="sys-card-header"><div class="sys-card-title">📋 Top Processes</div><span style="color: var(--text-muted); font-size: 12px;">${procs.length} processes</span></div>
+        <div class="proc-table-wrapper">
+          <table class="proc-table">
+            <thead><tr><th>PID</th><th>Name</th><th>CPU %</th><th>Memory %</th><th>Action</th></tr></thead>
+            <tbody>
+              ${procs.slice(0, 20).map(p => `
+                <tr>
+                  <td class="proc-pid">${p.pid}</td>
+                  <td class="proc-name">${p.name}</td>
+                  <td class="proc-cpu ${p.cpu > 50 ? 'high' : ''}">${p.cpu?.toFixed(1) || 0}%</td>
+                  <td class="proc-mem ${p.memory > 50 ? 'high' : ''}">${p.memory?.toFixed(1) || 0}%</td>
+                  <td class="proc-actions"><button class="proc-kill-btn" onclick="killProcess(${p.pid})">Kill</button></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
       </div>`;
+    }
+    
+    async function killProcess(pid) {
+      if (!confirm(`Kill process ${pid}?`)) return;
+      try {
+        const res = await fetch(API + '/api/process/kill', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({pid}) });
+        const data = await res.json();
+        if (data.success) {
+          showToast('Process killed successfully', 'success');
+          runTool();
+        } else {
+          showToast('Failed to kill process: ' + data.error, 'error');
+        }
+      } catch (e) {
+        showToast('Error: ' + e.message, 'error');
+      }
     }
     
     function formatInterfaces(ifaces) {
       return `<div class="sys-card">
         <div class="sys-card-title">🔀 Network Interfaces</div>
         ${Object.entries(ifaces).map(([name, addrs]) => `
-          <div style="margin-bottom:16px;">
-            <strong style="color:var(--accent);">${name}</strong>
-            ${addrs.map(a => `<div style="padding:4px 0 4px 16px;font-size:13px;color:var(--text-secondary);">${a.family}: ${a.address}</div>`).join('')}
+          <div class="collapsible open" style="margin-bottom: 12px;">
+            <div class="collapsible-header" onclick="this.parentElement.classList.toggle('open')">
+              <span style="color: var(--accent); font-weight: 600;">${name}</span>
+              <span class="chevron">▼</span>
+            </div>
+            <div class="collapsible-content">
+              ${addrs.map(a => `<div style="padding: 6px 0; border-bottom: 1px solid var(--border);">
+                <span style="color: var(--text-muted); font-size: 11px; text-transform: uppercase;">${a.family}</span>
+                <div style="font-family: 'JetBrains Mono', monospace; font-size: 13px;">${a.address}</div>
+                ${a.netmask ? `<div style="font-size: 11px; color: var(--text-muted);">Netmask: ${a.netmask}</div>` : ''}
+              </div>`).join('')}
+            </div>
           </div>
         `).join('')}
       </div>`;
     }
     
-    function formatDocker(containers) {
-      if (!containers.length) return '<div class="badge badge-success">✅ No containers running</div>';
-      return `<div class="sys-card">
-        <div class="sys-card-title">🐳 Docker Containers</div>
-        ${containers.map(c => `
-          <div style="background:var(--bg-tertiary);padding:12px;border-radius:8px;margin-bottom:8px;">
-            <div style="font-weight:600;">${c.name}</div>
-            <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">${c.image} • ${c.status}</div>
+    function formatDocker(containers, allContainers) {
+      if (!containers || !containers.length) return '<div class="docker-card"><div style="text-align: center; padding: 20px; color: var(--text-muted);">🐳 No containers running</div></div>';
+      return containers.map(c => {
+        const isRunning = c.status && c.status.toLowerCase().includes('up');
+        const statusClass = isRunning ? 'running' : 'stopped';
+        return `<div class="docker-card">
+          <div class="docker-header">
+            <div class="docker-name">🐳 ${c.name}</div>
+            <span class="docker-status ${statusClass}">${isRunning ? '● Running' : '○ Stopped'}</span>
           </div>
-        `).join('')}
-      </div>`;
+          <div class="docker-meta">${c.image}</div>
+          <div class="docker-actions">
+            ${isRunning ? `<button class="docker-btn" onclick="dockerAction('stop', '${c.id}')">⏹ Stop</button>
+              <button class="docker-btn" onclick="dockerAction('restart', '${c.id}')">🔄 Restart</button>` : 
+              `<button class="docker-btn" onclick="dockerAction('start', '${c.id}')">▶ Start</button>`}
+            <button class="docker-btn" onclick="dockerLogs('${c.id}')">📜 Logs</button>
+            <button class="docker-btn danger" onclick="dockerAction('rm', '${c.id}')">🗑 Remove</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+    
+    async function dockerAction(action, containerId) {
+      try {
+        const res = await fetch(API + `/api/docker/${action}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({container: containerId}) });
+        const data = await res.json();
+        if (data.success || data.output) {
+          showToast(`Container ${action} successful`, 'success');
+          selectTool('docker');
+        } else {
+          showToast(data.error || `Failed to ${action} container`, 'error');
+        }
+      } catch (e) {
+        showToast('Error: ' + e.message, 'error');
+      }
+    }
+    
+    async function dockerLogs(containerId) {
+      try {
+        const res = await fetch(API + `/api/docker/logs`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({container: containerId}) });
+        const data = await res.json();
+        showToast('Logs retrieved - check result area', 'success');
+        displayResult({logs: data.output || data.error || 'No logs available'});
+      } catch (e) {
+        showToast('Error fetching logs: ' + e.message, 'error');
+      }
     }
     
     function formatSpeedtest(data) {
       return `<div class="sys-card">
         <div class="sys-card-title">⚡ Speed Test</div>
         <div class="sys-grid">
-          <div class="sys-stat">
-            <div class="sys-stat-label">Latency</div>
-            <div class="sys-stat-value">${data.latency_ms}<span class="sys-stat-unit">ms</span></div>
-          </div>
+          <div class="sys-stat"><div class="sys-stat-label">Latency</div><div class="sys-stat-value">${data.latency_ms}<span class="sys-stat-unit">ms</span></div></div>
           ${data.gateway ? `<div class="sys-stat"><div class="sys-stat-label">Gateway</div><div class="sys-stat-value" style="font-size:14px;">${data.gateway}</div></div>` : ''}
         </div>
       </div>`;
     }
     
     function formatJWT(data) {
-      if (!data.valid) return `<div class="badge badge-error">❌ Invalid JWT: ${data.error}</div>`;
+      if (!data.valid) return `<div style="color: var(--danger);">❌ Invalid JWT: ${data.error}</div>`;
       return `<div class="sys-card">
         <div class="sys-card-title">🎫 JWT Decoder</div>
         <div style="margin-bottom:16px;">
-          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;">HEADER</div>
-          <pre style="background:var(--bg-tertiary);padding:12px;border-radius:8px;font-size:12px;overflow-x:auto;">${syntaxHighlight(JSON.stringify(data.header, null, 2))}</pre>
+          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;">HEADER</div>
+          <pre style="background:var(--bg-tertiary);padding:16px;border-radius:8px;overflow-x:auto;">${syntaxHighlight(JSON.stringify(data.header, null, 2))}</pre>
         </div>
         <div>
-          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;">PAYLOAD</div>
-          <pre style="background:var(--bg-tertiary);padding:12px;border-radius:8px;font-size:12px;overflow-x:auto;">${syntaxHighlight(JSON.stringify(data.payload, null, 2))}</pre>
+          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;">PAYLOAD</div>
+          <pre style="background:var(--bg-tertiary);padding:16px;border-radius:8px;overflow-x:auto;">${syntaxHighlight(JSON.stringify(data.payload, null, 2))}</pre>
         </div>
+        ${data.payload.exp ? `<div style="margin-top: 16px; padding: 12px; background: ${Date.now() / 1000 > data.payload.exp ? 'var(--danger-dim)' : 'var(--success-dim)'}; border-radius: 8px;">
+          ${Date.now() / 1000 > data.payload.exp ? '❌ Token Expired' : '✅ Token Valid'}
+          <span style="font-size: 12px; color: var(--text-secondary);"> • Expires: ${new Date(data.payload.exp * 1000).toLocaleString()}</span>
+        </div>` : ''}
       </div>`;
     }
     
@@ -584,9 +891,98 @@
     function filterTools() {
       const q = document.getElementById('searchInput').value.toLowerCase();
       document.querySelectorAll('.nav-item').forEach(el => {
-        el.style.display = el.textContent.toLowerCase().includes(q) ? 'flex' : 'none';
+        const match = el.textContent.toLowerCase().includes(q);
+        el.style.display = match ? 'flex' : 'none';
+        if (match && q) el.style.background = q ? 'var(--accent-dim)' : '';
       });
     }
+    
+    function toggleFavorite(toolId) {
+      const idx = favorites.indexOf(toolId);
+      if (idx >= 0) favorites.splice(idx, 1);
+      else favorites.push(toolId);
+      localStorage.setItem('toolbox_favorites', JSON.stringify(favorites));
+      updateFavoritesUI();
+      showToast(favorites.includes(toolId) ? 'Added to favorites' : 'Removed from favorites', 'success');
+    }
+    
+    function addToFavorites(toolId) {
+      if (!favorites.includes(toolId)) {
+        favorites.push(toolId);
+        localStorage.setItem('toolbox_favorites', JSON.stringify(favorites));
+        updateFavoritesUI();
+        showToast('Added to favorites', 'success');
+      }
+    }
+    
+    function addToRecent(toolId) {
+      recentTools = recentTools.filter(t => t !== toolId);
+      recentTools.unshift(toolId);
+      recentTools = recentTools.slice(0, 5);
+      localStorage.setItem('toolbox_recent', JSON.stringify(recentTools));
+    }
+    
+    function updateFavoritesUI() {
+      const section = document.getElementById('favoritesSection');
+      const list = document.getElementById('favoritesList');
+      if (favorites.length > 0) {
+        section.style.display = 'block';
+        list.innerHTML = favorites.map(fid => {
+          const t = tools[fid];
+          return `<div class="favorite-item" onclick="selectTool('${fid}')"><span>${t?.icon || '🔧'}</span> ${t?.name || fid}</div>`;
+        }).join('');
+      } else {
+        section.style.display = 'none';
+      }
+      document.querySelectorAll('.nav-item').forEach(el => {
+        const tid = el.dataset.tool;
+        el.classList.toggle('starred', favorites.includes(tid));
+      });
+    }
+    
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('Copied to clipboard!', 'success');
+      }).catch(() => {
+        showToast('Failed to copy', 'error');
+      });
+    }
+    
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `<span>${type === 'success' ? '✅' : '❌'}</span> ${message}`;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+    
+    async function checkAPIStatus() {
+      const badge = document.getElementById('statusBadge');
+      const text = document.getElementById('statusText');
+      try {
+        const res = await fetch(API + '/health', { method: 'GET', cache: 'no-cache' });
+        if (res.ok) {
+          badge.classList.remove('offline');
+          text.textContent = 'API Connected';
+        } else {
+          throw new Error('API error');
+        }
+      } catch (e) {
+        badge.classList.add('offline');
+        text.textContent = 'API Offline';
+      }
+    }
+    
+    document.addEventListener('keydown', e => {
+      if (e.ctrlKey && e.key === 'b') { e.preventDefault(); toggleSidebar(); }
+      if (e.ctrlKey && e.key === 'k') { e.preventDefault(); document.getElementById('searchInput').focus(); }
+      if (e.key === 'Escape' && document.getElementById('sidebar').classList.contains('open')) toggleSidebar();
+    });
+    
+    checkAPIStatus();
+    setInterval(checkAPIStatus, 30000);
+    updateFavoritesUI();
   </script>
 </body>
 </html>
