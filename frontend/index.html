@@ -24,6 +24,7 @@
       --danger: #ff4757;
       --warning: #ffa502;
       --success: #2ed573;
+      --purple: #a855f7;
       --sidebar-width: 280px;
       --header-height: 64px;
       --radius-sm: 8px;
@@ -32,17 +33,21 @@
       --shadow-glow: 0 0 30px rgba(0, 212, 170, 0.2);
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { font-size: 16px; }
     body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; }
     body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(circle at 20% 20%, rgba(0, 212, 170, 0.05) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(0, 100, 80, 0.05) 0%, transparent 50%); pointer-events: none; z-index: -1; }
     .app-container { display: flex; min-height: 100vh; }
-    .sidebar { width: var(--sidebar-width); background: var(--bg-secondary); border-right: 1px solid var(--border); position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; transition: all 0.3s; display: flex; flex-direction: column; overflow: hidden; }
+    
+    /* Sidebar */
+    .sidebar { width: var(--sidebar-width); background: var(--bg-secondary); border-right: 1px solid var(--border); position: fixed; top: 0; left: 0; height: 100vh; z-index: 1000; display: flex; flex-direction: column; overflow: hidden; transition: all 0.3s; }
     .sidebar.collapsed { width: 72px; }
     .sidebar-header { height: var(--header-height); display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid var(--border); gap: 12px; }
-    .logo { width: 40px; height: 40px; background: var(--accent-gradient); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: var(--shadow-glow); }
-    .logo-text { font-weight: 700; font-size: 18px; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .logo { width: 40px; height: 40px; background: var(--accent-gradient); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; box-shadow: var(--shadow-glow); }
+    .logo-text { font-weight: 700; font-size: 18px; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; white-space: nowrap; }
     .sidebar.collapsed .logo-text { opacity: 0; width: 0; }
     .sidebar-toggle { position: absolute; right: 16px; background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-secondary); cursor: pointer; padding: 8px 12px; border-radius: var(--radius-sm); transition: all 0.2s; }
     .sidebar-toggle:hover { background: var(--accent-dim); color: var(--accent); }
+    .sidebar.collapsed .sidebar-toggle { right: 50%; transform: translateX(50%); }
     .search-container { padding: 16px; border-bottom: 1px solid var(--border); }
     .search-input { width: 100%; padding: 12px 16px; padding-left: 40px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-primary); font-size: 14px; outline: none; transition: all 0.2s; }
     .search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
@@ -50,53 +55,132 @@
     .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
     .sidebar.collapsed .search-container, .sidebar.collapsed .category-title, .sidebar.collapsed .nav-label { display: none; }
     .sidebar-content { flex: 1; overflow-y: auto; padding: 8px 12px; }
+    .sidebar-content::-webkit-scrollbar { width: 6px; }
+    .sidebar-content::-webkit-scrollbar-track { background: transparent; }
+    .sidebar-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
     .category { margin-bottom: 8px; }
     .category-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); padding: 12px 12px 8px; }
     .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: var(--radius-sm); color: var(--text-secondary); cursor: pointer; transition: all 0.15s; margin-bottom: 2px; }
     .nav-item:hover { background: var(--bg-hover); color: var(--text-primary); }
     .nav-item.active { background: var(--accent-dim); color: var(--accent); }
     .nav-icon { font-size: 18px; width: 24px; text-align: center; flex-shrink: 0; }
-    .nav-label { font-size: 14px; font-weight: 500; }
+    .nav-label { font-size: 14px; font-weight: 500; white-space: nowrap; }
+    
+    /* Main Content */
     .main-content { flex: 1; margin-left: var(--sidebar-width); transition: margin-left 0.3s; min-height: 100vh; }
     .sidebar.collapsed ~ .main-content { margin-left: 72px; }
+    
+    /* Header */
     .header { height: var(--header-height); background: rgba(18, 18, 26, 0.8); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; position: sticky; top: 0; z-index: 50; }
     .header-title { font-size: 20px; font-weight: 600; }
     .header-actions { display: flex; align-items: center; gap: 16px; }
     .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; background: rgba(46, 213, 115, 0.15); color: var(--success); }
     .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    
+    /* Content */
     .content { padding: 32px; }
+    
+    /* Tool Container */
     .tool-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); animation: fadeIn 0.3s ease-out; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .tool-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
     .tool-title { font-size: 24px; font-weight: 600; display: flex; align-items: center; gap: 12px; }
     .tool-title-icon { font-size: 28px; }
     .tool-description { color: var(--text-secondary); font-size: 14px; margin-top: 4px; }
+    
+    /* Inputs */
     .tool-inputs { display: grid; gap: 16px; margin-bottom: 24px; }
     .input-group { display: flex; flex-direction: column; gap: 8px; }
     .input-label { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
     .tool-input, .tool-textarea, .tool-select { padding: 12px 16px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 14px; font-family: inherit; outline: none; transition: all 0.2s; }
     .tool-input:focus, .tool-textarea:focus, .tool-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
     .tool-textarea { min-height: 120px; resize: vertical; font-family: 'JetBrains Mono', monospace; }
+    .tool-select { cursor: pointer; }
+    
+    /* Buttons */
     .tool-actions { display: flex; gap: 12px; margin-bottom: 24px; }
     .tool-btn { padding: 12px 24px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; border: none; display: flex; align-items: center; gap: 8px; }
     .tool-btn.primary { background: var(--accent-gradient); color: #000; }
     .tool-btn.primary:hover { box-shadow: var(--shadow-glow); transform: translateY(-1px); }
     .tool-btn.secondary { background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-primary); }
+    .tool-btn.secondary:hover { background: var(--bg-hover); }
+    
+    /* Results */
     .result-container { background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
     .result-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--bg-secondary); border-bottom: 1px solid var(--border); }
-    .result-title { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
-    .result-content { padding: 16px; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-break: break-all; max-height: 400px; overflow-y: auto; }
+    .result-title { font-size: 13px; font-weight: 500; color: var(--text-secondary); display: flex; align-items: center; gap: 8px; }
+    .result-actions { display: flex; gap: 8px; }
+    .result-btn { background: transparent; border: none; color: var(--text-muted); cursor: pointer; padding: 4px 8px; border-radius: 4px; font-size: 12px; transition: all 0.2s; }
+    .result-btn:hover { background: var(--bg-hover); color: var(--accent); }
+    .result-content { padding: 20px; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.7; white-space: pre-wrap; word-break: break-all; max-height: 500px; overflow-y: auto; }
+    .result-content::-webkit-scrollbar { width: 6px; }
+    .result-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    
+    /* JSON Display */
+    .json-key { color: #00d4aa; }
+    .json-string { color: #a5d6ff; }
+    .json-number { color: #ff9d00; }
+    .json-boolean { color: #ff79c6; }
+    .json-null { color: #6c757d; }
+    .json-bracket { color: var(--text-secondary); }
+    
+    /* System Info Cards */
+    .sys-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; margin-bottom: 16px; }
+    .sys-card-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; color: var(--accent); }
+    .sys-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+    .sys-stat { background: var(--bg-tertiary); padding: 16px; border-radius: var(--radius-sm); }
+    .sys-stat-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+    .sys-stat-value { font-size: 24px; font-weight: 700; }
+    .sys-stat-unit { font-size: 12px; color: var(--text-secondary); font-weight: 400; }
+    
+    /* Process Table */
+    .proc-table { width: 100%; border-collapse: collapse; }
+    .proc-table th { text-align: left; padding: 12px; background: var(--bg-secondary); border-bottom: 1px solid var(--border); font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; }
+    .proc-table td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 13px; }
+    .proc-table tr:hover td { background: var(--bg-hover); }
+    .proc-table tr:last-child td { border: none; }
+    .proc-pid { color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+    .proc-name { font-weight: 500; }
+    .proc-cpu.high { color: var(--danger); font-weight: 600; }
+    .proc-mem.high { color: var(--warning); font-weight: 600; }
+    
+    /* Welcome */
     .welcome { text-align: center; padding: 60px 40px; }
     .welcome-icon { font-size: 64px; margin-bottom: 24px; }
     .welcome-title { font-size: 28px; font-weight: 600; margin-bottom: 12px; }
     .welcome-subtitle { color: var(--text-secondary); font-size: 16px; max-width: 400px; margin: 0 auto; }
-    .quick-actions { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 32px; }
-    .quick-action { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; cursor: pointer; transition: all 0.2s; }
-    .quick-action:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
-    .quick-action-icon { font-size: 32px; margin-bottom: 12px; }
-    .quick-action-title { font-weight: 600; margin-bottom: 4px; }
-    .quick-action-desc { font-size: 13px; color: var(--text-secondary); }
-    @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; } .header { padding: 0 16px; } .content { padding: 16px; } }
+    
+    /* Loading */
+    .loading { animation: pulse 1.5s infinite; color: var(--text-secondary); }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    
+    /* Success/Error badges */
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .badge-success { background: rgba(46, 213, 115, 0.15); color: var(--success); }
+    .badge-error { background: rgba(255, 71, 87, 0.15); color: var(--danger); }
+    .badge-warning { background: rgba(255, 165, 2, 0.15); color: var(--warning); }
+    
+    /* Progress bars */
+    .progress-bar { height: 8px; background: var(--bg-tertiary); border-radius: 4px; overflow: hidden; margin-top: 8px; }
+    .progress-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+    .progress-fill.low { background: var(--success); }
+    .progress-fill.medium { background: var(--warning); }
+    .progress-fill.high { background: var(--danger); }
+    
+    /* Copy tooltip */
+    .copy-tooltip { position: relative; }
+    .copy-tooltip::after { content: 'Copied!'; position: absolute; top: -30px; right: 0; background: var(--accent); color: #000; padding: 4px 8px; border-radius: 4px; font-size: 11px; opacity: 0; transition: opacity 0.2s; pointer-events: none; }
+    .copy-tooltip.active::after { opacity: 1; }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-content { margin-left: 0; }
+      .header { padding: 0 16px; }
+      .content { padding: 16px; }
+      .sys-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -142,7 +226,6 @@
           <div class="nav-item" data-tool="disk" onclick="selectTool('disk')"><span class="nav-icon">💿</span><span class="nav-label">Disk Usage</span></div>
           <div class="nav-item" data-tool="processes" onclick="selectTool('processes')"><span class="nav-icon">📋</span><span class="nav-label">Processes</span></div>
           <div class="nav-item" data-tool="interfaces" onclick="selectTool('interfaces')"><span class="nav-icon">🔀</span><span class="nav-label">Interfaces</span></div>
-          <div class="nav-item" data-tool="netstat" onclick="selectTool('netstat')"><span class="nav-icon">🔍</span><span class="nav-label">Netstat</span></div>
           <div class="nav-item" data-tool="docker" onclick="selectTool('docker')"><span class="nav-icon">🐳</span><span class="nav-label">Docker</span></div>
         </div>
         <div class="category"><div class="category-title">🛠️ Utilities</div>
@@ -150,9 +233,11 @@
           <div class="nav-item" data-tool="uuid" onclick="selectTool('uuid')"><span class="nav-icon">🆔</span><span class="nav-label">UUID</span></div>
           <div class="nav-item" data-tool="qrcode" onclick="selectTool('qrcode')"><span class="nav-icon">📱</span><span class="nav-label">QR Code</span></div>
           <div class="nav-item" data-tool="color" onclick="selectTool('color')"><span class="nav-icon">🎨</span><span class="nav-label">Color Picker</span></div>
+          <div class="nav-item" data-tool="timestamp" onclick="selectTool('timestamp')"><span class="nav-icon">⏰</span><span class="nav-label">Timestamp</span></div>
         </div>
       </div>
     </aside>
+    
     <main class="main-content">
       <header class="header">
         <h1 class="header-title" id="pageTitle">IT Toolbox Pro</h1>
@@ -160,29 +245,27 @@
           <span class="status-badge"><span class="status-dot"></span>API Connected</span>
         </div>
       </header>
+      
       <div class="content" id="content">
         <div class="welcome" id="welcomeScreen">
           <div class="welcome-icon">🛠️</div>
           <h2 class="welcome-title">Welcome to IT Toolbox Pro</h2>
           <p class="welcome-subtitle">Select a tool from the sidebar to get started.</p>
-          <div class="quick-actions">
-            <div class="quick-action" onclick="selectTool('ip')"><div class="quick-action-icon">🌍</div><div class="quick-action-title">IP Lookup</div><div class="quick-action-desc">Check your public IP</div></div>
-            <div class="quick-action" onclick="selectTool('ssl')"><div class="quick-action-icon">🔐</div><div class="quick-action-title">SSL Check</div><div class="quick-action-desc">Verify SSL certificates</div></div>
-            <div class="quick-action" onclick="selectTool('json')"><div class="quick-action-icon">📄</div><div class="quick-action-title">JSON Formatter</div><div class="quick-action-desc">Format and validate JSON</div></div>
-            <div class="quick-action" onclick="selectTool('password')"><div class="quick-action-icon">🔑</div><div class="quick-action-title">Password Gen</div><div class="quick-action-desc">Generate secure passwords</div></div>
-          </div>
         </div>
         <div id="toolContainer"></div>
       </div>
     </main>
   </div>
+
   <script>
     const API = window.location.protocol + '//' + window.location.hostname + ':8892';
+    let currentTool = null;
+    
     const tools = {
       ip: { name: 'IP Lookup', icon: '🌍', description: 'Look up IP address information', inputs: [{name: 'ip', label: 'IP Address or Domain', placeholder: '8.8.8.8', type: 'text'}], action: 'Lookup', endpoint: '/api/ip', method: 'POST' },
       dns: { name: 'DNS Lookup', icon: '📡', description: 'Query DNS records', inputs: [{name: 'domain', label: 'Domain', placeholder: 'google.com', type: 'text'}], action: 'Lookup', endpoint: '/api/dns', method: 'POST' },
       ping: { name: 'Ping', icon: '📶', description: 'Test network connectivity', inputs: [{name: 'host', label: 'Host', placeholder: 'google.com', type: 'text'}], action: 'Ping', endpoint: '/api/ping', method: 'POST' },
-      ports: { name: 'Port Scanner', icon: '🔌', description: 'Scan ports on a host', inputs: [{name: 'host', label: 'Host', placeholder: 'google.com', type: 'text'}, {name: 'ports', label: 'Ports', placeholder: '22,80,443', type: 'text'}], action: 'Scan', endpoint: '/api/ports', method: 'POST' },
+      ports: { name: 'Port Scanner', icon: '🔌', description: 'Scan ports on a host', inputs: [{name: 'host', label: 'Host', placeholder: 'google.com', type: 'text'}, {name: 'ports', label: 'Ports (comma separated)', placeholder: '22,80,443,8080', type: 'text'}], action: 'Scan', endpoint: '/api/ports', method: 'POST' },
       traceroute: { name: 'Traceroute', icon: '🛤️', description: 'Trace network path', inputs: [{name: 'host', label: 'Host', placeholder: 'google.com', type: 'text'}], action: 'Trace', endpoint: '/api/traceroute', method: 'POST' },
       speedtest: { name: 'Speed Test', icon: '⚡', description: 'Test network speed', inputs: [], action: 'Test', endpoint: '/api/speedtest/local', method: 'GET' },
       ssl: { name: 'SSL Check', icon: '🔐', description: 'Check SSL certificate', inputs: [{name: 'domain', label: 'Domain', placeholder: 'google.com', type: 'text'}], action: 'Check', endpoint: '/api/ssl', method: 'POST' },
@@ -195,55 +278,315 @@
       curl: { name: 'cURL', icon: '🌐', description: 'Execute HTTP requests', inputs: [{name: 'url', label: 'URL', placeholder: 'https://api.example.com', type: 'text'}, {name: 'method', label: 'Method', type: 'select', options: ['GET', 'POST', 'PUT', 'DELETE']}, {name: 'headers', label: 'Headers (JSON)', type: 'textarea'}, {name: 'body', label: 'Body', type: 'textarea'}], action: 'Execute', endpoint: '/api/curl', method: 'POST' },
       headers: { name: 'HTTP Headers', icon: '📨', description: 'Check HTTP headers', inputs: [{name: 'url', label: 'URL', placeholder: 'https://google.com', type: 'text'}], action: 'Check', endpoint: '/api/headers', method: 'POST' },
       system: { name: 'System Info', icon: '📊', description: 'View system information', inputs: [], action: 'Get Info', endpoint: '/api/systeminfo', method: 'GET' },
-      docker: { name: 'Docker', icon: '🐳', description: 'Manage Docker containers', inputs: [], action: 'List', endpoint: '/api/docker/ps', method: 'GET' },
-      password: { name: 'Password Generator', icon: '🔑', description: 'Generate secure passwords', inputs: [{name: 'length', label: 'Length', type: 'text', value: '16'}], action: 'Generate', local: true },
-      uuid: { name: 'UUID Generator', icon: '🆔', description: 'Generate UUIDs', inputs: [], action: 'Generate', local: true },
-      qrcode: { name: 'QR Code', icon: '📱', description: 'Generate QR codes', inputs: [{name: 'text', label: 'Text', type: 'textarea'}], action: 'Generate', local: true },
-      color: { name: 'Color Picker', icon: '🎨', description: 'Pick and convert colors', inputs: [{name: 'color', label: 'Color', type: 'text', value: '#00d4aa'}], action: 'Convert', local: true },
       cpu: { name: 'CPU Info', icon: '🔥', description: 'View CPU details', inputs: [], action: 'Get Info', endpoint: '/api/cpu', method: 'GET' },
       memory: { name: 'Memory Info', icon: '💾', description: 'View memory details', inputs: [], action: 'Get Info', endpoint: '/api/memory', method: 'GET' },
       disk: { name: 'Disk Usage', icon: '💿', description: 'Check disk space', inputs: [], action: 'Get Info', endpoint: '/api/disk', method: 'GET' },
       processes: { name: 'Process List', icon: '📋', description: 'View running processes', inputs: [], action: 'List', endpoint: '/api/processes', method: 'GET' },
       interfaces: { name: 'Network Interfaces', icon: '🔀', description: 'View network interfaces', inputs: [], action: 'List', endpoint: '/api/network/interfaces', method: 'GET' },
-      netstat: { name: 'Netstat', icon: '🔍', description: 'View network connections', inputs: [], action: 'List', endpoint: '/api/netstat', method: 'GET' }
+      docker: { name: 'Docker', icon: '🐳', description: 'Manage Docker containers', inputs: [], action: 'List', endpoint: '/api/docker/ps', method: 'GET' },
+      password: { name: 'Password Generator', icon: '🔑', description: 'Generate secure passwords', inputs: [{name: 'length', label: 'Length', type: 'text', value: '16'}], action: 'Generate', local: true },
+      uuid: { name: 'UUID Generator', icon: '🆔', description: 'Generate UUIDs', inputs: [], action: 'Generate', local: true },
+      qrcode: { name: 'QR Code', icon: '📱', description: 'Generate QR codes', inputs: [{name: 'text', label: 'Text', type: 'textarea'}], action: 'Generate', local: true },
+      color: { name: 'Color Picker', icon: '🎨', description: 'Pick and convert colors', inputs: [{name: 'color', label: 'Color', type: 'text', value: '#00d4aa'}], action: 'Convert', local: true },
+      timestamp: { name: 'Timestamp', icon: '⏰', description: 'Convert timestamps', inputs: [{name: 'timestamp', label: 'Unix Timestamp', type: 'text', placeholder: 'Leave empty for current time'}, {name: 'action', label: 'Action', type: 'select', options: ['now', 'to_unix']}], action: 'Convert', endpoint: '/api/timestamp', method: 'POST' }
     };
-    let currentTool = null;
-    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('collapsed'); document.getElementById('toggleIcon').textContent = document.getElementById('sidebar').classList.contains('collapsed') ? '▶' : '◀'; }
-    function selectTool(toolId) { currentTool = toolId; const tool = tools[toolId]; if (!tool) return; document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active')); document.querySelector(`[data-tool="${toolId}"]`)?.classList.add('active'); document.getElementById('welcomeScreen').style.display = 'none'; document.getElementById('pageTitle').textContent = tool.name; let inputsHtml = ''; tool.inputs.forEach(inp => { if (inp.type === 'textarea') inputsHtml += `<div class="input-group"><label class="input-label">${inp.label}</label><textarea class="tool-textarea" id="inp_${inp.name}" placeholder="${inp.placeholder || ''}">${inp.value || ''}</textarea></div>`; else if (inp.type === 'select') { let opts = inp.options.map(o => `<option value="${o}" ${inp.value === o ? 'selected' : ''}>${o}</option>`).join(''); inputsHtml += `<div class="input-group"><label class="input-label">${inp.label}</label><select class="tool-select" id="inp_${inp.name}">${opts}</select></div>`; } else inputsHtml += `<div class="input-group"><label class="input-label">${inp.label}</label><input class="tool-input" type="text" id="inp_${inp.name}" placeholder="${inp.placeholder || ''}" value="${inp.value || ''}"></div>`; }); const container = document.getElementById('toolContainer'); container.innerHTML = `<div class="tool-container"><div class="tool-header"><div><div class="tool-title"><span class="tool-title-icon">${tool.icon}</span>${tool.name}</div><div class="tool-description">${tool.description}</div></div></div><div class="tool-inputs">${inputsHtml}</div><div class="tool-actions"><button class="tool-btn primary" onclick="runTool()">${tool.action}</button></div><div id="resultArea"></div></div>`; }
-    function runTool() { const tool = tools[currentTool]; if (!tool) return; const resultArea = document.getElementById('resultArea'); resultArea.innerHTML = '<div class="result-container"><div class="result-header"><span class="result-title">Result</span></div><div class="result-content loading">Loading...</div></div>'; if (tool.local) { let result = ''; const data = {}; tool.inputs.forEach(inp => { data[inp.name] = document.getElementById('inp_' + inp.name).value; }); if (currentTool === 'json') { try { result = JSON.stringify(JSON.parse(data.json), null, 2); } catch(e) { result = 'Error: ' + e.message; } } else if (currentTool === 'base64') { result = data.mode === 'encode' ? btoa(data.text) : atob(data.text); } else if (currentTool === 'url') { result = data.mode === 'encode' ? encodeURIComponent(data.text) : decodeURIComponent(data.text); } else if (currentTool === 'password') { const len = parseInt(data.length) || 16; const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*'; result = Array.from({length: len}, () => chars[Math.floor(Math.random() * chars.length)]).join(''); } else if (currentTool === 'uuid') { result = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16); }); } else if (currentTool === 'qrcode') { result = `![QR Code](https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data.text || 'Hello')})`; } else if (currentTool === 'color') { result = `Input: ${data.color}\nHEX: ${data.color}\nRGB: ${hexToRgb(data.color)}\nHSL: ${hexToHsl(data.color)}`; } setResult(result); } else { const data = {}; tool.inputs.forEach(inp => { data[inp.name] = document.getElementById('inp_' + inp.name).value; }); const url = tool.method === 'GET' ? API + tool.endpoint : API + tool.endpoint; const opts = { method: tool.method, headers: { 'Content-Type': 'application/json' } }; if (tool.method !== 'GET') opts.body = JSON.stringify(data); fetch(url, opts).then(r => r.json()).then(d => setResult(JSON.stringify(d, null, 2))).catch(e => setResult('Error: ' + e.message)); } }
-    function setResult(text) { document.querySelector('.result-content').classList.remove('loading'); document.querySelector('.result-content').textContent = text; }
-    function hexToRgb(hex) { const r = parseInt(hex.slice(1,3), 16), g = parseInt(hex.slice(3,5), 16), b = parseInt(hex.slice(5,7), 16); return `rgb(${r}, ${g}, ${b})`; }
-    function hexToHsl(hex) { const r = parseInt(hex.slice(1,3), 16) / 255, g = parseInt(hex.slice(3,5), 16) / 255, b = parseInt(hex.slice(5,7), 16) / 255; const max = Math.max(r,g,b), min = Math.min(r,g,b); let h, s, l = (max + min) / 2; if (max === min) h = s = 0; else { const d = max - min; s = l > 0.5 ? d / (2 - max - min) : d / (max + min); switch(max) { case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break; case g: h = ((b - r) / d + 2) / 6; break; case b: h = ((r - g) / d + 4) / 6; } } return `hsl(${Math.round(h * 360)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%)`; }
-    function filterTools() { const q = document.getElementById('searchInput').value.toLowerCase(); document.querySelectorAll('.nav-item').forEach(el => { el.style.display = el.textContent.toLowerCase().includes(q) ? 'flex' : 'none'; }); }
+    
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('collapsed');
+      document.getElementById('toggleIcon').textContent = document.getElementById('sidebar').classList.contains('collapsed') ? '▶' : '◀';
+    }
+    
+    function selectTool(toolId) {
+      currentTool = toolId;
+      const tool = tools[toolId];
+      if (!tool) return;
+      
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      document.querySelector(`[data-tool="${toolId}"]`)?.classList.add('active');
+      document.getElementById('welcomeScreen').style.display = 'none';
+      document.getElementById('pageTitle').textContent = tool.name;
+      
+      let inputsHtml = '';
+      tool.inputs.forEach(inp => {
+        if (inp.type === 'textarea') inputsHtml += `<div class="input-group"><label class="input-label">${inp.label}</label><textarea class="tool-textarea" id="inp_${inp.name}" placeholder="${inp.placeholder || ''}">${inp.value || ''}</textarea></div>`;
+        else if (inp.type === 'select') {
+          let opts = inp.options.map(o => `<option value="${o}" ${inp.value === o ? 'selected' : ''}>${o}</option>`).join('');
+          inputsHtml += `<div class="input-group"><label class="input-label">${inp.label}</label><select class="tool-select" id="inp_${inp.name}">${opts}</select></div>`;
+        } else inputsHtml += `<div class="input-group"><label class="input-label">${inp.label}</label><input class="tool-input" type="text" id="inp_${inp.name}" placeholder="${inp.placeholder || ''}" value="${inp.value || ''}"></div>`;
+      });
+      
+      const container = document.getElementById('toolContainer');
+      container.innerHTML = `<div class="tool-container"><div class="tool-header"><div><div class="tool-title"><span class="tool-title-icon">${tool.icon}</span>${tool.name}</div><div class="tool-description">${tool.description}</div></div></div><div class="tool-inputs">${inputsHtml}</div><div class="tool-actions"><button class="tool-btn primary" onclick="runTool()">${tool.action}</button></div><div id="resultArea"></div></div>`;
+    }
+    
+    function runTool() {
+      const tool = tools[currentTool];
+      if (!tool) return;
+      
+      const resultArea = document.getElementById('resultArea');
+      resultArea.innerHTML = '<div class="result-container"><div class="result-header"><span class="result-title">📊 Result</span></div><div class="result-content loading">Loading...</div></div>';
+      
+      if (tool.local) {
+        let result = '';
+        const data = {};
+        tool.inputs.forEach(inp => { data[inp.name] = document.getElementById('inp_' + inp.name).value; });
+        
+        if (currentTool === 'json') { try { result = JSON.stringify(JSON.parse(data.json), null, 2); } catch(e) { result = 'Error: ' + e.message; } }
+        else if (currentTool === 'base64') { try { result = data.mode === 'encode' ? btoa(data.text) : atob(data.text); } catch(e) { result = 'Error: Invalid input for decode'; } }
+        else if (currentTool === 'url') { try { result = data.mode === 'encode' ? encodeURIComponent(data.text) : decodeURIComponent(data.text); } catch(e) { result = 'Error: Invalid URL encoding'; } }
+        else if (currentTool === 'password') { const len = parseInt(data.length) || 16; const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*'; result = Array.from({length: len}, () => chars[Math.floor(Math.random() * chars.length)]).join(''); }
+        else if (currentTool === 'uuid') { result = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16); }); }
+        else if (currentTool === 'qrcode') { result = `![QR Code](https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data.text || 'Hello')})`; }
+        else if (currentTool === 'color') { result = formatColorOutput(data.color); }
+        
+        displayResult(result);
+      } else {
+        const data = {};
+        tool.inputs.forEach(inp => { data[inp.name] = document.getElementById('inp_' + inp.name)?.value || ''; });
+        
+        const url = API + tool.endpoint;
+        const opts = { method: tool.method, headers: { 'Content-Type': 'application/json' } };
+        if (tool.method !== 'GET') opts.body = JSON.stringify(data);
+        
+        fetch(url, opts).then(r => r.json()).then(d => displayResult(d)).catch(e => displayResult('Error: ' + e.message));
+      }
+    }
+    
+    function formatColorOutput(hex) {
+      const r = parseInt(hex.slice(1,3), 16), g = parseInt(hex.slice(3,5), 16), b = parseInt(hex.slice(5,7), 16);
+      const r2 = parseInt(hex.slice(1,3), 16)/255, g2 = parseInt(hex.slice(3,5), 16)/255, b2 = parseInt(hex.slice(5,7), 16)/255;
+      const max = Math.max(r2,g2,b2), min = Math.min(r2,g2,b2);
+      let h, s, l = (max + min) / 2;
+      if (max === min) h = s = 0;
+      else { const d = max - min; s = l > 0.5 ? d / (2 - max - min) : d / (max + min); switch(max) { case r2: h = ((g2 - b2) / d + (g2 < b2 ? 6 : 0)) / 6; break; case g2: h = ((b2 - r2) / d + 2) / 6; break; case b2: h = ((r2 - g2) / d + 4) / 6; } }
+      return `Color: ${hex}\n\nHEX: ${hex}\nRGB: rgb(${r}, ${g}, ${b})\nHSL: hsl(${Math.round(h * 360)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%)`;
+    }
+    
+    function displayResult(data) {
+      const content = document.querySelector('.result-content');
+      content.classList.remove('loading');
+      
+      // Detect type and format accordingly
+      if (typeof data === 'object') {
+        if (data.error) {
+          content.innerHTML = `<div class="badge badge-error">❌ Error: ${data.error}</div>`;
+        } else {
+          content.innerHTML = formatObject(data);
+        }
+      } else {
+        content.textContent = data;
+      }
+    }
+    
+    function formatObject(obj) {
+      // Special formatters for system info
+      if (obj.platform || obj.cpu_percent !== undefined) return formatSystemInfo(obj);
+      if (obj.processes) return formatProcesses(obj.processes);
+      if (obj.disks) return formatDisks(obj.disks);
+      if (obj.virtual) return formatMemory(obj);
+      if (obj.interfaces) return formatInterfaces(obj.interfaces);
+      if (obj.containers !== undefined) return formatDocker(obj.containers);
+      if (obj.latency_ms !== undefined) return formatSpeedtest(obj);
+      if (obj.valid !== undefined) return formatJWT(obj);
+      
+      // Generic JSON formatter
+      return syntaxHighlight(JSON.stringify(obj, null, 2));
+    }
+    
+    function formatSystemInfo(data) {
+      const cpuClass = data.cpu_percent > 80 ? 'high' : data.cpu_percent > 50 ? 'medium' : 'low';
+      return `<div class="sys-card">
+        <div class="sys-card-title">🖥️ System Information</div>
+        <div class="sys-grid">
+          <div class="sys-stat">
+            <div class="sys-stat-label">Platform</div>
+            <div class="sys-stat-value" style="font-size:14px;">${data.platform || 'Unknown'}</div>
+          </div>
+          <div class="sys-stat">
+            <div class="sys-stat-label">CPU Usage</div>
+            <div class="sys-stat-value">${data.cpu_percent?.toFixed(1) || 0}<span class="sys-stat-unit">%</span></div>
+            <div class="progress-bar"><div class="progress-fill ${cpuClass}" style="width:${data.cpu_percent || 0}%"></div></div>
+          </div>
+          <div class="sys-stat">
+            <div class="sys-stat-label">Cores</div>
+            <div class="sys-stat-value">${data.cpu_count || data.logical_cores || 'N/A'}</div>
+          </div>
+          <div class="sys-stat">
+            <div class="sys-stat-label">Python</div>
+            <div class="sys-stat-value" style="font-size:14px;">${data.python_version || 'N/A'}</div>
+          </div>
+        </div>
+      </div>`;
+    }
+    
+    function formatCPU(data) {
+      const usageClass = data.total_usage > 80 ? 'high' : data.total_usage > 50 ? 'medium' : 'low';
+      return `<div class="sys-card">
+        <div class="sys-card-title">🔥 CPU Information</div>
+        <div class="sys-grid">
+          <div class="sys-stat">
+            <div class="sys-stat-label">Physical Cores</div>
+            <div class="sys-stat-value">${data.physical_cores || 'N/A'}</div>
+          </div>
+          <div class="sys-stat">
+            <div class="sys-stat-label">Logical Cores</div>
+            <div class="sys-stat-value">${data.logical_cores || 'N/A'}</div>
+          </div>
+          <div class="sys-stat">
+            <div class="sys-stat-label">Current Usage</div>
+            <div class="sys-stat-value">${data.total_usage?.toFixed(1) || 0}<span class="sys-stat-unit">%</span></div>
+            <div class="progress-bar"><div class="progress-fill ${usageClass}" style="width:${data.total_usage || 0}%"></div></div>
+          </div>
+          <div class="sys-stat">
+            <div class="sys-stat-label">Frequency</div>
+            <div class="sys-stat-value">${data.current_freq || 'N/A'}<span class="sys-stat-unit"> MHz</span></div>
+          </div>
+        </div>
+      </div>`;
+    }
+    
+    function formatMemory(data) {
+      const v = data.virtual;
+      const usedPercent = (v.used / v.total * 100).toFixed(1);
+      const memClass = usedPercent > 90 ? 'high' : usedPercent > 70 ? 'medium' : 'low';
+      return `<div class="sys-card">
+        <div class="sys-card-title">💾 Memory</div>
+        <div class="sys-grid">
+          <div class="sys-stat">
+            <div class="sys-stat-label">Total</div>
+            <div class="sys-stat-value">${formatBytes(v.total)}</div>
+          </div>
+          <div class="sys-stat">
+            <div class="sys-stat-label">Used</div>
+            <div class="sys-stat-value">${formatBytes(v.used)}</div>
+          </div>
+          <div class="sys-stat">
+            <div class="sys-stat-label">Available</div>
+            <div class="sys-stat-value">${formatBytes(v.available)}</div>
+          </div>
+          <div class="sys-stat">
+            <div class="sys-stat-label">Usage</div>
+            <div class="sys-stat-value">${usedPercent}<span class="sys-stat-unit">%</span></div>
+            <div class="progress-bar"><div class="progress-fill ${memClass}" style="width:${usedPercent}%"></div></div>
+          </div>
+        </div>
+      </div>`;
+    }
+    
+    function formatDisks(disks) {
+      return `<div class="sys-card">
+        <div class="sys-card-title">💿 Disk Usage</div>
+        ${disks.map(d => {
+          const cls = d.percent > 90 ? 'high' : d.percent > 75 ? 'medium' : 'low';
+          return `<div style="margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+              <strong>${d.device || d.mountpoint}</strong>
+              <span>${formatBytes(d.used)} / ${formatBytes(d.total)}</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill ${cls}" style="width:${d.percent}%"></div></div>
+          </div>`;
+        }).join('')}
+      </div>`;
+    }
+    
+    function formatProcesses(procs) {
+      if (!procs.length) return '<div class="badge badge-warning">No processes found</div>';
+      return `<div class="sys-card">
+        <div class="sys-card-title">📋 Top Processes</div>
+        <table class="proc-table">
+          <thead><tr><th>PID</th><th>Name</th><th>CPU %</th><th>Memory %</th></tr></thead>
+          <tbody>
+            ${procs.slice(0, 15).map(p => `
+              <tr>
+                <td class="proc-pid">${p.pid}</td>
+                <td class="proc-name">${p.name}</td>
+                <td class="proc-cpu ${p.cpu > 50 ? 'high' : ''}">${p.cpu?.toFixed(1) || 0}%</td>
+                <td class="proc-mem ${p.memory > 50 ? 'high' : ''}">${p.memory?.toFixed(1) || 0}%</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>`;
+    }
+    
+    function formatInterfaces(ifaces) {
+      return `<div class="sys-card">
+        <div class="sys-card-title">🔀 Network Interfaces</div>
+        ${Object.entries(ifaces).map(([name, addrs]) => `
+          <div style="margin-bottom:16px;">
+            <strong style="color:var(--accent);">${name}</strong>
+            ${addrs.map(a => `<div style="padding:4px 0 4px 16px;font-size:13px;color:var(--text-secondary);">${a.family}: ${a.address}</div>`).join('')}
+          </div>
+        `).join('')}
+      </div>`;
+    }
+    
+    function formatDocker(containers) {
+      if (!containers.length) return '<div class="badge badge-success">✅ No containers running</div>';
+      return `<div class="sys-card">
+        <div class="sys-card-title">🐳 Docker Containers</div>
+        ${containers.map(c => `
+          <div style="background:var(--bg-tertiary);padding:12px;border-radius:8px;margin-bottom:8px;">
+            <div style="font-weight:600;">${c.name}</div>
+            <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">${c.image} • ${c.status}</div>
+          </div>
+        `).join('')}
+      </div>`;
+    }
+    
+    function formatSpeedtest(data) {
+      return `<div class="sys-card">
+        <div class="sys-card-title">⚡ Speed Test</div>
+        <div class="sys-grid">
+          <div class="sys-stat">
+            <div class="sys-stat-label">Latency</div>
+            <div class="sys-stat-value">${data.latency_ms}<span class="sys-stat-unit">ms</span></div>
+          </div>
+          ${data.gateway ? `<div class="sys-stat"><div class="sys-stat-label">Gateway</div><div class="sys-stat-value" style="font-size:14px;">${data.gateway}</div></div>` : ''}
+        </div>
+      </div>`;
+    }
+    
+    function formatJWT(data) {
+      if (!data.valid) return `<div class="badge badge-error">❌ Invalid JWT: ${data.error}</div>`;
+      return `<div class="sys-card">
+        <div class="sys-card-title">🎫 JWT Decoder</div>
+        <div style="margin-bottom:16px;">
+          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;">HEADER</div>
+          <pre style="background:var(--bg-tertiary);padding:12px;border-radius:8px;font-size:12px;overflow-x:auto;">${syntaxHighlight(JSON.stringify(data.header, null, 2))}</pre>
+        </div>
+        <div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;">PAYLOAD</div>
+          <pre style="background:var(--bg-tertiary);padding:12px;border-radius:8px;font-size:12px;overflow-x:auto;">${syntaxHighlight(JSON.stringify(data.payload, null, 2))}</pre>
+        </div>
+      </div>`;
+    }
+    
+    function formatBytes(bytes) {
+      if (!bytes) return '0 B';
+      const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+      let i = 0;
+      while (bytes >= 1024 && i < units.length - 1) { bytes /= 1024; i++; }
+      return bytes.toFixed(1) + ' ' + units[i];
+    }
+    
+    function syntaxHighlight(json) {
+      json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, match => {
+        let cls = 'json-number';
+        if (/^"/.test(match)) { cls = /:$/.test(match) ? 'json-key' : 'json-string'; }
+        else if (/true|false/.test(match)) cls = 'json-boolean';
+        else if (/null/.test(match)) cls = 'json-null';
+        return '<span class="' + cls + '">' + match + '</span>';
+      });
+    }
+    
+    function filterTools() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      document.querySelectorAll('.nav-item').forEach(el => {
+        el.style.display = el.textContent.toLowerCase().includes(q) ? 'flex' : 'none';
+      });
+    }
   </script>
 </body>
 </html>
-
-  <script>
-    // Load favorites from localStorage
-    let favorites = JSON.parse(localStorage.getItem('toolbox_favorites') || '[]');
-    let history = JSON.parse(localStorage.getItem('toolbox_history') || '[]');
-    
-    function updateFavorites() {
-      localStorage.setItem('toolbox_favorites', JSON.stringify(favorites));
-    }
-    
-    function addToHistory(tool, result) {
-      const item = { tool, result: result.substring(0, 100), time: new Date().toISOString() };
-      history = [item, ...history.filter(h => h.tool !== tool)].slice(0, 20);
-      localStorage.setItem('toolbox_history', JSON.stringify(history));
-    }
-    
-    // Add result saving to runTool
-    const originalRunTool = runTool;
-    runTool = function() {
-      originalRunTool();
-      // Save to history after a delay
-      setTimeout(() => {
-        const result = document.querySelector('.result-content');
-        if (result && !result.classList.contains('loading')) {
-          addToHistory(currentTool, result.textContent);
-        }
-      }, 1000);
-    }
-  </script>
